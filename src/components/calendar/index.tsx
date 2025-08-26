@@ -4,6 +4,8 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import brLocale from '@fullcalendar/core/locales/pt-br'
 import { useEffect, useRef } from 'react'
 import multiMonthPlugin from '@fullcalendar/multimonth'
+import timeGridPlugin from "@fullcalendar/timegrid";
+import { time } from 'console'
 
 // const events = [
 //   { title: 'Meeting', start: new Date() }
@@ -46,31 +48,45 @@ export function Calendar(){
     return (
         <div className='w-full h-full'>
             <FullCalendar
-                locale={brLocale}
+                locales={[brLocale]}
+                locale="pt-br"
                 timeZone='local'
-                plugins={[dayGridPlugin, multiMonthPlugin]}
+                plugins={[dayGridPlugin, multiMonthPlugin, timeGridPlugin]}
                 height="100%"
                 ref={calendarRef}
                 titleFormat={ {year: 'numeric', month: 'long'} }
+                dayHeaderFormat={{ weekday: 'long'}}
                 headerToolbar={{
                     left: 'prev,next prevYear,nextYear today',
                     center: 'title',
-                    right: 'dayGridWeek,dayGridMonth',
+                    right: 'timeGridDay,timeGridWeek,dayGridMonth',
                 }}
                 contentHeight="auto"
                 expandRows={true}
                 aspectRatio={2.8}
-                initialView='dayGridMonth'
+                initialView='timeGridWeek'
                 weekends={true}
                 // events={events}
                 // eventContent={renderEventContent}
                 fixedWeekCount={false}
-                dayHeaderFormat={{ weekday: 'long'}}
                 firstDay={1}
                 hiddenDays={[0]}
-                />
-    </div>
-  )
+                views={ {
+                  timeGridWeek: {
+                    type: 'timeGrid',
+                    duration: { days: 6 },
+                    titleFormat: {day: 'numeric', month: 'short'},
+                    buttonText: 'Semana'
+                  },
+                  timeGridDay: {
+                    type: 'timeGrid',
+                    titleFormat: {day: 'numeric', month: 'long'},
+                    buttonText: 'Dia'
+                  }
+                }}
+            />
+        </div>
+    )
 }
 
 // a custom render function
