@@ -1,13 +1,18 @@
 'use client';
-import Image from "next/image";
+// import Image from "next/image";
 
-export function Header({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (open: boolean) => void }) {
-  const handleClick = () => {
-    setIsOpen(!isOpen);
-  };
+type HeaderProps = {
+  className?: string;
+}
+export function Header( {className}: HeaderProps
+  // { isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (open: boolean) => void }
+) {
+  // const handleClick = () => {
+  //   setIsOpen(!isOpen);
+  // };
   return (
-    <header className="flex px-2 py-4 bg-blue-950 text-white">
-      <div className={`pl-2 flex items-baseline`}>
+    <header className={className}>
+      {/* <div className={`pl-2 flex items-baseline`}>
         <Image
           src="/logo-unisinos-menu.png"
           alt="Logo Unisinos"
@@ -17,8 +22,8 @@ export function Header({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (ope
         <h1 className={`font-poppins leading-none text-2xl font-bold transform transition-all duration-500 ${isOpen ? "ease-in opacity-100 translate-x-0 relative" : "ease-out opacity-0 -translate-x-50 absolute"}`}>
           Unisinos
         </h1>
-      </div>
-      <button
+      </div> */}
+      {/* <button
             onClick={handleClick}
             className={`flex flex-col justify-center items-center hover:cursor-pointer transform transition-transform duration-500 ${isOpen ? "translate-x-20" : "translate-x-0"}`}
             >
@@ -44,7 +49,7 @@ export function Header({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (ope
                   : "translate-y-0.5"
                 }`}
                   ></span>
-          </button>
+      </button> */}
       <div className="flex items-center justify-end w-full mx-2 max-w-8xl">
           <h1 className="font-poppins text-2xl font-bold">UNISALAS</h1>
       </div>

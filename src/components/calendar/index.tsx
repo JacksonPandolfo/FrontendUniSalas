@@ -5,15 +5,15 @@ import brLocale from '@fullcalendar/core/locales/pt-br'
 import { useEffect, useRef } from 'react'
 import multiMonthPlugin from '@fullcalendar/multimonth'
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { time } from 'console'
 
 // const events = [
 //   { title: 'Meeting', start: new Date() }
 // ]
 
+
 export function Calendar(){
     const calendarRef = useRef<FullCalendar>(null); ;
-    // const [currentBlock, setCurrentBlock] = useState<0>(0)
+    // // const [currentBlock, setCurrentBlock] = useState<0>(0)
 
     useEffect(() => {
       if (calendarRef.current) {
@@ -46,14 +46,13 @@ export function Calendar(){
     // }, [isOpen]);
 
     return (
-        <div className='w-full h-full'>
             <FullCalendar
                 locales={[brLocale]}
                 locale="pt-br"
                 timeZone='local'
                 plugins={[dayGridPlugin, multiMonthPlugin, timeGridPlugin]}
                 height="100%"
-                ref={calendarRef}
+                // ref={calendarRef}
                 titleFormat={ {year: 'numeric', month: 'long'} }
                 dayHeaderFormat={{ weekday: 'long'}}
                 headerToolbar={{
@@ -85,7 +84,6 @@ export function Calendar(){
                   }
                 }}
             />
-        </div>
     )
 }
 

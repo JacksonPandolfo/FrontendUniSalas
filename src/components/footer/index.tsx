@@ -1,12 +1,14 @@
-export function Footer() {
-  return (
-    <footer className="fixed bottom-0 left-0 w-screen py-4 bg-zinc-900 text-white">
-      <div className="flex items-center justify-between w-full mx-auto max-w-7xl">
-        
-        {/* <div>
 
-          <h1>Footer Footer Footer Footer Footer</h1>
-        </div> */}
+type FooterProps={
+  className?: string
+}
+
+export function Footer({className} : FooterProps) {
+  return (
+    <footer className={`${className}`}>
+      <div className="flex flex-col items-center justify-center max-w-8xl mx-auto px-4">
+        <p className="text-sm">&copy; 2025 Reserva de Salas UniSalas. Todos os direitos reservados.</p>
+        <p className="text-sm">Desenvolvido por Jackson Pandolfo</p>
       </div>
     </footer>
   )
