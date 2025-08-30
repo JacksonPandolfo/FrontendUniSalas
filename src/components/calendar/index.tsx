@@ -52,7 +52,7 @@ export function Calendar(){
                 timeZone='local'
                 plugins={[dayGridPlugin, multiMonthPlugin, timeGridPlugin]}
                 height="100%"
-                // ref={calendarRef}
+                ref={calendarRef}
                 titleFormat={ {year: 'numeric', month: 'long'} }
                 dayHeaderFormat={{ weekday: 'long'}}
                 headerToolbar={{

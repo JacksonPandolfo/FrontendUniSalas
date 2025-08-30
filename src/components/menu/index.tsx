@@ -39,7 +39,7 @@ export function Menu({className} : MenuProps) {
           {/* <div className={`flex justify-center transform transition-all duration-400`}> */}
           <button
               onClick={handleClick}
-              className={`absolute top-7 right-3 flex flex-col justify-center hover:cursor-pointer mr-2`}
+              className={`absolute top-7 flex flex-col justify-center hover:cursor-pointer transform transition-all duration-400 ease-in ${isOpen ? "pl-50": "pl-0"}`}
               >
               <span
                 className={`bg-white transition-all duration-300 ease-out
@@ -94,30 +94,37 @@ export function Menu({className} : MenuProps) {
                         }`}
                         ></span>
                 </button> */}
-          <div className={`flex flex-col space-y-4 mt-8 transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`}>
+          <div className={`flex flex-col space-y-4 mt-8`}>
             <div className="flex items-baseline gap-2 hover:cursor-pointer">
-              <VscHome className="w-6 h-6 align-baseline relative top-[3px]" />
+              {/* align-baseline transform transition-all duration-400 ${isOpen ? "relative top-[3px]" : "fixed" } */}
+              <Link href="/" className={`w-6 h-6`}>
+                <VscHome className={`w-6 h-6 align-baseline relative top-[3px]`}/>
+              </Link>
               <Link href="/"
-                className="relative font-semibold text-lg font-poppins text-white
+                className={`relative font-semibold text-lg font-poppins text-white
                 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
                 after:bg-blue-400 after:transition-all after:duration-300
-                hover:after:w-full">
+                hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`}>
                 Home
               </Link>
             </div>
             <div className="flex items-baseline gap-2 hover:cursor-pointer">
-              <RiCalendarEventLine className="w-5 h-5 align-baseline relative top-[3px]" />
-              <Link className="relative font-semibold text-lg font-poppins text-white
+              <Link href="/reservas">
+                <RiCalendarEventLine className={`w-6 h-6 align-baseline relative top-[3px]`} />
+              </Link>
+              <Link className={`relative font-semibold text-lg font-poppins text-white
              after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
              after:bg-blue-500 after:transition-all after:duration-300
-             hover:after:w-full" href="/reservas">Reservas</Link>
+             hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`} href="/reservas">Reservas</Link>
             </div>
             <div className="flex items-baseline gap-2 hover:cursor-pointer">
-              <BsBuildingGear className="w-5 h-5 align-baseline relative top-[1px]" />
-              <Link className="relative font-semibold text-lg font-poppins text-white
+              <Link href="/espacos">
+                <BsBuildingGear className={`w-6 h-6 align-baseline relative`} />
+              </Link>
+              <Link className={`relative font-semibold text-lg font-poppins text-white
              after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
              after:bg-blue-500 after:transition-all after:duration-300
-             hover:after:w-full" href="/espacos">Espaços</Link>
+             hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`} href="/espacos">Espaços</Link>
             </div>
           </div>
       </div>
