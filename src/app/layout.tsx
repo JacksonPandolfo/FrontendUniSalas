@@ -35,15 +35,9 @@ export default function RootLayout({
       <body className="antialiased min-h-screen grid grid-rows-[65px_1fr_auto] grid-cols-[var(--menu-width,245px)_1fr] transition-[grid-template-columns] duration-400 ease-in">
         <Header className="flex row-start-1 row-end-2 col-start-1 col-span-full bg-blue-950 text-white"/>
         <Menu className={`row-start-1 row-end-3 col-start-1 col-end-2 flex flex-col min-h-full pl-4 bg-blue-950 text-white`}/>
-        <Main className={`flex row-start-2 row-end-3 col-start-2 col-end-3 p-4 bg-gray-100 transition-[width] duration-500 ease-in`}>
+        <Main className={`flex row-start-2 row-end-3 col-start-2 col-end-3 p-4 justify-center bg-gray-100 transition-[width] duration-500 ease-in`}>
           {children}
         </Main>
-        {/* <main className="row-start-2 row-end-3 ml-[var(--menu-width)] col-start-2 col-end-3 p-4 bg-gray-100 transition-[margin] duration-500 ease-in">
-          {children}
-        </main> */}
-        {/* <NavLayout> */}
-        {/* { children } */}
-        {/* </NavLayout> */}
         <Footer className="row-start-3 row-end-4 col-start-1 col-span-full bg-zinc-900 text-white"/>
       </body>
     </html>

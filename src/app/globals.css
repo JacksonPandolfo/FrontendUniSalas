@@ -11,3 +11,13 @@ body {
   --font-roboto: 'Roboto', sans-serif;
   --font-poppins: 'Poppins', sans-serif;
 }
+
+@layer components {
+  .fc {
+    --fc-today-bg-color: theme(colors.blue.100)
+  }
+  .fc .fc-day-today {
+    @apply bg-gray-200
+  }
+
+}

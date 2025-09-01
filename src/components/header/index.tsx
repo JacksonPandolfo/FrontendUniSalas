@@ -1,4 +1,7 @@
 'use client';
+
+import { BiUserCircle } from "react-icons/bi";
+
 // import Image from "next/image";
 
 type HeaderProps = {
@@ -51,7 +54,8 @@ export function Header( {className}: HeaderProps
                   ></span>
       </button> */}
       <div className="flex items-center justify-end w-full mx-2 max-w-8xl">
-          <h1 className="font-poppins text-2xl font-bold">UNISALAS</h1>
+          <h1 className="font-poppins text-2xl font-bold mr-2">UNISALAS</h1>
+          <BiUserCircle></BiUserCircle>
       </div>
     </header>
   )

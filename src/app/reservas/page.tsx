@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function Reservas() {
   return (
-    <div className="w-auto h-full">
+    <div>
         <Calendar/>
     </div>
   )
