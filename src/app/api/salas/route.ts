@@ -1,11 +1,13 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 export async function getSalas() {
-  const res = await fetch('http://localhost:3001/salas');
+  const res = await fetch(`${API_URL}/sala`);
   if (!res.ok) throw new Error('Erro ao carregar salas');
   return res.json();
 }
 
 export async function getSalasBloco(blocoId: number) {
-  const res = await fetch(`http://localhost:3001/salas?blocoId=${blocoId}`);
+  const res = await fetch(`${API_URL}/sala?blocoId=${blocoId}`);
   if (!res.ok) throw new Error('Erro ao carregar salas');
   return res.json();
 }

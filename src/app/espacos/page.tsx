@@ -9,28 +9,37 @@ import { SalaAdmin } from "@/types/sala";
 
 import { CartaoSetor } from "@/components/cartaoSetor";
 import { getBlocosSetor } from "../api/blocos/route";
+import { CartaoBloco } from "@/components/cartaoBloco";
+
+import { TbCircleArrowLeftFilled } from "react-icons/tb";
+import { CartaoSala } from "@/components/cartaoSala";
 
 export default function Espacos() {
   const [setoresAdmin, setSetoresAdmin] = useState<SetorAdmin[]>([]);
   const [blocosAdmin, setBlocosAdmin] = useState<BlocoAdmin[]>([])
   const [salasAdmin, setSalasAdmin] = useState<SalaAdmin[]>([]);
 
-  const [setorSelecionado, setSetorSelecioando] = useState<number | null>(null)
-  const [blocoSelecionado, setBlocoSelecioando] = useState<number | null>(null)
+  const [setorSelecionado, setSetorSelecionado] = useState<number | null>(null)
+  const [blocoSelecionado, setBlocoSelecionado] = useState<number | null>(null)
 
-  const [loadingSetores, setLoadingSetores] = useState(true);
-  const [loadingBlocos, setLoadingBlocos] = useState(true);
-  const [loadingSalas, setLoadingSalas] = useState(true);
+  const [loadingSetores, setLoadingSetores] = useState(false);
+  const [loadingBlocos, setLoadingBlocos] = useState(false);
+  const [loadingSalas, setLoadingSalas] = useState(false);
+  const [erro, setErro] = useState("");
 
   // 🔹 Função de busca na API
   useEffect(() => {
+    setLoadingSetores(true)
     carregarSetores()
   }, []);
 
   async function carregarSetores() {
       getSetores()
       .then(setSetoresAdmin)
-      .catch(console.error)
+      .catch((err) => {
+        console.log(err)
+        setErro("Não foi possível carregar os setores")
+      })
       .finally(() => setLoadingSetores(false))
   }
 
@@ -43,7 +52,10 @@ export default function Espacos() {
   async function carregarBlocos(setorId: number) {
     getBlocosSetor(setorId)
     .then(setBlocosAdmin)
-    .catch(console.error)
+    .catch((err) => {
+        console.log(err)
+        setErro("Não foi possível carregar os blocos")
+      })
     .finally(() => setLoadingBlocos(false))
   }
 
@@ -56,24 +68,88 @@ export default function Espacos() {
   async function carregarSalas(blocoId: number) {
     getSalasBloco(blocoId)
     .then(setSalasAdmin)
-    .catch(console.error)
+    .catch((err) => {
+        console.log(err)
+        setErro("Não foi possível carregar as salas")
+      })
     .finally(() => setLoadingSalas(false))
   }
 
 //TERMINAR DE MONTAR A CHAMADA DAS SALAS
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
+    <div className="flex flex-col items-center justify-center min-h-screen">
         {loadingSetores ? (
           <p className="mt-6 text-gray-600">Carregando setores...</p>
-        ):(
-          <div className="flex justify-center gap-2">
-          {setoresAdmin
+        ) : erro ? (
+          <p className="mt-6 text-gray-600">{erro}</p>
+        ) : (
+          <div className="flex justify-center gap-2 mt-4">
+          {!setorSelecionado &&
+          setoresAdmin
             .sort((x, y) => x.nome.localeCompare(y.nome))
             .map((setor) => (
-              <CartaoSetor key={setor.id} {...setor} onClick={() => setSetorSelecioando(setor.id)}/>
+              <CartaoSetor
+                key={setor.id}
+                {...setor}
+                onClick={() => setSetorSelecionado(setor.id)}/>
             ))}
           </div>
-          )}
+        )}
+
+        {loadingBlocos ? (
+          <p className="mt-6 text-gray-600">Carregando blocos...</p>
+        ) : erro ? (
+          <p className="mt-6 text-gray-600">{erro}</p>
+        ) : ( blocosAdmin.length > 0 && (
+          <div>
+            {setorSelecionado && !blocoSelecionado ? (
+              <div className="flex justify-center items-center">
+                <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500"
+                  onClick={() => setSetorSelecionado(null)}>
+                    <TbCircleArrowLeftFilled size={30}/> Voltar aos setores</button>
+              </div>
+            ) : ("")}
+            <div className="flex flex-wrap justify-center gap-3 my-4">
+              {setorSelecionado && !blocoSelecionado &&
+                blocosAdmin
+                .filter((bloco) => bloco.setorId === setorSelecionado)
+                .sort((a, b) => a.numero - b.numero)
+                .map((bloco) => (
+                  <CartaoBloco
+                  key={bloco.id}
+                  {...bloco}
+                  nomeSetor={setoresAdmin.find((setor) => setor.id === bloco.setorId)?.nome ?? ""}
+                  onClick={() => setBlocoSelecionado(bloco.id)}/>
+                ))}
+            </div>
+          </div>
+          ))}
+
+          {loadingSalas ? (
+            <p className="mt-6 text-gray-600">Carregando salas...</p>
+          ) : erro ? (
+            <p className="mt-6 text-gray-600">{erro}</p>
+          ) : ( salasAdmin.length > 0 && (
+            <div>
+              {blocoSelecionado ? (
+                <div className="flex justify-center items-center">
+                <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500"
+                  onClick={() => setBlocoSelecionado(null)}>
+                    <TbCircleArrowLeftFilled size={30}/> Voltar aos blocos</button>
+              </div>
+              ): ("")}
+              {blocoSelecionado ? (
+                <div className="flex flex-wrap justify-center gap-2 mt-4">
+                  {salasAdmin.map((sala) => (
+                    <CartaoSala
+                    key={sala.id}
+                    {...sala}
+                    />
+                  ))}
+              </div>
+                ) : ("")}
+            </div>
+            ))}
     </div>
   );
 }

@@ -18,7 +18,7 @@ export function Menu({className} : MenuProps) {
   };
 
   useEffect(() => {
-    document.body.style.setProperty("--menu-width", isOpen ? "255px" : "65px")
+    document.body.style.setProperty("--menu-width", isOpen ? "255px" : "60px")
   }, [isOpen])
 
   return (
@@ -65,68 +65,38 @@ export function Menu({className} : MenuProps) {
                     ></span>
           </button>
         </div>
-        {/* </div> */}
-        {/* <div className={`flex h-screen pl-4 pt-2 w-3xs bg-blue-950 text-white transform transition-transform duration-500 ${isOpen ? "translate-x-0" : "-translate-x-50"}`}> */}
-              {/* <button
-                  onClick={handleClick}
-                  className={`flex flex-col justify-center items-center hover:cursor-pointer transform transition-transform duration-500 ${isOpen ? "translate-x-20" : "translate-x-0"}`}
-                  >
-                  <span
-                    className={`bg-white block transition-all duration-300 ease-out
-                      h-0.5 w-6 rounded-sm ${
-                        isOpen
-                        ? "rotate-45 translate-y-1"
-                        : "-translate-y-0.5"
-                        }`}
-                        ></span>
-                  <span
-                    className={`bg-white block transition-all duration-300 ease-out
-                      h-0.5 w-6 rounded-sm my-0.5 ${
-                        isOpen ? "opacity-0" : "opacity-100"
-                      }`}
-                        ></span>
-                  <span
-                    className={`bg-white block transition-all duration-300 ease-out
-                      h-0.5 w-6 rounded-sm ${
-                        isOpen
-                        ? "-rotate-45 -translate-y-1"
-                        : "translate-y-0.5"
-                        }`}
-                        ></span>
-                </button> */}
-          <div className={`flex flex-col space-y-4 mt-8`}>
-            <div className="flex items-baseline gap-2 hover:cursor-pointer">
-              {/* align-baseline transform transition-all duration-400 ${isOpen ? "relative top-[3px]" : "fixed" } */}
-              <Link href="/" className={`w-6 h-6`}>
-                <VscHome className={`w-6 h-6 align-baseline relative top-[3px]`}/>
-              </Link>
-              <Link href="/"
-                className={`relative font-semibold text-lg font-poppins text-white
-                after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
-                after:bg-blue-400 after:transition-all after:duration-300
-                hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`}>
-                Home
-              </Link>
-            </div>
-            <div className="flex items-baseline gap-2 hover:cursor-pointer">
-              <Link href="/reservas">
-                <RiCalendarEventLine className={`w-6 h-6 align-baseline relative top-[3px]`} />
-              </Link>
-              <Link className={`relative font-semibold text-lg font-poppins text-white
-             after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
-             after:bg-blue-500 after:transition-all after:duration-300
-             hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`} href="/reservas">Reservas</Link>
-            </div>
-            <div className="flex items-baseline gap-2 hover:cursor-pointer">
-              <Link href="/espacos">
-                <BsBuildingGear className={`w-6 h-6 align-baseline relative`} />
-              </Link>
-              <Link className={`relative font-semibold text-lg font-poppins text-white
-             after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
-             after:bg-blue-500 after:transition-all after:duration-300
-             hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`} href="/espacos">Espaços</Link>
-            </div>
+        <div className={`flex flex-col space-y-4 mt-8`}>
+          <div className="flex items-baseline gap-2 hover:cursor-pointer">
+            <Link href="/" className={`w-6 h-6`}>
+              <VscHome className={`w-6 h-6 align-baseline relative top-[3px]`}/>
+            </Link>
+            <Link href="/"
+              className={`relative font-semibold text-lg font-poppins text-white
+              after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
+              after:bg-blue-400 after:transition-all after:duration-300
+              hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`}>
+              Home
+            </Link>
           </div>
+          <div className="flex items-baseline gap-2 hover:cursor-pointer">
+            <Link href="/reservas">
+              <RiCalendarEventLine className={`w-6 h-6 align-baseline relative top-[3px]`} />
+            </Link>
+            <Link className={`relative font-semibold text-lg font-poppins text-white
+           after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
+           after:bg-blue-500 after:transition-all after:duration-300
+           hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`} href="/reservas">Reservas</Link>
+          </div>
+          <div className="flex items-baseline gap-2 hover:cursor-pointer">
+            <Link href="/espacos">
+              <BsBuildingGear className={`w-6 h-6 align-baseline relative`} />
+            </Link>
+            <Link className={`relative font-semibold text-lg font-poppins text-white
+           after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
+           after:bg-blue-500 after:transition-all after:duration-300
+           hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`} href="/espacos">Espaços</Link>
+          </div>
+        </div>
       </div>
   );
 }
