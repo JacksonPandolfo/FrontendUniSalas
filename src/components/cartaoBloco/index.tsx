@@ -6,10 +6,14 @@ type PropsBloco = {
     id: BlocoAdmin["id"]
     numero: BlocoAdmin["numero"]
     nomeSetor: string
+    salasLivres?: number
+    salasOcupadas?: number
+    salasManutencao?: number
+    salasDesativadas?: number
     onClick: () => void
 }
 
-export function CartaoBloco({id, numero, nomeSetor, onClick} : PropsBloco) {
+export function CartaoBloco({id, numero, nomeSetor, salasLivres, salasOcupadas, salasDesativadas, salasManutencao, onClick} : PropsBloco) {
 
     const renderizaBloco = (numeroBloco: BlocoAdmin["numero"], nomeSetor: string) => {
         switch (nomeSetor) {
@@ -59,6 +63,20 @@ export function CartaoBloco({id, numero, nomeSetor, onClick} : PropsBloco) {
             key={id}
             onClick={onClick}
             >
+            <div className="absolute bottom-2 gap-1 flex flex-row items-center justify-center">
+                <div className="flex items-center justify-center rounded-full w-10 h-10 bg-green-400">
+                    <p>{salasLivres}</p>
+                </div>
+                <div className="flex items-center justify-center rounded-full w-10 h-10 bg-red-400">
+                    <p>{salasOcupadas}</p>
+                </div>
+                <div className="flex items-center justify-center rounded-full w-10 h-10 bg-yellow-400">
+                    <p>{salasManutencao}</p>
+                </div>
+                <div className="flex items-center justify-center rounded-full w-10 h-10 bg-gray-400">
+                    <p>{salasDesativadas}</p>
+                </div>
+            </div>
             {renderizaBloco(numero, nomeSetor)}
             <BsBuilding className="text-blue-950 group-hover:text-white transition duration-500" size={150}/>
         </div>

@@ -4,5 +4,5 @@ export interface SalaAdmin {
     temAcessibilidade: boolean
     capacidade: number
     blocoId: number
-    statusSala: "Livre" | "Ocupada" | "Manutencao" | "Desativada"
+    statusSala: "LIVRE" | "OCUPADA" | "MANUTENCAO" | "DESATIVADA"
 }

@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from "react";
 import { getSetores } from "../api/setores/route";
-import { getSalasBloco } from "../api/salas/route";
+import { getSalasBloco, getSalasSetor } from "../api/salas/route";
 
 import { SetorAdmin } from "@/types/setor";
 import { BlocoAdmin } from "@/types/bloco";
@@ -45,9 +45,19 @@ export default function Espacos() {
 
   useEffect(() => {
     if(setorSelecionado){
+      carregarSalasSetor(setorSelecionado)
       carregarBlocos(setorSelecionado)
     }
   }, [setorSelecionado])
+
+  async function carregarSalasSetor(setorId: number) {
+    getSalasSetor(setorId)
+    .then(setSalasAdmin)
+    .catch((err) => {
+        console.log(err)
+        setErro("Não foi possível carregar as salas do setor")
+      })
+  }
 
   async function carregarBlocos(setorId: number) {
     getBlocosSetor(setorId)
@@ -114,13 +124,23 @@ export default function Espacos() {
                 blocosAdmin
                 .filter((bloco) => bloco.setorId === setorSelecionado)
                 .sort((a, b) => a.numero - b.numero)
-                .map((bloco) => (
+                .map((bloco) => {
+                  const salasLivres = salasAdmin.filter((sala) => sala.blocoId === bloco.id && sala.statusSala === "LIVRE").length
+                  const salasOcupadas = salasAdmin.filter((sala) => sala.blocoId === bloco.id && sala.statusSala === "OCUPADA").length
+                  const salasManutencao = salasAdmin.filter((sala) => sala.blocoId === bloco.id && sala.statusSala === "MANUTENCAO").length
+                  const salasDesativadas = salasAdmin.filter((sala) => sala.blocoId === bloco.id && sala.statusSala === "DESATIVADA").length
+
+                  return (
                   <CartaoBloco
                   key={bloco.id}
                   {...bloco}
                   nomeSetor={setoresAdmin.find((setor) => setor.id === bloco.setorId)?.nome ?? ""}
+                  salasLivres={salasLivres}
+                  salasOcupadas={salasOcupadas}
+                  salasManutencao={salasManutencao}
+                  salasDesativadas={salasDesativadas}
                   onClick={() => setBlocoSelecionado(bloco.id)}/>
-                ))}
+                  )})}
             </div>
           </div>
           ))}
@@ -130,7 +150,7 @@ export default function Espacos() {
           ) : erro ? (
             <p className="mt-6 text-gray-600">{erro}</p>
           ) : ( salasAdmin.length > 0 && (
-            <div>
+            <div className="flex flex-col gap-2">
               {blocoSelecionado ? (
                 <div className="flex justify-center items-center">
                 <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500"
@@ -138,18 +158,32 @@ export default function Espacos() {
                     <TbCircleArrowLeftFilled size={30}/> Voltar aos blocos</button>
               </div>
               ): ("")}
-              {blocoSelecionado ? (
+              {blocoSelecionado && salasAdmin.filter((sala) => sala.blocoId === blocoSelecionado).length === 0 ? (
+                <p>Nenhuma sala encontrada</p>
+              ) : (
                 <div className="flex flex-wrap justify-center gap-2 mt-4">
-                  {salasAdmin.map((sala) => (
-                    <CartaoSala
-                    key={sala.id}
-                    {...sala}
-                    />
-                  ))}
-              </div>
-                ) : ("")}
+                  {setorSelecionado && blocoSelecionado &&
+                    salasAdmin
+                    .filter((sala) => sala.blocoId === blocoSelecionado)
+                    .map((sala) => {
+                    const bloco = blocosAdmin.find((bloco) => bloco.id === sala.blocoId);
+                    const setor = setoresAdmin.find((setor) => setor.id === bloco?.setorId)
+
+                      return (
+                        <CartaoSala
+                          key={sala.id}
+                          {...sala}
+                          numeroBloco={bloco?.numero ?? 0}
+                          nomeSetor={setor?.nome ?? ""}
+                        />
+                      )
+                    })
+                  }
+                </div>
+              )}
             </div>
-            ))}
+            )
+          )}
     </div>
   );
 }
