@@ -10,12 +10,12 @@ type PropsSalas = {
     capacidade: SalaAdmin["capacidade"]
     statusSala: SalaAdmin["statusSala"]
     temAcessibilidade: SalaAdmin["temAcessibilidade"]
-    blocoId: SalaAdmin["blocoId"]
     numeroBloco: number
     nomeSetor: string
+    onClick: () => void
 }
 
-export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilidade, numeroBloco, nomeSetor }: PropsSalas) {
+export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilidade, numeroBloco, nomeSetor, onClick }: PropsSalas) {
 
   const renderizaBloco = ( nomeSetor: string, numeroBloco: number, numero: PropsSalas["numero"]) => {
           switch (nomeSetor) {
@@ -101,6 +101,7 @@ export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilida
     <div
       className={`relative flex flex-col items-center py-2 justify-between w-52 h-80 border-6 rounded-lg ${renderizaBackgroundCartao(statusSala)} hover:cursor-pointer hover:scale-105 transition-all transform duration-500`}
         key={id}
+        onClick={onClick}
         >
       <h3 className="text-lg font-bold">{renderizaBloco(nomeSetor, numeroBloco, numero)}</h3>
       <SiGoogleclassroom className='text-blue-950' size={80}/>

@@ -13,19 +13,31 @@ import { CartaoBloco } from "@/components/cartaoBloco";
 
 import { TbCircleArrowLeftFilled } from "react-icons/tb";
 import { CartaoSala } from "@/components/cartaoSala";
+import { getEventosSala } from "../api/reservas/route";
+import { EventoAdmin } from "@/types/evento";
+import { CartaoEvento } from "@/components/cartaoEvento";
 
 export default function Espacos() {
   const [setoresAdmin, setSetoresAdmin] = useState<SetorAdmin[]>([]);
   const [blocosAdmin, setBlocosAdmin] = useState<BlocoAdmin[]>([])
   const [salasAdmin, setSalasAdmin] = useState<SalaAdmin[]>([]);
+  const [eventosAdmin, setEventosAdmin] = useState<EventoAdmin[]>([]);
 
   const [setorSelecionado, setSetorSelecionado] = useState<number | null>(null)
   const [blocoSelecionado, setBlocoSelecionado] = useState<number | null>(null)
+  const [salaSelecionada, setSalaSelecionada] = useState<number | null>(null)
 
   const [loadingSetores, setLoadingSetores] = useState(false);
   const [loadingBlocos, setLoadingBlocos] = useState(false);
   const [loadingSalas, setLoadingSalas] = useState(false);
+  const [loadingEventos, setLoadingEventos] = useState(false)
   const [erro, setErro] = useState("");
+  const [erroEventos, setErroEventos] = useState("")
+
+  const data = new Date()
+  const dataHoje = data.getFullYear() + "-" + String(data.getMonth()+1).padStart(2, "0") + "-" + String(data.getDate()).padStart(2, "0")
+  const inicioDia = new Date(`${dataHoje}T00:00:00`)
+  const fimDia = new Date(`${dataHoje}T23:59:59`)
 
   // 🔹 Função de busca na API
   useEffect(() => {
@@ -44,7 +56,8 @@ export default function Espacos() {
   }
 
   useEffect(() => {
-    if(setorSelecionado){
+    if(setorSelecionado !== null){
+      setLoadingBlocos(true)
       carregarSalasSetor(setorSelecionado)
       carregarBlocos(setorSelecionado)
     }
@@ -70,7 +83,8 @@ export default function Espacos() {
   }
 
   useEffect(() => {
-    if(blocoSelecionado){
+    if(blocoSelecionado !== null){
+      setLoadingSalas(true)
       carregarSalas(blocoSelecionado)
     }
   }, [blocoSelecionado])
@@ -84,6 +98,29 @@ export default function Espacos() {
       })
     .finally(() => setLoadingSalas(false))
   }
+
+  useEffect(() => {
+    if(salaSelecionada !== null){
+      setLoadingEventos(true)
+      carregarEventosSala(salaSelecionada, inicioDia, fimDia)
+    }
+  }, [salaSelecionada])
+
+  async function carregarEventosSala(salaId: number, dataInicio: Date, dataFim: Date) {
+    try {
+      setLoadingEventos(true)
+      setErroEventos("")
+      const eventos = await getEventosSala(salaId, dataInicio, dataFim)
+      setEventosAdmin(eventos)
+      console.log(eventos)
+    } catch (err) {
+      console.log(err)
+      setErroEventos("Não foi possível carregar os eventos")
+    } finally {
+      setLoadingEventos(false)
+    }
+  }
+
 
 //TERMINAR DE MONTAR A CHAMADA DAS SALAS
   return (
@@ -115,7 +152,9 @@ export default function Espacos() {
             {setorSelecionado && !blocoSelecionado ? (
               <div className="flex justify-center items-center">
                 <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500"
-                  onClick={() => setSetorSelecionado(null)}>
+                  onClick={() => {setSetorSelecionado(null)
+                                  setErro("")
+                          }}>
                     <TbCircleArrowLeftFilled size={30}/> Voltar aos setores</button>
               </div>
             ) : ("")}
@@ -154,7 +193,9 @@ export default function Espacos() {
               {blocoSelecionado ? (
                 <div className="flex justify-center items-center">
                 <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500"
-                  onClick={() => setBlocoSelecionado(null)}>
+                  onClick={() => {setBlocoSelecionado(null)
+                                  setErroEventos("")
+                          }}>
                     <TbCircleArrowLeftFilled size={30}/> Voltar aos blocos</button>
               </div>
               ): ("")}
@@ -175,6 +216,7 @@ export default function Espacos() {
                           {...sala}
                           numeroBloco={bloco?.numero ?? 0}
                           nomeSetor={setor?.nome ?? ""}
+                          onClick={() => setSalaSelecionada(sala.id)}
                         />
                       )
                     })
@@ -183,6 +225,33 @@ export default function Espacos() {
               )}
             </div>
             )
+          )}
+
+          {loadingEventos ? (
+            <p className="mt-6 text-gray-600">Carregando eventos da sala...</p>
+          ) : erroEventos ? (
+            <p className="mt-6 text-gray-600">{erroEventos}</p>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+          {!loadingEventos && !erroEventos && eventosAdmin.length > 0 &&
+              eventosAdmin.map((evento) => {
+                return (
+                  <CartaoEvento
+                  key={evento.id}
+                  {...evento}
+                  tipoReserva={evento.tipoReserva}
+                  tipoEvento={evento.tipoEvento}
+                  dataInicio={evento.dataInicio}
+                  dataFim={evento.dataFim}
+                  horario={evento.horario.nome}
+                  nomeTurma={evento.turma?.nome ?? ""}
+                  ministrante={evento.ministrante.nome}
+                  horaInicioEvento={evento.horario.horaInicio}
+                  horaFimEvento={evento.horario.horaFim}
+                  />
+                )
+              })}
+          </div>
           )}
     </div>
   );
