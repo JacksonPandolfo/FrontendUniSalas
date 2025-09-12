@@ -7,7 +7,7 @@ export async function getSalas() {
 }
 
 export async function getSalasBloco(blocoId: number) {
-  const res = await fetch(`${API_URL}/sala?blocoId=${blocoId}`);
+  const res = await fetch(`${API_URL}/sala/${blocoId}`);
   if (!res.ok) throw new Error('Erro ao carregar salas');
   return res.json();
 }

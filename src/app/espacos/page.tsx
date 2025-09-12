@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from "react";
 import { getSetores } from "../api/setores/route";
-import { getSalasBloco, getSalasSetor } from "../api/salas/route";
 
 import { SetorAdmin } from "@/types/setor";
 import { BlocoAdmin } from "@/types/bloco";
@@ -16,6 +15,7 @@ import { CartaoSala } from "@/components/cartaoSala";
 import { getEventosSala } from "../api/reservas/route";
 import { EventoAdmin } from "@/types/evento";
 import { CartaoEvento } from "@/components/cartaoEvento";
+import { getSalasSetor } from "../api/salas/route";
 
 export default function Espacos() {
   const [setoresAdmin, setSetoresAdmin] = useState<SetorAdmin[]>([]);
@@ -64,39 +64,31 @@ export default function Espacos() {
   }, [setorSelecionado])
 
   async function carregarSalasSetor(setorId: number) {
-    getSalasSetor(setorId)
-    .then(setSalasAdmin)
-    .catch((err) => {
-        console.log(err)
-        setErro("Não foi possível carregar as salas do setor")
-      })
+    try {
+      setLoadingSalas(true)
+      setErro("")
+      const salas = await getSalasSetor(setorId)
+      setSalasAdmin(salas)
+    } catch (err) {
+      console.log(err)
+      setErro("Não foi possível carregar as salas do setor")
+    } finally {
+      setLoadingSalas(false)
+    }
   }
 
   async function carregarBlocos(setorId: number) {
-    getBlocosSetor(setorId)
-    .then(setBlocosAdmin)
-    .catch((err) => {
-        console.log(err)
-        setErro("Não foi possível carregar os blocos")
-      })
-    .finally(() => setLoadingBlocos(false))
-  }
-
-  useEffect(() => {
-    if(blocoSelecionado !== null){
-      setLoadingSalas(true)
-      carregarSalas(blocoSelecionado)
+    try {
+      setLoadingBlocos(true)
+      setErro("")
+      const blocos = await getBlocosSetor(setorId)
+      setBlocosAdmin(blocos)
+    } catch (err) {
+      console.log(err)
+      setErro("Não foi possível carregar os blocos")
+    } finally {
+      setLoadingBlocos(false)
     }
-  }, [blocoSelecionado])
-
-  async function carregarSalas(blocoId: number) {
-    getSalasBloco(blocoId)
-    .then(setSalasAdmin)
-    .catch((err) => {
-        console.log(err)
-        setErro("Não foi possível carregar as salas")
-      })
-    .finally(() => setLoadingSalas(false))
   }
 
   useEffect(() => {
@@ -112,7 +104,6 @@ export default function Espacos() {
       setErroEventos("")
       const eventos = await getEventosSala(salaId, dataInicio, dataFim)
       setEventosAdmin(eventos)
-      console.log(eventos)
     } catch (err) {
       console.log(err)
       setErroEventos("Não foi possível carregar os eventos")
@@ -216,6 +207,8 @@ export default function Espacos() {
                           {...sala}
                           numeroBloco={bloco?.numero ?? 0}
                           nomeSetor={setor?.nome ?? ""}
+                          equipamentos={sala.Equipamentos}
+                          mobiliarios={sala.Mobiliarios}
                           onClick={() => setSalaSelecionada(sala.id)}
                         />
                       )

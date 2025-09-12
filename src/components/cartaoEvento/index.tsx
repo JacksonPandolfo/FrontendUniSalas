@@ -21,15 +21,23 @@ export function CartaoEvento({id, tipoReserva, tipoEvento, dataInicio, dataFim, 
     const dataFimFormatada = new Date(dataFim)
     const horaInicioFormatada = horaInicioEvento.slice(11,16)
     const horaFimFormatada = horaFimEvento.slice(11,16)
+    const formatarPalavra = (palavra: string) => {
+        const primeiraLetra = palavra.charAt(0).toUpperCase()
+        const restoPalavra = palavra.slice(1).toLowerCase()
+        return primeiraLetra + restoPalavra
+    }
+
     return (
-        <div key={id}>
-            <p>{tipoReserva}</p>
-            <p>{tipoEvento}</p>
+        <div className="border-2 p-2" key={id}>
+            <p>{formatarPalavra(tipoReserva)}</p>
+            <p>{formatarPalavra(tipoEvento)}</p>
             <p>{dataInicioFormatada.toLocaleDateString()}</p>
             <p>{dataFimFormatada.toLocaleDateString()}</p>
             <p>{horario}</p>
-            <p>{nomeTurma}</p>
-            <p>{ministrante}</p>
+            {nomeTurma ? (
+                <p>Turma: {nomeTurma}</p>
+            ) : ("")}
+            <p>Ministrante: {ministrante}</p>
             <p>{horaInicioFormatada}</p>
             <p>{horaFimFormatada}</p>
 

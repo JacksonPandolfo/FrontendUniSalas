@@ -3,6 +3,8 @@ import { SalaAdmin } from "@/types/sala";
 import { TbCircleLetterAFilled, TbCircleLetterBFilled, TbCircleLetterCFilled, TbCircleLetterDFilled, TbCircleLetterEFilled } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { BiAccessibility } from "react-icons/bi";
+import { tipoEquipamentoMap } from "@/utils/tipoEquipamentoMap";
+import { useState } from "react";
 
 type PropsSalas = {
     id: SalaAdmin["id"]
@@ -12,10 +14,13 @@ type PropsSalas = {
     temAcessibilidade: SalaAdmin["temAcessibilidade"]
     numeroBloco: number
     nomeSetor: string
+    equipamentos?: SalaAdmin["Equipamentos"]
+    mobiliarios?: SalaAdmin["Mobiliarios"]
     onClick: () => void
 }
 
-export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilidade, numeroBloco, nomeSetor, onClick }: PropsSalas) {
+export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilidade, numeroBloco, nomeSetor, equipamentos, mobiliarios, onClick }: PropsSalas) {
+  const [detalhes, setDetalhes] = useState(false)
 
   const renderizaBloco = ( nomeSetor: string, numeroBloco: number, numero: PropsSalas["numero"]) => {
           switch (nomeSetor) {
@@ -97,12 +102,18 @@ export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilida
     }
   }
 
+  const handleSalaClick = () => {
+    onClick()
+    setDetalhes(!detalhes)
+  }
+
   return (
     <div
       className={`relative flex flex-col items-center py-2 justify-between w-52 h-80 border-6 rounded-lg ${renderizaBackgroundCartao(statusSala)} hover:cursor-pointer hover:scale-105 transition-all transform duration-500`}
         key={id}
-        onClick={onClick}
+        onClick={handleSalaClick}
         >
+
       <h3 className="text-lg font-bold">{renderizaBloco(nomeSetor, numeroBloco, numero)}</h3>
       <SiGoogleclassroom className='text-blue-950' size={80}/>
       <p className="font-poppins">Capacidade: {capacidade}</p>
@@ -111,6 +122,17 @@ export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilida
         <p className="font-poppins">{temAcessibilidade ? "Com acessibilidade" : "Sem acessibilidade"}</p>
       </div>
       {renderizaStatusSala(statusSala)}
+      {detalhes && (
+        <div className="flex flex-col absolute -top-20">
+        {equipamentos?.map((equipamento) => (
+          <p key={equipamento.id}>{tipoEquipamentoMap[equipamento.tipoEquipamento]}</p>
+        ))}
+
+        {mobiliarios?.map((mobiliario) => (
+          <p key={mobiliario.id}>{tipoEquipamentoMap[mobiliario.tipoMobiliario]}</p>
+        ))}
+      </div>
+      )}
     </div>
   );
 }
