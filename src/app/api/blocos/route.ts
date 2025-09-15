@@ -6,8 +6,8 @@ export async function getBlocos() {
   return res.json();
 }
 
-export async function getBlocosSetor(setorId: number) {
-  const res = await fetch(`${API_URL}/bloco?blocoId=${setorId}`);
+export async function getBlocosSetor(setorId: string) {
+  const res = await fetch(`${API_URL}/bloco/${setorId}`);
   if (!res.ok) throw new Error('Erro ao carregar blocos do setor');
   return res.json();
 }

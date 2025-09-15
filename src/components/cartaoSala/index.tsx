@@ -3,8 +3,7 @@ import { SalaAdmin } from "@/types/sala";
 import { TbCircleLetterAFilled, TbCircleLetterBFilled, TbCircleLetterCFilled, TbCircleLetterDFilled, TbCircleLetterEFilled } from "react-icons/tb";
 import { SiGoogleclassroom } from "react-icons/si";
 import { BiAccessibility } from "react-icons/bi";
-import { tipoEquipamentoMap } from "@/utils/tipoEquipamentoMap";
-import { useState } from "react";
+import { statusSalaMap } from "@/utils/statusSalaMap";
 
 type PropsSalas = {
     id: SalaAdmin["id"]
@@ -14,13 +13,11 @@ type PropsSalas = {
     temAcessibilidade: SalaAdmin["temAcessibilidade"]
     numeroBloco: number
     nomeSetor: string
-    equipamentos?: SalaAdmin["Equipamentos"]
-    mobiliarios?: SalaAdmin["Mobiliarios"]
+    selecionado: boolean
     onClick: () => void
 }
 
-export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilidade, numeroBloco, nomeSetor, equipamentos, mobiliarios, onClick }: PropsSalas) {
-  const [detalhes, setDetalhes] = useState(false)
+export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilidade, numeroBloco, nomeSetor, selecionado, onClick }: PropsSalas) {
 
   const renderizaBloco = ( nomeSetor: string, numeroBloco: number, numero: PropsSalas["numero"]) => {
           switch (nomeSetor) {
@@ -65,20 +62,21 @@ export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilida
       }
 
   const renderizaStatusSala = (statusSala: SalaAdmin["statusSala"]) => {
-    switch (statusSala) {
-      case "LIVRE":
+
+    switch (statusSalaMap[statusSala]) {
+      case "Livre":
         return  <div className="bg-green-500 font-poppins font-bold text-blue-950 rounded-full px-4">
                   <p>Livre</p>
                 </div>
-      case "OCUPADA":
+      case "Ocupada":
         return <div className="bg-red-500 font-poppins font-bold text-blue-950 rounded-full px-4">
                   <p>Ocupada</p>
                 </div>
-      case "MANUTENCAO":
+      case "Manutenção":
         return <div className="bg-yellow-500 font-poppins font-bold text-blue-950 rounded-full px-4">
                   <p>Manutenção</p>
                 </div>
-      case "DESATIVADA":
+      case "Desativada":
         return <div className="bg-gray-300 font-poppins font-bold text-blue-950 rounded-full px-4">
                   <p>Desativada</p>
                 </div>
@@ -102,37 +100,22 @@ export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilida
     }
   }
 
-  const handleSalaClick = () => {
-    onClick()
-    setDetalhes(!detalhes)
-  }
-
   return (
-    <div
-      className={`relative flex flex-col items-center py-2 justify-between w-52 h-80 border-6 rounded-lg ${renderizaBackgroundCartao(statusSala)} hover:cursor-pointer hover:scale-105 transition-all transform duration-500`}
-        key={id}
-        onClick={handleSalaClick}
-        >
-
-      <h3 className="text-lg font-bold">{renderizaBloco(nomeSetor, numeroBloco, numero)}</h3>
-      <SiGoogleclassroom className='text-blue-950' size={80}/>
-      <p className="font-poppins">Capacidade: {capacidade}</p>
-      <div className="flex items-center">
-        {temAcessibilidade ? (<BiAccessibility className='text-green-400' size={30}/>) : (<BiAccessibility className="text-red-500" size={30}/>)}
-        <p className="font-poppins">{temAcessibilidade ? "Com acessibilidade" : "Sem acessibilidade"}</p>
+    <div className="flex flex-col">
+      <div
+        className={`flex flex-col items-center py-2 justify-between w-52 h-80 border-4 border-blue-950 rounded-lg ${renderizaBackgroundCartao(statusSala)} ${selecionado ? "scale-105" : "scale-100"} hover:scale-105 hover:cursor-pointer transition-all transform duration-500`}
+          key={id}
+          onClick={() => onClick()}
+      >
+        <h3 className="text-lg font-bold">{renderizaBloco(nomeSetor, numeroBloco, numero)}</h3>
+        <SiGoogleclassroom className='text-blue-950' size={80}/>
+        <p className="font-poppins">Capacidade: {capacidade}</p>
+        <div className="flex items-center">
+          {temAcessibilidade ? (<BiAccessibility className='text-green-400' size={30}/>) : (<BiAccessibility className="text-red-500" size={30}/>)}
+          <p className="font-poppins">{temAcessibilidade ? "Com acessibilidade" : "Sem acessibilidade"}</p>
+        </div>
+        {renderizaStatusSala(statusSala)}
       </div>
-      {renderizaStatusSala(statusSala)}
-      {detalhes && (
-        <div className="flex flex-col absolute -top-20">
-        {equipamentos?.map((equipamento) => (
-          <p key={equipamento.id}>{tipoEquipamentoMap[equipamento.tipoEquipamento]}</p>
-        ))}
-
-        {mobiliarios?.map((mobiliario) => (
-          <p key={mobiliario.id}>{tipoEquipamentoMap[mobiliario.tipoMobiliario]}</p>
-        ))}
-      </div>
-      )}
     </div>
   );
 }

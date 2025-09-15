@@ -1,5 +1,5 @@
 export interface Horario {
-    id: number
+    id: string
     nome: string
     horaInicio: string
     horaFim: string

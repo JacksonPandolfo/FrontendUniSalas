@@ -1,22 +1,27 @@
+import { BlocoAdmin } from "./bloco"
+import { SetorAdmin } from "./setor"
+
 export type TipoEquipamento = {
-    id: number
-    salaId: number
+    id: string
+    salaId: string
     tipoEquipamento: string
 }
 
 export type TipoMobiliario = {
-    id: number
-    salaId: number
+    id: string
+    salaId: string
     tipoMobiliario: string
 }
 
 export interface SalaAdmin {
-    id: number
+    id: string
     numero: number
     temAcessibilidade: boolean
     capacidade: number
-    blocoId: number
+    blocoId: string
     statusSala: "LIVRE" | "OCUPADA" | "MANUTENCAO" | "DESATIVADA"
     Equipamentos: TipoEquipamento[]
     Mobiliarios: TipoMobiliario[]
+    setor: SetorAdmin
+    bloco: BlocoAdmin
 }

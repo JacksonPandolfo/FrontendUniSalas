@@ -1,8 +1,13 @@
+import { Curso } from "./curso"
+import { Disciplina } from "./disciplina"
+
 export interface TurmaAdmin {
-    id: number
+    id: string
     nome: string
     vagas: number
-    cursoId: number
-    disciplinaId: number
-    ministranteId?: number
+    cursoId: string
+    curso: Curso
+    disciplina: Disciplina
+    disciplinaId: string
+    ministranteId?: string
 }

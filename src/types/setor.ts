@@ -1,7 +1,7 @@
 import { BlocoAdmin } from "./bloco"
 
 export interface SetorAdmin{
-    id: number,
+    id: string,
     nome: string,
     descricao: string,
     blocos: BlocoAdmin[]
