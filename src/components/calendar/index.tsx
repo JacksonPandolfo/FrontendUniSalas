@@ -10,8 +10,8 @@ import type { EventContentArg, EventInput } from '@fullcalendar/core'
 import { EventoAdmin } from "@/types/evento"
 import { SalaAdmin } from '@/types/sala'
 import { getEventosSala } from '@/app/api/reservas/route'
-import { getSetores } from '@/app/api/setores/route'
-import { getBlocosSetor } from '@/app/api/blocos/route'
+import { getBlocosSetor } from '@/lib/api/blocos/api'
+import { getSetores } from "@/lib/api/setores/api"
 import { getSalasBloco } from '@/app/api/salas/route'
 import { SetorAdmin } from '@/types/setor'
 import { BlocoAdmin } from '@/types/bloco'

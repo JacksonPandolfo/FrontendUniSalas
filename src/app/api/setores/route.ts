@@ -1,7 +1,11 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+import { getSetores } from "@/lib/api/setores/api";
+import { NextResponse } from "next/server";
 
-export async function getSetores() {
-  const res = await fetch(`${API_URL}/setores`);
-  if (!res.ok) throw new Error('Erro ao carregar setores');
-  return res.json();
+export async function GET() {
+  try {
+    const setores = await getSetores()
+    return NextResponse.json(setores)
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 })
+  }
 }

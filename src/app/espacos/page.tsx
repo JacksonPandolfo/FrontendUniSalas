@@ -1,21 +1,22 @@
 'use client'
 import { useEffect, useState } from "react";
-import { getSetores } from "../api/setores/route";
 
 import { SetorAdmin } from "@/types/setor";
 import { BlocoAdmin } from "@/types/bloco";
 import { SalaAdmin } from "@/types/sala";
 
+import { getSalasSetor } from "@/lib/api/salas/api";
+import { getEventosSalaComData } from "@/lib/api/reservas/api";
+import { getSetores } from "@/lib/api/setores/api";
+import { getBlocosSetor } from "@/lib/api/blocos/api";
 import { CartaoSetor } from "@/components/cartaoSetor";
-import { getBlocosSetor } from "../api/blocos/route";
 import { CartaoBloco } from "@/components/cartaoBloco";
 
 import { TbCircleArrowLeftFilled } from "react-icons/tb";
 import { CartaoSala } from "@/components/cartaoSala";
-import { getEventosSalaComData } from "../api/reservas/route";
+// import { getEventosSalaComData } from "../api/reservas/route";
 import { EventoAdmin } from "@/types/evento";
 import { CartaoEvento } from "@/components/cartaoEvento";
-import { getSalasSetor } from "../api/salas/route";
 import { CartaoDetalhe } from "@/components/cartaoDetalhesSala";
 
 export default function Espacos() {
@@ -70,6 +71,7 @@ export default function Espacos() {
     try {
       setErroSala("")
       const salas = await getSalasSetor(setorId)
+      console.log(salas)
       setSalasAdmin(salas)
     } catch (err) {
       console.log(err)
