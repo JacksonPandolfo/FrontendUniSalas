@@ -152,6 +152,7 @@ export function Calendar(){
 
   useEffect(() => {
     handleMudancaData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
