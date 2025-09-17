@@ -1,6 +1,5 @@
 'use client'
 import FullCalendar from '@fullcalendar/react'
-import { RRule, Weekday } from 'rrule'
 import rrulePlugin from '@fullcalendar/rrule'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import brLocale from '@fullcalendar/core/locales/pt-br'
@@ -18,7 +17,6 @@ import { SetorAdmin } from '@/types/setor'
 import { BlocoAdmin } from '@/types/bloco'
 import { TbArrowAutofitDown, TbArrowAutofitUp } from 'react-icons/tb'
 import { tipoEventoMap } from '@/utils/tipoEventoMap'
-import { diaSemanaMap } from '@/utils/diaSemanaMap'
 
 function renderizaConteudoEvento(eventInfo: EventContentArg) {
   const { atividade, ministrante, turma, horaInicio, horaFim, nomeHorario } = eventInfo.event.extendedProps as {
