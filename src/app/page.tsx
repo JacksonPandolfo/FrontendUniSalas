@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { Login } from "./login/page"
+import Login from "./login/page"
 
 //Cria os metadados para essa PÁGINA específica (HOME)
 export const metadata: Metadata = {

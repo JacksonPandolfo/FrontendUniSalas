@@ -6,7 +6,7 @@ import brLocale from '@fullcalendar/core/locales/pt-br'
 import { useEffect, useRef, useState } from 'react'
 import multiMonthPlugin from '@fullcalendar/multimonth'
 import timeGridPlugin from "@fullcalendar/timegrid";
-import type { EventContentArg, EventInput } from '@fullcalendar/core'
+import type { CalendarApi, EventContentArg, EventInput } from '@fullcalendar/core'
 import { EventoAdmin } from "@/types/evento"
 import { SalaAdmin } from '@/types/sala'
 
@@ -110,7 +110,9 @@ function gerarEventosPorHorario(dataInicial: Date, dataFinal: Date, horaInicial:
 }
 
 export function Calendar(){
-  const calendarRef = useRef<FullCalendar>(null); ;
+  const calendarRef = useRef<FullCalendar>(null);
+  const containerRef = useRef<HTMLDivElement>(null)
+
   const [setores, setSetores] = useState<SetorAdmin[]>([])
   const [blocos, setBlocos] = useState<BlocoAdmin[]>([])
   const [salas, setSalas] = useState<SalaAdmin[]>([])
@@ -161,19 +163,42 @@ export function Calendar(){
     carregarSetores()
   }, [])
 
-  useEffect(() => {
-    if (calendarRef.current) {
-      const api = calendarRef.current.getApi();
-      const calendarElement = api.el;
-      if (calendarElement) {
+
+    useEffect(() => {
+      if (calendarRef.current && containerRef.current) {
+        const api: CalendarApi = calendarRef.current.getApi();
+        const calendarContainer = containerRef.current
         const observer = new ResizeObserver(() => {
-          api.updateSize();
-        });
-        observer.observe(calendarElement.parentElement!);
+          api.updateSize()
+        })
+
+        observer.observe(calendarContainer);
+
         return () => observer.disconnect();
       }
-    }
-  }, []);
+
+    }, []);
+
+
+
+    // useEffect(() => {
+    //   if (calendarRef.current) {
+    //     const api = calendarRef.current.getApi();
+    //     const calendarElement = calendarRef.current
+    //     // const calendarElement = api.el;
+    //     if (calendarElement) {
+    //       const observer = new ResizeObserver(() => {
+    //         api.updateSize();
+    //       });
+
+    //       if(calendarElement.parentElement){
+    //         observer.observe(calendarElement.parentElement!);
+    //       }
+    //       return () => observer.disconnect();
+    //     }
+    //   }
+    // }, []);
+
 
 
   async function carregarSetores() {
@@ -268,7 +293,7 @@ export function Calendar(){
   }
 
   return (
-    <div className='p-2 flex flex-col items-center'>
+    <div ref={containerRef} className='p-2 flex flex-col items-center'>
       <div className='flex items-center gap-2'>
         <div className="relative">
           <button className="flex items-center justify-between border rounded font-poppins font-bold text-blue-950 p-1 pl-2 w-20 text-left hover:cursor-pointer"
@@ -364,13 +389,13 @@ export function Calendar(){
         </div>
       </div>
       <FullCalendar
+       ref={calendarRef}
         locales={[brLocale]}
         eventTextColor='black'
         locale="pt-br"
         timeZone="local"
         plugins={[dayGridPlugin, multiMonthPlugin, timeGridPlugin, rrulePlugin]}
         height="100%"
-        ref={calendarRef}
         titleFormat={ {year: 'numeric', month: 'long'} }
         dayHeaderFormat={{ weekday: 'long'}}
         headerToolbar={{

@@ -7,9 +7,9 @@ async function getEventosSala(salaId: string) {
   return res.json()
 }
 
-export async function GET(req: Request, context: { Params: Promise<{ salaId: string }> } ){
+export async function GET(req: Request, context: { params: Promise<{ salaId: string }> } ){
     try {
-        const { salaId } = await context.Params
+        const { salaId } = await context.params
         if(!salaId) throw Error("ID da sala não informado")
 
         const eventos = await getEventosSala(salaId)
