@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
-import { getEventosSala } from "@/lib/api/reservas/api";
 
-export async function GET(salaId: string){
+async function getEventosSala(salaId: string) {
+  const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
+  const res = await fetch(`${BACKEND_URL}/reserva/bySala/${salaId}`)
+  if(!res.ok) throw new Error("Erro ao carregar os eventos da sala")
+  return res.json()
+}
+
+export async function GET(req: Request, context: { Params: Promise<{ salaId: string }> } ){
     try {
+        const { salaId } = await context.Params
+        if(!salaId) throw Error("ID da sala não informado")
+
         const eventos = await getEventosSala(salaId)
         return NextResponse.json(eventos)
     } catch (err) {

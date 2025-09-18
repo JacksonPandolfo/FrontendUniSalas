@@ -17,7 +17,6 @@ export async function getSalasBloco(blocoId: string) {
 }
 
 export async function getSalasSetor(setorId: string) {
-  console.log("Cheguei no middle lib")
   const res = await fetch(`/api/salas/setor/${setorId}`);
   if (!res.ok) throw new Error('Erro ao carregar salas');
   return res.json();

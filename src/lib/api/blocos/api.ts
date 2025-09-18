@@ -1,7 +1,7 @@
 // const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export async function getBlocos() {
-  const res = await fetch("/app/api/blocos");
+  const res = await fetch("/api/blocos");
   if (!res.ok) throw new Error('Erro ao carregar blocos');
   return res.json();
   // const res = await fetch(`${API_URL}/bloco`);

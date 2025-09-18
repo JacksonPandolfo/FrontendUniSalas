@@ -8,10 +8,9 @@ async function fetchBlocosBySetorId(setorId: string) {
   return res.json()
 }
 
-export async function GET(req: Request) {
+export async function GET(req: Request, context: { params: Promise<{setorId: string}>}) {
   try {
-    const { pathname } = new URL(req.url)
-    const setorId = pathname.split("/").pop()
+    const { setorId } = await context.params
     if(!setorId) throw Error("ID do setor não informado")
 
     const blocos = await fetchBlocosBySetorId(setorId)

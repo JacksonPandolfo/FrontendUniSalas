@@ -7,14 +7,12 @@ async function fetchSalasByBlocoId(blocoId: string) {
   return res.json()
 }
 
-export async function GET(req: Request) {
-    console.log("cheguei no bloco e não no setor")
+export async function GET(req: Request, context: { params: Promise<{blocoId: string}>}) {
     try {
-        const { pathname } = new URL(req.url)
-        const blocoId = pathname.split("/").pop()
+        const { blocoId } = await context.params
         if(!blocoId) throw Error("ID do setor não informado")
 
-            const salas = await fetchSalasByBlocoId(blocoId)
+        const salas = await fetchSalasByBlocoId(blocoId)
         return NextResponse.json(salas)
     } catch (err) {
         return NextResponse.json({ error: (err as Error).message }, { status: 500 })
