@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
-          
+
       - name: Limpar build cache
         run: rm -rf .next
 
@@ -31,12 +31,14 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
+      - name: Zip build folder
+        run: zip -r deploy.zip .next public package.json
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: deploy.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -64,4 +66,5 @@ jobs:
         with:
           app-name: 'Frontend-Unisalas'
           slot-name: 'Production'
-          package: .
+          package: deploy.zip
+          type: zip
