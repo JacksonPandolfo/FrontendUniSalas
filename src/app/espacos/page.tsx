@@ -108,6 +108,7 @@ export default function Espacos() {
     if( salaSelecionada !== null){
       carregarEventosSalaComData(salaSelecionada, inicioDia, fimDia)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [salaSelecionada])
 
   async function carregarEventosSalaComData(salaId: string, dataInicio: Date, dataFim: Date) {
