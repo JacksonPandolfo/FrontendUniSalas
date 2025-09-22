@@ -1,10 +1,25 @@
-type Cargo = "ADMINISTRADOR" | "ATENDIMENTO" | "MINISTRANTE" | "FUNCIONARIO"
+export enum Cargo {
+    ADMINISTRADOR = "ADMINISTRADOR",
+    ATENDIMENTO = "ATENDIMENTO",
+    MINISTRANTE = "MINISTRANTE",
+    FUNCIONARIO = "FUNCIONARIO"
+}
+
 export interface UsuarioAdmin {
     id: string
     nome: string
     sobrenome: string
-    email: string
     dataNascimento: Date
-    cargo: Cargo
+    cargos: Cargo[]
+    email: string
+    senha: string
+}
+
+export interface CreateUsuario {
+    nome: string
+    sobrenome: string
+    dataNascimento: Date
+    cargos: Cargo[]
+    email: string
     senha: string
 }

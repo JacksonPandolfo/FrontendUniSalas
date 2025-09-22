@@ -117,7 +117,6 @@ export default function Espacos() {
       setErroEventos("")
       const eventos = await getEventosSalaComData(salaId, dataInicio, dataFim)
       setEventosAdmin(eventos)
-      console.log(eventos)
     } catch (err) {
       console.log(err)
       setErroEventos("Não foi possível carregar os eventos")

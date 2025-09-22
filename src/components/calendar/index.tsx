@@ -250,7 +250,6 @@ export function Calendar(){
    try {
        const eventos = await getEventosSala(salaId)
        setEventos(eventos)
-       console.log(eventos)
      } catch (err) {
        console.log(err)
      } finally {

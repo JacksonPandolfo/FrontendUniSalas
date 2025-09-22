@@ -39,10 +39,10 @@ export default function Home() {
         <p className="text-lg md:text-xl mb-10 max-w-2xl opacity-90">
           Organize e reserve salas de forma rápida, prática e moderna.
         </p>
-        <div className="flex gap-6">
+        <div className="flex items-center gap-6">
           <Link
             href="/login"
-            className="px-6 py-3 rounded-2xl bg-white text-blue-950 font-semibold shadow-lg hover:bg-orange-400 hover:text-white transition-all"
+            className="px-6 py-3 rounded-2xl border-2 border-white bg-white text-blue-950 font-semibold shadow-lg hover:border-orange-400 hover:bg-orange-400 hover:text-white transition-all"
           >
             Entrar
           </Link>

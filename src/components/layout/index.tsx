@@ -8,7 +8,6 @@ import { Footer } from "../footer"
 
 export function LayoutWrapper({ children }: { children:React.ReactNode }) {
     const pathname = usePathname()
-    console.log("Pathname atual:", pathname)
     const isLoginPage = pathname === '/' || pathname === '/login' || pathname === '/cadastro'
 
     if (isLoginPage) {
