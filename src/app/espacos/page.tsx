@@ -196,6 +196,7 @@ export default function Espacos() {
                   <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500"
                     onClick={() => {setBlocoSelecionado(null)
                                     setErroEventos("")
+                                    setSalaSelecionada(null)
                                   }}>
                       <TbCircleArrowLeftFilled size={30}/> Voltar aos blocos</button>
                 </div>
@@ -228,7 +229,6 @@ export default function Espacos() {
               </div>
               )
             )}
-            {/* { setorSelecionado && blocoSelecionado && salaSelecionada && */}
             <div className={`${salaSelecionada? "opacity-100" : "opacity-0"} relative flex w-full mt-4 pt-14 border-4 gap-2 border-blue-950 rounded-lg items-center justify-center p-4 transition transform duration-700`}>
               <div className="absolute top-0 w-full flex gap-2 items-center justify-center text-center p-2 bg-blue-950">
                 <h1 className="font-poppins items-center text-white font-bold">Detalhes da sala</h1>
@@ -293,8 +293,6 @@ export default function Espacos() {
                   </div>
                 )}
             </div>
-            {/* } */}
-          {/* MONTAR DIV AQUI PARA RENDERIZAR OS DETALHES DA SALA E OS EVENTOS DO DIA */}
     </div>
   );
 }

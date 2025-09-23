@@ -11,3 +11,8 @@ export interface SetorUsuario {
     nome: string
     descricao: string
 }
+
+export interface UpdateSetor {
+    nome?: string,
+    descricao?: string
+}
