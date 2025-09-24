@@ -59,26 +59,30 @@ export function CartaoBloco({id, numero, nomeSetor, salasLivres, salasOcupadas, 
 
     return(
         <div
-            className="relative flex items-center justify-center w-50 h-80 border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
+            className="relative flex items-center justify-center w-52 h-80
+            md:w-64 md:h-96
+            border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
             key={id}
             onClick={onClick}
             >
             <div className="absolute bottom-2 gap-1 flex flex-row items-center justify-center">
-                <div className="flex items-center justify-center rounded-full w-10 h-10 bg-green-400">
+                <div className="flex items-center justify-center rounded-full w-10 h-10 md:w-12 md:h-12 bg-green-400">
                     <p>{salasLivres}</p>
                 </div>
-                <div className="flex items-center justify-center rounded-full w-10 h-10 bg-red-400">
+                <div className="flex items-center justify-center rounded-full w-10 h-10 md:w-12 md:h-12 bg-red-400">
                     <p>{salasOcupadas}</p>
                 </div>
-                <div className="flex items-center justify-center rounded-full w-10 h-10 bg-yellow-400">
+                <div className="flex items-center justify-center rounded-full w-10 h-10 md:w-12 md:h-12 bg-yellow-400">
                     <p>{salasManutencao}</p>
                 </div>
-                <div className="flex items-center justify-center rounded-full w-10 h-10 bg-gray-400">
+                <div className="flex items-center justify-center rounded-full w-10 h-10 md:w-12 md:h-12 bg-gray-400">
                     <p>{salasDesativadas}</p>
                 </div>
             </div>
             {renderizaBloco(numero, nomeSetor)}
-            <BsBuilding className="text-blue-950 group-hover:text-white transition duration-500" size={150}/>
+            <BsBuilding className="text-blue-950 group-hover:text-white w-52 h-80
+            md:w-64 md:h-96
+            transition duration-500"/>
         </div>
     )
 }

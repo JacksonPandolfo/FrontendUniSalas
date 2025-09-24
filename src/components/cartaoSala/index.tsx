@@ -103,7 +103,11 @@ export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilida
   return (
     <div className="flex flex-col">
       <div
-        className={`flex flex-col items-center py-2 justify-between w-52 h-80 border-4 border-blue-950 rounded-lg ${renderizaBackgroundCartao(statusSala)} ${selecionado ? "scale-105" : "scale-100"} hover:scale-105 hover:cursor-pointer transition-all transform duration-500`}
+        className={`flex flex-col items-center py-2 justify-between w-30 h-50 
+          sm:w-40 sm:h-60 
+          md:w-52 md:h-80 
+          2xl:w-64 2xl:h-96 
+          border-4 border-blue-950 rounded-lg ${renderizaBackgroundCartao(statusSala)} ${selecionado ? "scale-105" : "scale-100"} hover:scale-105 hover:cursor-pointer transition-all transform duration-500`}
           key={id}
           onClick={() => onClick()}
       >

@@ -29,7 +29,11 @@ export function CartaoSetor({id, nome, onClick} : PropsSetor) {
 
     return(
         <div
-            className="relative flex items-center justify-center w-70 h-100 border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
+            className="relative flex items-center justify-center w-30 h-50 
+          sm:w-40 sm:h-60 
+          md:w-52 md:h-80 
+          2xl:w-64 2xl:h-96 
+          border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
             key={id}
             onClick={onClick}
             >

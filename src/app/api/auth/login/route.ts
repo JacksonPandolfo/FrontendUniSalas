@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 
 async function callLoginUsuario(email: string, senha: string) {
-    console.log("Cheguei no login para chamar o back")
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
   const res = await fetch(`${BACKEND_URL}/auth/login`, {
     method: "POST",
