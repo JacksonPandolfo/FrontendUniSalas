@@ -3,7 +3,7 @@ import { login } from "@/lib/api/auth/api";
 import { sanitizeEmail } from "@/utils/sanitizeEmail";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 export default function Login() {
   const router = useRouter()
