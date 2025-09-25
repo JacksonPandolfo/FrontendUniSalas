@@ -1,21 +1,19 @@
 import { UpdateSetor } from "@/types/setor";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-
 export async function getSetores() {
-  const res = await fetch(`${API_URL}/setores`);
+  const res = await fetch(`/api/setores/`);
   if (!res.ok) throw new Error('Erro ao carregar setores');
   return res.json();
 }
 
 export async function getSetorById(setorId: string) {
-  const res = await fetch(`${API_URL}/setores/${setorId}`);
+  const res = await fetch(`/api/setores/${setorId}`);
   if (!res.ok) throw new Error('Erro ao carregar setores');
   return res.json();
 }
 
 export async function updateSetorById(setorId:string, dataSetor: UpdateSetor){
-  const res = await fetch(`${API_URL}/setores/${setorId}`, {
+  const res = await fetch(`/api/setores/${setorId}`, {
     method: "PATCH",
     headers: {"Content-type": "application/json"},
     body: JSON.stringify(dataSetor)
@@ -25,4 +23,15 @@ export async function updateSetorById(setorId:string, dataSetor: UpdateSetor){
     throw new Error(error.message || 'Erro ao logar');
   }
   return res.json();
+}
+
+export async function deleteSetor(setorId: string) {
+  const res = await fetch(`/api/setores/${setorId}`, {
+    method: "DELETE"
+  });
+  if (!res.ok){
+    const data = await res.json().catch(() => null)
+      throw new Error(data?.error || "Erro ao excluir o setor");
+  }
+  return true
 }

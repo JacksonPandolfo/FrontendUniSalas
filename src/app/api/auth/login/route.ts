@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode"
+import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
 async function callLoginUsuario(email: string, senha: string) {
@@ -8,6 +10,32 @@ async function callLoginUsuario(email: string, senha: string) {
     body: JSON.stringify({email, senha})
   })
   if(!res.ok) throw new Error("Erro ao realizar login")
+
+  const setCookieHeader = res?.headers.get("set-cookie")
+  if(!setCookieHeader) throw new Error("Backend não retornou cookie")
+
+  const token = setCookieHeader.split(';')[0].split('=')[1]
+
+  // response.cookies.set({
+  //   name: 'jwt',
+  //   value: token,
+  //   httpOnly: true,
+  //   secure: true,
+  //   path: '/',
+  //   sameSite: 'lax',
+  //   maxAge: 60 * 60,
+  // })
+
+  if(setCookieHeader){
+    ;(await cookies()).set({
+      name: 'jwt',
+      value: token,
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',
+      expires: new Date(jwtDecode(token).exp! * 1000)
+    })
+  }
   return res.json()
 }
 

@@ -17,9 +17,8 @@ export default function Login() {
     e.preventDefault()
     try {
       const emailSanitizado = sanitizeEmail(email)
-      const loginUser = await login(emailSanitizado, senha)
+      await login(emailSanitizado, senha)
 
-      localStorage.setItem("access_token", loginUser.access_token)
       setErroLogin(false)
       setPopupMessage("Login realizado com sucesso")
       setShowPopup(true)

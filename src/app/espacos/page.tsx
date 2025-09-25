@@ -71,7 +71,6 @@ export default function Espacos() {
     try {
       setErroSala("")
       const salas = await getSalasSetor(setorId)
-      console.log(salas)
       setSalasAdmin(salas)
     } catch (err) {
       console.log(err)
@@ -130,7 +129,9 @@ export default function Espacos() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen pb-4 px-8">
         {loadingSetores ? (
-          <p className="mt-6 text-gray-600">Carregando setores...</p>
+          <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
+            <span key={i} className="inline-block animate-bounce">{char}</span>
+          ))}</p>
         ) : erroSetor ? (
           <p className="mt-6 text-gray-600">{erroSetor}</p>
         ) : (
@@ -148,7 +149,9 @@ export default function Espacos() {
         )}
 
         {loadingBlocos ? (
-          <p className="mt-6 text-gray-600">Carregando blocos...</p>
+          <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
+            <span key={i} className="inline-block animate-bounce">{char}</span>
+          ))}</p>
         ) : erroBloco ? (
           <p className="mt-6 text-gray-600">{erroBloco}</p>
         ) : ( blocosAdmin.length > 0 && (
@@ -161,7 +164,7 @@ export default function Espacos() {
                     <TbCircleArrowLeftFilled size={30}/> Voltar aos setores</button>
               </div>
             ) : ("")}
-            <div className="flex flex-wrap justify-center gap-3 my-4">
+            <div className="flex flex-wrap justify-center gap-3 my-4 transition-all duration-1000">
               {setorSelecionado && !blocoSelecionado &&
                 blocosAdmin
                 .filter((bloco) => bloco.setorId  === setorSelecionado)

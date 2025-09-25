@@ -35,12 +35,12 @@ export default function GerenciamentoEspacos(){
 
     function renderBotoes(setorId?: string, blocoId?: string, salaId?: string) {
         return (
-        <div className="mt-2 flex gap-2">
+        <div className="mt-2 flex flex-col gap-2">
             <Link href={`/gerenciamento/espacos/${setorId}`} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                 <BsGear/>Gerenciar
             </Link>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
-            <BsBuilding/>Ver blocos
+            <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition sm:w-32">
+            <BsBuilding />Ver blocos
             </button>
         </div>
         );
@@ -49,14 +49,16 @@ export default function GerenciamentoEspacos(){
     return (
         <div className="relative flex flex-col items-center justify-center min-h-screen pb-4 px-8">
             {loadingSetores ? (
-          <p className="mt-6 text-gray-600">Carregando setores...</p>
+          <p className="mt-6 text-gray-600">{"Carregando setores...".split("").map((char, i) => (
+            <span key={i} className="inline-block animate-bounce">{char}</span>
+          ))}</p>
         ) : erroSetor ? (
           <p className="mt-6 text-gray-600">{erroSetor}</p>
         ) : (
             <>
                 <h1 className="absolute top-2 text-4xl font-poppins text-blue-950 font-bold">Gerenciamento de espaços</h1>
                 <Link href={'/gerenciamento'}>
-                    <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500">
+                    <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105">
                         <TbCircleArrowLeftFilled size={30}/> Voltar para gerenciamento
                     </button>
                 </Link>

@@ -1,5 +1,6 @@
 'use client'
 
+import DeleteConfirmation from "@/components/modalExclusao"
 import { getSetorById, updateSetorById } from "@/lib/api/setores/api"
 import { SetorAdmin, UpdateSetor } from "@/types/setor"
 import Link from "next/link"
@@ -20,6 +21,8 @@ export default function GereciamentoSetor({ params }: { params: Promise<{ setorI
     const [erroCarregarSetor, setErroCarregarSetor] = useState(false)
 
     const { setorId } = React.use(params)
+
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     useEffect(() => {
         setLoadingDataSetor(true)
@@ -81,6 +84,11 @@ export default function GereciamentoSetor({ params }: { params: Promise<{ setorI
             setMensagemErroAtualizarSetor("Erro ao atualizar o setor")
             setTimeout(() => setErroAtualizar(false), 3000)
         }
+    }
+
+    async function handleDelete(){
+        
+        setIsModalOpen(false)
     }
 
     return(
@@ -165,9 +173,21 @@ export default function GereciamentoSetor({ params }: { params: Promise<{ setorI
                 onClick={salvarAlteracoes}
                 className="bg-blue-700 font-poppins text-white px-4 py-2 rounded-lg hover:bg-blue-950 hover:cursor-pointer transition duration-300"
                 >
-                  Salvar Alterações
+                  Salvar alterações
                 </button>
-                {/*CRIAR BOTÃO DE DELETE DO SETOR*/}
+
+                <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-red-600 font-poppins text-white px-4 py-2 rounded-lg hover:cursor-pointer transition duration-300"
+                >
+                  Excluir setor
+                </button>
+
+                <DeleteConfirmation
+                    isOpen={isModalOpen}
+                    onConfirm={handleDelete}
+                    onCancel={() => setIsModalOpen(false)}
+                />
             </>
         )}
         </div>

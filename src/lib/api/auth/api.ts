@@ -3,13 +3,15 @@ export async function login(email: string, senha: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, senha }),
+    credentials: 'include',
   });
 
   if (!res.ok) {
     const error = await res.json();
     throw new Error(error.message || 'Erro ao logar');
   }
-  return res.json();
+  const data = await res.json();
+  return data
 }
 
 export async function logout() {
