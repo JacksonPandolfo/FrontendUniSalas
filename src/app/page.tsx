@@ -59,29 +59,5 @@ export default function Home() {
         © {new Date().getFullYear()} UniSalas - Universidade do Vale do Rio dos Sinos
       </footer>
     </main>
-
-
-    // <div className="flex flex-col items-center justify-center w-full h-full gap-24">
-    //   <h1 className="font-poppins font-bold text-7xl">Bem vindo ao Unisalas</h1>
-    //   <div className="flex flex-col items-center justify-center">
-    //     <div className="flex items-center gap-4">
-    //       <p>Já possui cadastro?</p>
-    //       <Link href={'/login'}>
-    //         <button className="flex items-center justify-center border rounded font-poppins font-bold text-blue-950 p-1 w-20 text-center hover:cursor-pointer hover:bg-blue-950 hover:text-orange-400 transition duration-300">
-    //           Entrar
-    //         </button>
-    //       </Link>
-    //     </div>
-    //     <div className="flex flex-col justify-center items-center gap-2">
-    //       <p>Deseja se cadastrar?</p>
-    //       <Link href={'/cadastro'}>
-    //         <button className="flex items-center justify-center border rounded font-poppins font-bold text-blue-950 p-1 w-32 text-center hover:cursor-pointer hover:bg-blue-950 hover:text-orange-400 transition duration-300">
-    //           Cadastre-se
-    //         </button>
-    //       </Link>
-    //     </div>
-    //   </div>
-    //   {/* {isLoggedIn ? <Reservas/> : <Link href={'/reservas'}><Login/></Link>} */}
-    // </div>
   )
 }

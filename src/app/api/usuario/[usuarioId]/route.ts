@@ -1,8 +1,10 @@
 import { UsuarioAdmin } from "@/types/usuario";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 async function getUsuariosByID(usuarioId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
+  const token = (await cookies()).get('jwt')
   const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`)
   if(!res.ok) throw new Error("Erro ao buscar o usuário")
   return res.json()
@@ -10,6 +12,7 @@ async function getUsuariosByID(usuarioId: string) {
 
 async function updateUsuariosByID(usuarioId: string, usuarioData: UsuarioAdmin) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
+  const token = (await cookies()).get('jwt')
   const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`, {
     method: "POST",
     headers: { "Content-Type": "application.json" },

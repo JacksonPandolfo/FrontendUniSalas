@@ -1,13 +1,19 @@
 import { UpdateSetor } from "@/types/setor";
 
 export async function getSetores() {
-  const res = await fetch(`/api/setores/`);
+  const res = await fetch(`/api/setores/`, {
+    method: "GET",
+    credentials: "include"
+  });
   if (!res.ok) throw new Error('Erro ao carregar setores');
   return res.json();
 }
 
 export async function getSetorById(setorId: string) {
-  const res = await fetch(`/api/setores/${setorId}`);
+  const res = await fetch(`/api/setores/${setorId}`, {
+    method: "GET",
+    credentials: "include"
+  });
   if (!res.ok) throw new Error('Erro ao carregar setores');
   return res.json();
 }
@@ -16,7 +22,8 @@ export async function updateSetorById(setorId:string, dataSetor: UpdateSetor){
   const res = await fetch(`/api/setores/${setorId}`, {
     method: "PATCH",
     headers: {"Content-type": "application/json"},
-    body: JSON.stringify(dataSetor)
+    body: JSON.stringify(dataSetor),
+    credentials: "include"
   })
   if (!res.ok) {
     const error = await res.json();
@@ -27,7 +34,8 @@ export async function updateSetorById(setorId:string, dataSetor: UpdateSetor){
 
 export async function deleteSetor(setorId: string) {
   const res = await fetch(`/api/setores/${setorId}`, {
-    method: "DELETE"
+    method: "DELETE",
+    credentials: "include"
   });
   if (!res.ok){
     const data = await res.json().catch(() => null)

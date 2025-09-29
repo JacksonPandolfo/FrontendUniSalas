@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 'use client'
-import { createUsuario } from "@/lib/api/usuario/api";
+import { createUsuario } from "@/lib/api/auth/api";
 import { Cargo } from "@/types/usuario";
 import { sanitizeEmail } from "@/utils/sanitizeEmail";
 import Link from "next/link";

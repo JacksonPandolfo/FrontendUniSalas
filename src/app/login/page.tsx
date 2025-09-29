@@ -2,8 +2,9 @@
 import { login } from "@/lib/api/auth/api";
 import { sanitizeEmail } from "@/utils/sanitizeEmail";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+
 
 export default function Login() {
   const router = useRouter()
@@ -25,7 +26,7 @@ export default function Login() {
 
       setTimeout(() => {
         setShowPopup(false)
-        router.push("/reservas")
+        router.push('/reservas')
       }, 1000)
     } catch (err) {
         console.log("Erro no login:", err)

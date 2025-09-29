@@ -1,18 +1,18 @@
-import { CreateUsuario, UsuarioAdmin } from "@/types/usuario";
+import { UsuarioAdmin } from "@/types/usuario";
 
-export async function createUsuario(usuarioData: CreateUsuario) {
-  const res = await fetch(`/api/usuario`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(usuarioData)
-  });
+// export async function createUsuario(usuarioData: CreateUsuario) {
+//   const res = await fetch(`/api/usuario`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(usuarioData)
+//   });
 
-  const data = await res.json()
-  if (!res.ok){
-    throw new Error(data?.error || "Erro ao registrar o usuário");
-  }
-  return data
-}
+//   const data = await res.json()
+//   if (!res.ok){
+//     throw new Error(data?.error || "Erro ao registrar o usuário");
+//   }
+//   return data
+// }
 
 export async function getUsuarios() {
   const res = await fetch(`/api/usuario`);

@@ -7,7 +7,7 @@ async function callLoginUsuario(email: string, senha: string) {
   const res = await fetch(`${BACKEND_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({email, senha})
+    body: JSON.stringify({email, senha}),
   })
   if(!res.ok) throw new Error("Erro ao realizar login")
 
@@ -16,16 +16,6 @@ async function callLoginUsuario(email: string, senha: string) {
 
   const token = setCookieHeader.split(';')[0].split('=')[1]
 
-  // response.cookies.set({
-  //   name: 'jwt',
-  //   value: token,
-  //   httpOnly: true,
-  //   secure: true,
-  //   path: '/',
-  //   sameSite: 'lax',
-  //   maxAge: 60 * 60,
-  // })
-
   if(setCookieHeader){
     ;(await cookies()).set({
       name: 'jwt',
@@ -33,6 +23,7 @@ async function callLoginUsuario(email: string, senha: string) {
       secure: true,
       httpOnly: true,
       sameSite: 'lax',
+      path: '/',
       expires: new Date(jwtDecode(token).exp! * 1000)
     })
   }

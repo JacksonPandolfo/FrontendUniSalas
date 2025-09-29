@@ -67,7 +67,9 @@ export function CartaoBloco({id, numero, nomeSetor, salasLivres, salasOcupadas, 
             key={id}
             onClick={onClick}
             >
-            <div className="absolute bottom-2 gap-1 flex flex-row items-center justify-center">
+            {salasLivres === undefined && salasOcupadas === undefined && salasManutencao === undefined && salasDesativadas === undefined ? "" : (
+
+                <div className="absolute bottom-2 gap-1 flex flex-row items-center justify-center">
                 <div className="flex items-center justify-center rounded-full w-8 h-8 sm:w-10 sm:h-10 bg-green-400">
                     <p>{salasLivres}</p>
                 </div>
@@ -81,6 +83,8 @@ export function CartaoBloco({id, numero, nomeSetor, salasLivres, salasOcupadas, 
                     <p>{salasDesativadas}</p>
                 </div>
             </div>
+            )
+            }
             {renderizaBloco(numero, nomeSetor)}
             <BsBuilding className="text-blue-950 group-hover:text-white w-44 h-64
             lg:w-52 lg:h-80

@@ -21,6 +21,7 @@ export async function GET() {
     const setores = await fetchSetores()
     return NextResponse.json(setores)
   } catch (err) {
+    console.log(err)
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }

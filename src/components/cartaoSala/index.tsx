@@ -13,11 +13,14 @@ type PropsSalas = {
     temAcessibilidade: SalaAdmin["temAcessibilidade"]
     numeroBloco: number
     nomeSetor: string
-    selecionado: boolean
+    selecionado?: boolean
     onClick: () => void
+    exibirStatus?: boolean
+    exibirAcessibilidade?: boolean
+    exibirCapacidade?: boolean
 }
 
-export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilidade, numeroBloco, nomeSetor, selecionado, onClick }: PropsSalas) {
+export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilidade, numeroBloco, nomeSetor, selecionado, exibirStatus=true, exibirAcessibilidade=true, exibirCapacidade=true, onClick }: PropsSalas) {
 
   const renderizaBloco = ( nomeSetor: string, numeroBloco: number, numero: PropsSalas["numero"]) => {
           switch (nomeSetor) {
@@ -103,22 +106,37 @@ export function CartaoSala({ id, numero, capacidade, statusSala, temAcessibilida
   return (
     <div className="flex flex-col">
       <div
-        className={`flex flex-col items-center py-2 justify-between w-30 h-50 
-          sm:w-40 sm:h-60 
-          md:w-52 md:h-80 
-          2xl:w-64 2xl:h-96 
-          border-4 border-blue-950 rounded-lg ${renderizaBackgroundCartao(statusSala)} ${selecionado ? "scale-105" : "scale-100"} hover:scale-105 hover:cursor-pointer transition-all transform duration-500`}
+        className={`relative flex flex-col ${!exibirStatus && !exibirAcessibilidade && !exibirCapacidade ? "gap-12" : "justify-between" } items-center py-2 w-30 h-50
+          sm:w-40 sm:h-60
+          md:w-52 md:h-80
+          2xl:w-64 2xl:h-96
+          border-4 border-blue-950 rounded-lg ${exibirStatus && renderizaBackgroundCartao(statusSala)} ${exibirStatus && selecionado ? "scale-105" : "scale-100"} hover:scale-105 hover:cursor-pointer transition-all transform duration-500`}
           key={id}
           onClick={() => onClick()}
       >
         <h3 className="text-lg font-bold">{renderizaBloco(nomeSetor, numeroBloco, numero)}</h3>
-        <SiGoogleclassroom className='text-blue-950' size={80}/>
-        <p className="font-poppins">Capacidade: {capacidade}</p>
-        <div className="flex items-center">
-          {temAcessibilidade ? (<BiAccessibility className='text-green-400' size={30}/>) : (<BiAccessibility className="text-red-500" size={30}/>)}
-          <p className="font-poppins">{temAcessibilidade ? "Com acessibilidade" : "Sem acessibilidade"}</p>
-        </div>
-        {renderizaStatusSala(statusSala)}
+        {exibirStatus && exibirAcessibilidade && exibirCapacidade ? (
+            <SiGoogleclassroom className='text-blue-950' size={80}/>
+          ) : (
+            <SiGoogleclassroom className='text-blue-950' size={120}/>
+          )
+        }
+        {exibirCapacidade &&
+          <p className="font-poppins">Capacidade: {capacidade}</p>
+        }
+        {exibirAcessibilidade &&
+          <div className="flex items-center">
+            {temAcessibilidade ? (
+                <BiAccessibility className='text-green-400' size={30}/>
+              ) : (
+                <BiAccessibility className="text-red-500" size={30}/>
+            )}
+            <p className="font-poppins">{temAcessibilidade ? "Com acessibilidade" : "Sem acessibilidade"}</p>
+          </div>
+        }
+        {exibirStatus &&
+          renderizaStatusSala(statusSala)
+        }
       </div>
     </div>
   );

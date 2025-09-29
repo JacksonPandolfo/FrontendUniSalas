@@ -12,3 +12,8 @@ export interface BlocoAdmin {
 export interface BlocoUsuario {
     numero: number
 }
+
+export interface UpdateBloco {
+    numero: number,
+    setorId: string
+}

@@ -163,7 +163,6 @@ export function Calendar(){
     carregarSetores()
   }, [])
 
-
     useEffect(() => {
       if (calendarRef.current && containerRef.current) {
         const api: CalendarApi = calendarRef.current.getApi();
@@ -178,28 +177,6 @@ export function Calendar(){
       }
 
     }, []);
-
-
-
-    // useEffect(() => {
-    //   if (calendarRef.current) {
-    //     const api = calendarRef.current.getApi();
-    //     const calendarElement = calendarRef.current
-    //     // const calendarElement = api.el;
-    //     if (calendarElement) {
-    //       const observer = new ResizeObserver(() => {
-    //         api.updateSize();
-    //       });
-
-    //       if(calendarElement.parentElement){
-    //         observer.observe(calendarElement.parentElement!);
-    //       }
-    //       return () => observer.disconnect();
-    //     }
-    //   }
-    // }, []);
-
-
 
   async function carregarSetores() {
     try {

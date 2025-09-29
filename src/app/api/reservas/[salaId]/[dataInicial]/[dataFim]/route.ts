@@ -1,7 +1,9 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 async function getEventosSalaComData(salaId: string, dataInicial: string, dataFim: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
+  const token = (await cookies()).get('jwt')
   const res = await fetch(`${BACKEND_URL}/reserva/byDate/${salaId}/${dataInicial}/${dataFim}`)
   if(!res.ok) throw new Error("Erro ao carregar os blocos")
   return res.json()

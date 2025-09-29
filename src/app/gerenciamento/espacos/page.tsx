@@ -1,82 +1,88 @@
-'use client'
-import { CartaoSetor } from "@/components/cartaoSetor";
-import { getSetores } from "@/lib/api/setores/api";
-import { SetorAdmin } from "@/types/setor";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { BsBuilding, BsGear } from "react-icons/bs";
+import { BsBuilding, BsBuildingGear } from "react-icons/bs";
+import { SiGoogleclassroom } from "react-icons/si";
 import { TbCircleArrowLeftFilled } from "react-icons/tb";
 
 export default function GerenciamentoEspacos(){
-    const [loadingSetores, setLoadingSetores] = useState(false);
-    const [setoresAdmin, setSetoresAdmin] = useState<SetorAdmin[]>([]);
-    // const [blocosAdmin, setBlocosAdmin] = useState<BlocoAdmin[]>([])
-    // const [salasAdmin, setSalasAdmin] = useState<SalaAdmin[]>([]);
-    const [erroSetor, setErroSetor] = useState("")
-
-    const [setorSelecionado, setSetorSelecionado] = useState<string | null>(null)
-    // const [blocoSelecionado, setBlocoSelecionado] = useState<string | null>(null)
-    // const [salaSelecionada, setSalaSelecionada] = useState<string | null>(null)
-
-    useEffect(() => {
-      setLoadingSetores(true)
-      carregarSetores()
-    }, []);
-
-    async function carregarSetores() {
-        getSetores()
-        .then(setSetoresAdmin)
-        .catch((err) => {
-          console.log(err)
-          setErroSetor("Não foi possível carregar os setores")
-        })
-        .finally(() => setLoadingSetores(false))
-    }
-
-    function renderBotoes(setorId?: string, blocoId?: string, salaId?: string) {
-        return (
-        <div className="mt-2 flex flex-col gap-2">
-            <Link href={`/gerenciamento/espacos/${setorId}`} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                <BsGear/>Gerenciar
-            </Link>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition sm:w-32">
-            <BsBuilding />Ver blocos
-            </button>
-        </div>
-        );
-    }
 
     return (
-        <div className="relative flex flex-col items-center justify-center min-h-screen pb-4 px-8">
-            {loadingSetores ? (
-          <p className="mt-6 text-gray-600">{"Carregando setores...".split("").map((char, i) => (
-            <span key={i} className="inline-block animate-bounce">{char}</span>
-          ))}</p>
-        ) : erroSetor ? (
-          <p className="mt-6 text-gray-600">{erroSetor}</p>
-        ) : (
-            <>
-                <h1 className="absolute top-2 text-4xl font-poppins text-blue-950 font-bold">Gerenciamento de espaços</h1>
-                <Link href={'/gerenciamento'}>
-                    <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105">
-                        <TbCircleArrowLeftFilled size={30}/> Voltar para gerenciamento
-                    </button>
+        <div className="flex flex-col gap-6 mt-2 justify-center items-center">
+            <Link href={'/gerenciamento'} className="border-2 flex items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition duration-500">
+                {/* <button className="border-2 flex items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105"> */}
+                    <TbCircleArrowLeftFilled size={30}/> Voltar para gerenciamento
+                {/* </button> */}
+            </Link>
+            <div className="grid justify-items-center place-items-center grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+                <Link href={'/gerenciamento/espacos/setores'} className="
+                    w-[340px] h-[400px]        /* base → mobile */
+                    sm:w-[360px] sm:h-[440px]  /* ≥640px */
+                    md:w-[380px] md:h-[480px]  /* ≥768px */
+                    lg:w-[400px] lg:h-[520px]  /* ≥1024px */
+                    xl:w-[420px] xl:h-[560px]  /* ≥1280px (23–24” monitor padrão) */
+                    2xl:w-[440px] 2xl:h-[600px] /* ≥1536px */
+                ">
+                    <div
+                        className="relative flex flex-col items-center justify-center w-full h-full border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
+                        >
+                        <h1 className="font-poppins absolute group-hover:text-white top-2 text-6xl font-bold text-blue-950 transition duration-500">SETORES</h1>
+                        <BsBuildingGear className="text-blue-950 group-hover:text-white transition duration-500
+                            w-[140px] h-[200px]        /* base → mobile */
+                            sm:w-[160px] sm:h-[240px]  /* ≥640px */
+                            md:w-[180px] md:h-[280px]  /* ≥768px */
+                            lg:w-[200px] lg:h-[320px]  /* ≥1024px */
+                            xl:w-[220px] xl:h-[360px]  /* ≥1280px (23–24” monitor padrão) */
+                            2xl:w-[240px] 2xl:h-[400px] /* ≥1536px */
+                            "/>
+                        <span className="absolute bottom-2 italic w-80 text-blue-950 text-center group-hover:text-white">Clique no cartão para ser direcionado ao gerenciamento de setores</span>
+                    </div>
                 </Link>
-                <div className="flex justify-center gap-2 mt-4">
-                {setoresAdmin
-                  .sort((x, y) => x.nome.localeCompare(y.nome))
-                  .map((setor) => (
-                      <div key={setor.id} className="flex flex-col gap-2 items-center">
-                          <CartaoSetor
-                              {...setor}
-                              onClick={() => setSetorSelecionado(setorSelecionado === setor.id ? null : setor.id)}/>
-                          {setorSelecionado === setor.id && renderBotoes(setor.id)}
-                      </div>
-                  ))}
-                  {/* INSERIR BOTÃO DE CRIAÇÃO DE ESPAÇO */}
-                </div>
-            </>
-        )}
+                <Link href={'/gerenciamento/espacos/blocos'} className="
+                    w-[340px] h-[400px]        /* base → mobile */
+                    sm:w-[360px] sm:h-[440px]  /* ≥640px */
+                    md:w-[380px] md:h-[480px]  /* ≥768px */
+                    lg:w-[400px] lg:h-[520px]  /* ≥1024px */
+                    xl:w-[420px] xl:h-[560px]  /* ≥1280px (23–24” monitor padrão) */
+                    2xl:w-[440px] 2xl:h-[600px] /* ≥1536px */
+                ">
+                    <div
+                        className="relative flex flex-col items-center justify-center w-full h-full border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
+                        >
+                        <h1 className="font-poppins absolute group-hover:text-white top-2 text-6xl font-bold text-blue-950 transition duration-500">BLOCOS</h1>
+                        <BsBuilding className="text-blue-950 group-hover:text-white transition duration-500
+                            w-[140px] h-[200px]        /* base → mobile */
+                            sm:w-[160px] sm:h-[240px]  /* ≥640px */
+                            md:w-[180px] md:h-[280px]  /* ≥768px */
+                            lg:w-[200px] lg:h-[320px]  /* ≥1024px */
+                            xl:w-[220px] xl:h-[360px]  /* ≥1280px (23–24” monitor padrão) */
+                            2xl:w-[240px] 2xl:h-[400px] /* ≥1536px */
+                            "/>
+                        <span className="absolute bottom-2 italic w-80 text-blue-950 text-center group-hover:text-white">Clique no cartão para ser direcionado ao gerenciamento de blocos</span>
+                    </div>
+                </Link>
+                <Link href={'/gerenciamento/espacos/salas'} className="
+                    w-[340px] h-[400px]        /* base → mobile */
+                    sm:w-[360px] sm:h-[440px]  /* ≥640px */
+                    md:w-[380px] md:h-[480px]  /* ≥768px */
+                    lg:w-[400px] lg:h-[520px]  /* ≥1024px */
+                    xl:w-[420px] xl:h-[560px]  /* ≥1280px (23–24” monitor padrão) */
+                    2xl:w-[440px] 2xl:h-[600px] /* ≥1536px */
+                ">
+                    <div
+                        className="relative flex flex-col items-center justify-center w-full h-full border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
+                        >
+                        <h1 className="font-poppins absolute group-hover:text-white top-2 text-6xl font-bold text-blue-950 transition duration-500">SALAS</h1>
+                        <SiGoogleclassroom className="text-blue-950 group-hover:text-white transition duration-500
+                            w-[140px] h-[200px]        /* base → mobile */
+                            sm:w-[160px] sm:h-[240px]  /* ≥640px */
+                            md:w-[180px] md:h-[280px]  /* ≥768px */
+                            lg:w-[200px] lg:h-[320px]  /* ≥1024px */
+                            xl:w-[220px] xl:h-[360px]  /* ≥1280px (23–24” monitor padrão) */
+                            2xl:w-[240px] 2xl:h-[400px] /* ≥1536px */
+                            "/>
+                        <span className="absolute bottom-2 italic w-80 text-blue-950 text-center group-hover:text-white">Clique no cartão para ser direcionado ao gerenciamento de salas</span>
+                    </div>
+                </Link>
+            </div>
         </div>
     )
 }

@@ -1,8 +1,16 @@
+import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
 async function fetchSalasByBlocoId(blocoId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const res = await fetch(`${BACKEND_URL}/sala/byBloco/${blocoId}`)
+  const token = (await cookies()).get('jwt')
+  const res = await fetch(`${BACKEND_URL}/sala/byBloco/${blocoId}`,{
+    method: "GET",
+    headers: {
+        cookie: `jwt=${token!.value}`
+    },
+    credentials: 'include'
+  })
   if(!res.ok) throw new Error("Erro ao carregar os blocos")
   return res.json()
 }

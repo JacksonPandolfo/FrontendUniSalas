@@ -1,8 +1,11 @@
 import { CreateUsuario } from "@/types/usuario"
+import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
 async function createUsuario(usuarioData: CreateUsuario) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
+
+  const token = (await cookies()).get('jwt')
 
   const res = await fetch(`${BACKEND_URL}/usuario/`, {
     method: "POST",
@@ -20,6 +23,8 @@ async function createUsuario(usuarioData: CreateUsuario) {
 
 async function getUsuarios() {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
+
+  const token = (await cookies()).get('jwt')
 
   const res = await fetch(`${BACKEND_URL}/usuario/`)
 

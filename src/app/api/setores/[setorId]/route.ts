@@ -70,9 +70,9 @@ export async function PATCH(req: Request, context: { params: Promise<{ setorId: 
   }
 }
 
-export async function DELETE(req: Request, context: { params: { setorId: string } }) {
+export async function DELETE(req: Request, context: { params: Promise<{ setorId: string }> }) {
   try {
-    const { setorId } = context.params
+    const { setorId } = await context.params
     const setor = await deleteSetorByID(setorId)
     return NextResponse.json(setor)
   } catch (err) {

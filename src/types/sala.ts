@@ -1,5 +1,4 @@
 import { BlocoAdmin } from "./bloco"
-import { SetorAdmin } from "./setor"
 
 export type TipoEquipamento = {
     id: string
@@ -22,6 +21,16 @@ export interface SalaAdmin {
     statusSala: "LIVRE" | "OCUPADA" | "MANUTENCAO" | "DESATIVADA"
     Equipamentos: TipoEquipamento[]
     Mobiliarios: TipoMobiliario[]
-    setor: SetorAdmin
+    //setor: SetorAdmin
     bloco: BlocoAdmin
+}
+
+export interface UpdateSala {
+    numero: number
+    temAcessibilidade: boolean
+    capacidade: number
+    blocoId: string
+    statusSala: "MANUTENCAO" | "DESATIVADA"
+    Equipamentos: TipoEquipamento[]
+    Mobiliarios: TipoMobiliario[]
 }
