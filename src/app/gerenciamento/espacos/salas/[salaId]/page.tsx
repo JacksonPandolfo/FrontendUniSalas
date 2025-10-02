@@ -1,14 +1,18 @@
 'use client'
 
+import { getBlocosSetor } from "@/lib/api/blocos/api"
 import { getSalaById } from "@/lib/api/salas/api"
+import { getSetores } from "@/lib/api/setores/api"
+import { BlocoAdmin } from "@/types/bloco"
 import { Equipamento, Mobiliario, SalaAdmin } from "@/types/sala"
+import { SetorAdmin } from "@/types/setor"
 import { tipoEquipamentoMap } from "@/utils/tipoEquipamentoMap"
 import { tipoMobiliarioMap } from "@/utils/tipoMobiliarioMap"
 import Link from "next/link"
 import React, { useEffect } from "react"
 import { useState } from "react"
 import { TbCircleArrowLeftFilled } from "react-icons/tb"
-import Select, { GroupBase, OptionsOrGroups, StylesConfig } from 'react-select'
+import Select, { GroupBase, OptionsOrGroups, SingleValue, StylesConfig } from 'react-select'
 
 export default function GerenciamentoSala({ params }: { params: Promise<{ salaId: string }> }){
     const { salaId } = React.use(params)
@@ -19,6 +23,54 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     const [erroAtualizarSala, setErroAtualizarSala] = useState(false)
     const [mensagemErroAtualizarSala, setMensagemErroAtualizarSala] = useState("")
     const [isSalaAtualizada, setIsSalaAtualizada] = useState(false)
+
+    const [setores, setSetores] = useState<SetorAdmin[]>([])
+    const [blocos, setBlocos] = useState<BlocoAdmin[]>([])
+
+    const [novoSetor, setNovoSetor] = useState<string | undefined>()
+    const [novoBloco, setNovoBloco] = useState<number | undefined>()
+    const [novoNumeroSala, setNovoNumeroSala] = useState<number>()
+    const [novaCapacidade, setNovaCapacidade] = useState<number>()
+    const [temAcessibilidade, setTemAcessibilidade] = useState<boolean>()
+    const [novoEquipamento, setNovoEquipamento] = useState<Equipamento[]>([])
+    const [novoMobiliario, setNovoMobiliario] = useState<Mobiliario[]>([])
+
+
+    useEffect(() => {
+      carregarSetores()
+    }, [])
+
+    async function carregarSetores() {
+      try {
+        const setores = await getSetores()
+        setSetores(setores)
+      } catch (err) {
+        const mensagem = err instanceof Error ? err.message : String(err);
+          console.error("Erro ao buscar setor:", mensagem);
+          // setErroSetores(true)
+          // setMensagemErroSetores("Não foi possível carregar os setores para o filtro")
+        }
+      }
+
+      useEffect(() => {
+        if(novoSetor){
+          const setorId = setores.find((s) => s.nome === novoSetor)!.id
+          carregarBlocos(setorId)
+        }
+      }, [novoSetor])
+
+      async function carregarBlocos(setorId: string) {
+        console.log(setorId)
+        try {
+          const blocos = await getBlocosSetor(setorId)
+          setBlocos(blocos)
+        } catch (err) {
+          const mensagem = err instanceof Error ? err.message : String(err);
+          console.error("Erro ao buscar setor:", mensagem);
+          // setErroBlocos(true)
+          // setMensagemErroBlocos("Não foi possível carregar os blocos para o filtro")
+        }
+      }
 
     useEffect(() => {
         setLoadingSala(true)
@@ -45,12 +97,35 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         value: Equipamento;
         label: string;
     };
-    
+
     type OptionTypeMobiliarios = {
         value: Mobiliario;
         label: string;
     };
-    
+
+    type OptionTypeSetoresBlocos = {
+        value: string;
+        label: number | string;
+    };
+
+    const optionsSetores: OptionTypeSetoresBlocos[] = setores
+    .sort((a, b) => a.nome.localeCompare(b.nome))
+    .map(s => ({
+      value: s.id,
+      label: s.nome
+    }))
+
+    const optionsBlocos: OptionTypeSetoresBlocos[] = blocos
+    .sort((a, b) => {
+        if(a.numero < b.numero) return -1
+        if(a.numero > b.numero) return 1
+        return 0
+      })
+    .map(b => ({
+      value: b.id,
+      label: String(b.numero).padStart(2, "0")
+    }))
+
     const optionsEquipamentos: OptionsOrGroups<OptionTypeEquipamentos, GroupBase<OptionTypeEquipamentos>> = [
         { value: Equipamento.CAIXASOM, label: 'Caixa de som' },
         { value: Equipamento.COMPUTADOR, label: 'Computador' },
@@ -66,12 +141,14 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         { value: Mobiliario.MOBILIARIOMOVEL, label: 'Mobiliário móvel' },
     ];
 
-    const customStyles: StylesConfig<OptionTypeEquipamentos | OptionTypeMobiliarios, true> = {
+    const customStylesEquipamento: StylesConfig<OptionTypeEquipamentos, true> = {
         control: (provided) => ({
           ...provided,
           borderRadius: '8px',
           borderColor: '#99a1af',
           minWidth: '220px',
+          maxWidth: '340px',
+          flexWrap: 'wrap',
           padding: '2px',
           boxShadow: 'none',
           color: '#162456',
@@ -107,6 +184,94 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
           color: '#162456',
         }),
       };
+
+    const customStylesMobiliario: StylesConfig<OptionTypeMobiliarios, true> = {
+      control: (provided) => ({
+        ...provided,
+        borderRadius: '8px',
+        borderColor: '#99a1af',
+        minWidth: '220px',
+        maxWidth: '340px',
+        flexWrap: 'wrap',
+        padding: '2px',
+        boxShadow: 'none',
+        color: '#162456',
+        cursor: 'pointer',
+        '&:hover': { borderColor: '#162456' },
+      }),
+      option: (provided, state) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? '#162456' : state.isFocused ? '#bedbff' : 'white',
+        color: state.isSelected ? 'white' : 'black',
+        cursor: 'pointer',
+      }),
+      valueContainer: (provided) => ({
+        ...provided,
+        display: "flex",
+        flexWrap: "wrap",
+        overflow: "visible",
+        maxHeight: "none",
+        gap: "4px",
+      }),
+      multiValue: (provided) => ({
+        ...provided,
+        backgroundColor: '#bedbff',
+        borderRadius: '4px',
+      }),
+      multiValueLabel: (provided) => ({
+        ...provided,
+        color: '#162456',
+        fontWeight: 500,
+      }),
+      placeholder: (provided) => ({
+        ...provided,
+        color: '#162456',
+      }),
+    };
+
+    const customStyles: StylesConfig<OptionTypeSetoresBlocos, false> = {
+      control: (provided) => ({
+        ...provided,
+        borderRadius: '8px',
+        borderColor: '#99a1af',
+        // minWidth: '220px',
+        maxWidth: '120px',
+        flexWrap: 'wrap',
+        padding: '2px',
+        boxShadow: 'none',
+        color: '#162456',
+        cursor: 'pointer',
+        '&:hover': { borderColor: '#162456' },
+      }),
+      option: (provided, state) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? '#162456' : state.isFocused ? '#bedbff' : 'white',
+        color: state.isSelected ? 'white' : 'black',
+        cursor: 'pointer',
+      }),
+      valueContainer: (provided) => ({
+        ...provided,
+        display: "flex",
+        flexWrap: "wrap",
+        overflow: "visible",
+        maxHeight: "none",
+        gap: "4px",
+      }),
+      multiValue: (provided) => ({
+        ...provided,
+        backgroundColor: '#bedbff',
+        borderRadius: '4px',
+      }),
+      multiValueLabel: (provided) => ({
+        ...provided,
+        color: '#162456',
+        fontWeight: 500,
+      }),
+      placeholder: (provided) => ({
+        ...provided,
+        color: '#162456',
+      }),
+    };
 
     return (
       <div className="relative flex flex-col gap-4 items-center justify-center w-full">
@@ -146,7 +311,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                           </button>
                         </Link>
                         <div className="flex gap-2 items-center justify-center">
-                            <div className="flex flex-col border-2 border-blue-950 p-4 rounded-lg bg-gray-100 gap-4">
+                            <div className="flex flex-col border-2 border-blue-950 p-4 rounded-lg bg-gray-100 gap-4 h-full">
                                 <p className="text-center font-bold text-blue-950">Dados atuais</p>
                                 <div className="flex gap-2">
                                   <div className="flex flex-col w-fit">
@@ -180,13 +345,18 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                 <div className="flex gap-4">
                                   <div className="flex flex-col w-fit">
                                       <label className="block font-semibold mb-1">Capacidade</label>
-                                      <input
-                                        type="number"
-                                        min={0}
-                                        value={sala.capacidade}
-                                        readOnly
-                                        className="w-28 border rounded p-2 bg-gray-200"
+                                      <div className="relative">
+                                        <input
+                                          type="number"
+                                          min={0}
+                                          value={sala.capacidade}
+                                          readOnly
+                                          className="w-28 border rounded p-2 bg-gray-200"
                                         />
+                                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-700 text-sm">
+                                          Vagas
+                                        </span>
+                                      </div>
                                   </div>
                                   <div className="flex flex-col w-fit">
                                       <label className="block font-semibold mb-3">Acessibilidade</label>
@@ -209,7 +379,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                   <label className="block font-semibold mb-3">Equipamentos</label>
                                   <textarea
                                     readOnly
-                                    value={sala.Equipamentos.map(e => tipoEquipamentoMap[e.tipoEquipamento]).join(", ")} 
+                                    value={sala.Equipamentos.map(e => tipoEquipamentoMap[e.tipoEquipamento]).join(", ")}
                                     className="w-full border rounded-md p-2 bg-gray-100 text-gray-800 resize-none"
                                     rows={3} // ajusta a altura inicial
                                   />
@@ -218,38 +388,106 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                   <label className="block font-semibold mb-3">Mobiliários</label>
                                   <textarea
                                     readOnly
-                                    value={sala.Mobiliarios.map(e => tipoMobiliarioMap[e.tipoMobiliario]).join(", ")} 
+                                    value={sala.Mobiliarios.map(e => tipoMobiliarioMap[e.tipoMobiliario]).join(", ")}
                                     className="w-full border rounded-md p-2 bg-gray-100 text-gray-800 resize-none"
                                     rows={3} // ajusta a altura inicial
                                   />
                                 </div>
                             </div>
-                            <div className="flex flex-col border-2 border-blue-950 p-4 rounded-lg bg-gray-100">
+                            <div className="flex flex-col border-2 border-blue-950 p-4 rounded-lg bg-gray-100 gap-4 h-full">
                               <p className="text-center font-bold text-blue-950">Dados para atualizar</p>
-                                    {/* <Select
+                              <div className="flex gap-2">
+                                  <div className="flex flex-col w-fit">
+                                    <label className="font-semibold mb-1">Setor</label>
+                                    <Select
                                       styles={customStyles}
-                                      isMulti
-                                      isDisabled
+                                      options={optionsSetores}
                                       required
-                                      value={sala.Equipamentos.map(e => ({ 
-                                        value: e.tipoEquipamento as Equipamento, 
-                                        label: e.tipoEquipamento 
-                                      }))}
-                                      placeholder="Selecione um ou mais cargos"
-                                    /> */}
-                              <div className="mb-4">
-                                <label className="block font-semibold mb-1">Número</label>
-                                <input
-                                  type="number"
-                                  min={0}
-                                  required
-                                  onChange={(e) => {
-                                    const valor = e.target.value
-                                    //setNovoNumero(valor !== "" ? Number(valor) : undefined)
-                                  }}
-                                  className="w-full border rounded p-2"
-                                />
-                              </div>
+                                      onChange={(selected: SingleValue<OptionTypeSetoresBlocos>) => {setNovoSetor(selected ? String(selected.label) : ""); console.log(selected)}}
+                                      value={novoSetor ? optionsSetores.find(o => o.label === novoSetor) || null : null}
+                                      placeholder="Setor"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col w-fit">
+                                    <label className="font-semibold mb-1">Bloco</label>
+                                    <Select
+                                      styles={customStyles}
+                                      options={optionsBlocos}
+                                      required
+                                      onChange={(selected: SingleValue<OptionTypeSetoresBlocos>) => setNovoBloco(selected ? Number(selected.label) : 0)}
+                                      value={novoBloco ? optionsBlocos.find(o => o.label === String(novoBloco).padStart(2, "0")) || null : null}
+                                      placeholder="Setor"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col w-fit">
+                                    <label className="font-semibold mb-1">Sala</label>
+                                    <input
+                                      type="number"
+                                      value={novoNumeroSala === undefined ? sala.numero : novoNumeroSala}
+                                      onChange={(e) => setNovoNumeroSala(Number(e.target.value))}
+                                      className="w-20 border rounded p-2 bg-white"
+                                      />
+                                  </div>
+                                </div>
+                                <div className="flex gap-4">
+                                  <div className="flex flex-col w-fit">
+                                      <label className="block font-semibold mb-1">Capacidade</label>
+                                      <div className="relative">
+                                        <input
+                                          type="number"
+                                          min={0}
+                                          value={novaCapacidade === undefined ? sala.capacidade : novaCapacidade}
+                                          onChange={(e) => setNovaCapacidade(Number(e.target.value))}
+                                          className="w-28 border rounded p-2 bg-white"
+                                        />
+                                        <span className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-700 text-sm">
+                                          Vagas
+                                        </span>
+                                      </div>
+                                  </div>
+                                  <div className="flex flex-col w-fit">
+                                      <label className="block font-semibold mb-3">Acessibilidade</label>
+                                      <div className="flex gap-2 items-center">
+                                          <input
+                                              type="checkbox"
+                                              checked={temAcessibilidade === undefined ? sala.temAcessibilidade : temAcessibilidade}
+                                              onChange={(e) => setTemAcessibilidade(e.target.checked)}
+                                              className="w-5 h-5 border rounded p-2"
+                                              />
+                                          <span>
+                                              {(temAcessibilidade === undefined
+                                                ? sala.temAcessibilidade
+                                                : temAcessibilidade)
+                                                ? "Com acessibilidade"
+                                                : "Sem acessibilidade"}
+                                          </span>
+                                      </div>
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block font-semibold mb-3">Equipamentos</label>
+                                  <Select
+                                      styles={customStylesEquipamento}
+                                      options={optionsEquipamentos}
+                                      isMulti
+                                      required
+                                      onChange={(selected) => setNovoEquipamento(selected.map((s) => s.value))}
+                                      value={novoEquipamento.map(e => ({ value: e, label: e }))}
+                                      placeholder="Selecione os equipamentos"
+                                    />
+                                </div>
+                                <div>
+                                  <label className="block font-semibold mb-3">Mobiliários</label>
+                                  <Select
+                                      styles={customStylesMobiliario}
+                                      options={optionsMobiliarios}
+                                      isMulti
+                                      required
+                                      onChange={(selected) => setNovoMobiliario(selected.map((s) => s.value))}
+                                      value={novoMobiliario.map(m => ({ value: m, label: m }))}
+                                      placeholder="Selecione os mobiliários"
+                                    />
+                                </div>
                             </div>
                         </div>
                         <div className="flex gap-2 items-center justify-center relative">
