@@ -27,14 +27,32 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     const [setores, setSetores] = useState<SetorAdmin[]>([])
     const [blocos, setBlocos] = useState<BlocoAdmin[]>([])
 
-    const [novoSetor, setNovoSetor] = useState<string | undefined>()
-    const [novoBloco, setNovoBloco] = useState<number | undefined>()
-    const [novoNumeroSala, setNovoNumeroSala] = useState<number>()
-    const [novaCapacidade, setNovaCapacidade] = useState<number>()
-    const [temAcessibilidade, setTemAcessibilidade] = useState<boolean>()
+    const [novoSetor, setNovoSetor] = useState<string | undefined>(sala?.bloco.setor.nome)
+    const [novoBloco, setNovoBloco] = useState<number | undefined>(sala?.bloco.numero)
+    const [novoNumeroSala, setNovoNumeroSala] = useState<number | undefined>(sala?.numero)
+    const [novaCapacidade, setNovaCapacidade] = useState<number | undefined>(sala?.capacidade)
+    const [temAcessibilidade, setTemAcessibilidade] = useState<boolean | undefined>(sala?.temAcessibilidade)
     const [novoEquipamento, setNovoEquipamento] = useState<Equipamento[]>([])
     const [novoMobiliario, setNovoMobiliario] = useState<Mobiliario[]>([])
 
+    useEffect(() => {
+      if (sala) {
+        const equipamentos = sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])
+        const mobiliarios = sala.Mobiliarios.map(m => Mobiliario[m.tipoMobiliario as unknown as keyof typeof Mobiliario])
+        setNovoSetor(sala.bloco.setor.nome)
+        setNovoBloco(sala.bloco.numero)
+        setNovoNumeroSala(sala.numero)
+        setNovaCapacidade(sala.capacidade)
+        setTemAcessibilidade(sala.temAcessibilidade)
+        setNovoEquipamento(equipamentos)
+        setNovoMobiliario(mobiliarios)
+      }
+}, [sala])
+
+    useEffect(() => {
+        setLoadingSala(true)
+        buscarSalaByID(salaId)
+    }, [salaId])
 
     useEffect(() => {
       carregarSetores()
@@ -60,7 +78,6 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
       }, [novoSetor])
 
       async function carregarBlocos(setorId: string) {
-        console.log(setorId)
         try {
           const blocos = await getBlocosSetor(setorId)
           setBlocos(blocos)
@@ -72,13 +89,9 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         }
       }
 
-    useEffect(() => {
-        setLoadingSala(true)
-        buscarSalaByID(salaId)
-    }, [salaId])
 
     async function buscarSalaByID(salaId: string){
-        getSalaById(salaId)
+        await getSalaById(salaId)
         .then(setSala)
         .catch((err) => {
             const mensagem = err instanceof Error ? err.message : String(err);
@@ -88,9 +101,74 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         .finally(() => setLoadingSala(false))
     }
 
+    function arraysIguais<T>(a: T[], b: T[]){
+      if(a.length !== b.length) return false
+      const ordenadoA = [...a].sort()
+      const ordenadoB = [...b].sort()
+      return ordenadoA.every((val, idx) => val === ordenadoB[idx])
+    }
+
     async function salvarAlteracoes(){
-        console.log(sala?.bloco.setor.nome)
-        console.log(sala?.bloco.numero)
+      setMensagemErroAtualizarSala("")
+        let permiteAtualizar = true
+        setErroAtualizarSala(false)
+        setIsSalaAtualizada(false)
+
+        if(!sala) return
+
+        const equipamentos = sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])
+        const mobiliarios = sala.Mobiliarios.map(m => Mobiliario[m.tipoMobiliario as unknown as keyof typeof Mobiliario])
+
+        if(novoSetor === sala.bloco.setor.nome && novoBloco === sala.bloco.numero && novoNumeroSala === sala.numero
+            && novaCapacidade === sala.capacidade && temAcessibilidade === sala.temAcessibilidade
+            && arraysIguais(novoEquipamento, equipamentos)
+            && arraysIguais(novoMobiliario, mobiliarios)
+
+          ){
+            setErroAtualizarSala(true)
+            setMensagemErroAtualizarSala("Nenhuma alteração foi feita")
+            setTimeout(() => setErroAtualizarSala(false), 3000)
+            permiteAtualizar = false
+            return
+        }
+        console.log("oiiiiiiiii")
+        console.log(novaCapacidade)
+        if(novoSetor === undefined && novoBloco === undefined && novoNumeroSala === undefined
+            && novaCapacidade === undefined && temAcessibilidade === undefined
+            && novoEquipamento.length === 0
+            && novoMobiliario.length === 0
+          ){
+            setErroAtualizarSala(true)
+            setMensagemErroAtualizarSala("Os valores não podem ser vazios")
+            setTimeout(() => setErroAtualizarSala(false), 3000)
+            permiteAtualizar = false
+            return
+          }
+
+        if(novaCapacidade === 0 || novoNumeroSala === 0){
+          setErroAtualizarSala(true)
+          setMensagemErroAtualizarSala("Os valores não podem ter o valor 0")
+          setTimeout(() => setErroAtualizarSala(false), 3000)
+          permiteAtualizar = false
+          return
+        }
+        console.log("novo: " + novoSetor)
+        console.log(sala.bloco.setor.nome)
+        console.log("novo: " + novoBloco)
+        console.log(sala.bloco.numero)
+        console.log("novo: " + novoNumeroSala)
+        console.log(sala.numero)
+        console.log("novo: " + novaCapacidade)
+        console.log(sala.capacidade)
+        console.log("novo: " + temAcessibilidade)
+        console.log(sala.temAcessibilidade)
+        console.log("novo: " + novoEquipamento)
+        console.log(sala.Equipamentos.map(e => e.tipoEquipamento))
+        console.log("novo: " + arraysIguais(novoEquipamento, sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])))
+        console.log("novo: " + novoMobiliario)
+        console.log(arraysIguais(novoMobiliario, sala.Mobiliarios.map(m => m.tipoMobiliario)))
+        console.log(mensagemErroAtualizarSala)
+        console.log(permiteAtualizar)
     }
 
     type OptionTypeEquipamentos = {
@@ -126,7 +204,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
       label: String(b.numero).padStart(2, "0")
     }))
 
-    const optionsEquipamentos: OptionsOrGroups<OptionTypeEquipamentos, GroupBase<OptionTypeEquipamentos>> = [
+    const optionsEquipamentos: OptionTypeEquipamentos[] = [
         { value: Equipamento.CAIXASOM, label: 'Caixa de som' },
         { value: Equipamento.COMPUTADOR, label: 'Computador' },
         { value: Equipamento.MICROFONE, label: 'Microfone' },
@@ -134,7 +212,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         { value: Equipamento.WEBCAM, label: 'Webcam' },
     ];
 
-    const optionsMobiliarios: OptionsOrGroups<OptionTypeMobiliarios, GroupBase<OptionTypeMobiliarios>> = [
+    const optionsMobiliarios: OptionTypeMobiliarios[] = [
         { value: Mobiliario.CADEIRABRACO, label: 'Cadeira com braço' },
         { value: Mobiliario.MESADESENHO, label: 'Mesa de desenho' },
         { value: Mobiliario.MESAREUNIAO, label: 'Mesa de reunião' },
@@ -277,7 +355,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
       <div className="relative flex flex-col gap-4 items-center justify-center w-full">
             {loadingSala ? (
               <div className="flex justify-center items-center">
-                    <p className="mt-6 text-gray-600">{"Carregando...".split(" ").map((char, i) => (
+                    <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
                       <span key={i} className="inline-block animate-bounce">{char}</span>
                     ))}
                     </p>
@@ -403,8 +481,8 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                       styles={customStyles}
                                       options={optionsSetores}
                                       required
-                                      onChange={(selected: SingleValue<OptionTypeSetoresBlocos>) => {setNovoSetor(selected ? String(selected.label) : ""); console.log(selected)}}
-                                      value={novoSetor ? optionsSetores.find(o => o.label === novoSetor) || null : null}
+                                      onChange={(selected) => setNovoSetor(selected ? String(selected.label) : "")}
+                                      value={novoSetor !== undefined ? optionsSetores.find(o => o.label === novoSetor) || null : null}
                                       placeholder="Setor"
                                     />
                                   </div>
@@ -423,8 +501,9 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                     <label className="font-semibold mb-1">Sala</label>
                                     <input
                                       type="number"
+                                      min={0}
                                       value={novoNumeroSala === undefined ? sala.numero : novoNumeroSala}
-                                      onChange={(e) => setNovoNumeroSala(Number(e.target.value))}
+                                      onChange={(e) => setNovoNumeroSala(e.target.value ? Number(e.target.value) : sala.numero)}
                                       className="w-20 border rounded p-2 bg-white"
                                       />
                                   </div>
@@ -437,7 +516,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                           type="number"
                                           min={0}
                                           value={novaCapacidade === undefined ? sala.capacidade : novaCapacidade}
-                                          onChange={(e) => setNovaCapacidade(Number(e.target.value))}
+                                          onChange={(e) => setNovaCapacidade(e.target.value ? Number(e.target.value) : sala.capacidade)}
                                           className="w-28 border rounded p-2 bg-white"
                                         />
                                         <span className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-700 text-sm">
@@ -472,7 +551,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                       isMulti
                                       required
                                       onChange={(selected) => setNovoEquipamento(selected.map((s) => s.value))}
-                                      value={novoEquipamento.map(e => ({ value: e, label: e }))}
+                                      value={optionsEquipamentos.filter(opt => novoEquipamento.includes(opt.value))}
                                       placeholder="Selecione os equipamentos"
                                     />
                                 </div>
@@ -484,13 +563,13 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                       isMulti
                                       required
                                       onChange={(selected) => setNovoMobiliario(selected.map((s) => s.value))}
-                                      value={novoMobiliario.map(m => ({ value: m, label: m }))}
+                                      value={optionsMobiliarios.filter(opt => novoMobiliario.includes(opt.value))}
                                       placeholder="Selecione os mobiliários"
                                     />
                                 </div>
                             </div>
                         </div>
-                        <div className="flex gap-2 items-center justify-center relative">
+                        <div className="flex gap-2 items-center justify-center">
                           <button
                             onClick={salvarAlteracoes}
                             className="bg-blue-700 font-poppins text-white px-4 py-2 rounded-lg hover:bg-blue-950 hover:cursor-pointer transition duration-300"
@@ -498,12 +577,12 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                             Salvar alterações
                           </button>
                           {erroAtualizarSala && (
-                            <div className="absolute top-20 bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                            <div className="absolute top-2 right-2 bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
                               <p>{mensagemErroAtualizarSala}</p>
                             </div>
                           )}
                           {isSalaAtualizada && (
-                            <div className="absolute top-20 bg-green-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                            <div className="absolute top-2 right-2 bg-green-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
                               <p>✅ Dados salvos com sucesso!</p>
                             </div>
                           )}

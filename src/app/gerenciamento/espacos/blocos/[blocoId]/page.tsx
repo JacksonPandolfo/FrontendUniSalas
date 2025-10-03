@@ -83,14 +83,14 @@ export default function GerenciamentoBloco({ params }: { params: Promise<{ bloco
             setErroAtualizar(true)
             setMensagemErroAtualizarBloco("Nenhuma alteração foi feita!");
             setTimeout(() => setErroAtualizar(false), 3000)
-            permiteAtualizar = true
+            permiteAtualizar = false
             return;
         }
         if(novoNumero === undefined || bloco.setorId === ""){
             setErroAtualizar(true)
             setMensagemErroAtualizarBloco("Os valores não podem ser vazios");
             setTimeout(() => setErroAtualizar(false), 3000)
-            permiteAtualizar = true
+            permiteAtualizar = false
             return;
         }
 
@@ -107,7 +107,7 @@ export default function GerenciamentoBloco({ params }: { params: Promise<{ bloco
                         setErroAtualizar(true)
                         setMensagemErroAtualizarBloco("Já existe um bloco com este número setor");
                         setTimeout(() => setErroAtualizar(false), 3000)
-                        permiteAtualizar = true
+                        permiteAtualizar = false
                     }
             }
         }
