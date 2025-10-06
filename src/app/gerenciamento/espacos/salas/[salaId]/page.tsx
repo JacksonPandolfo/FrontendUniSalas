@@ -4,15 +4,15 @@ import { getBlocosSetor } from "@/lib/api/blocos/api"
 import { getSalaById } from "@/lib/api/salas/api"
 import { getSetores } from "@/lib/api/setores/api"
 import { BlocoAdmin } from "@/types/bloco"
-import { Equipamento, Mobiliario, SalaAdmin } from "@/types/sala"
+import { Equipamento, Mobiliario, SalaAdmin, TipoEquipamento, UpdateSala } from "@/types/sala"
 import { SetorAdmin } from "@/types/setor"
-import { tipoEquipamentoMap } from "@/utils/tipoEquipamentoMap"
-import { tipoMobiliarioMap } from "@/utils/tipoMobiliarioMap"
+import { tipoEquipamentoMap, tipoEquipamentoReverseMap } from "@/utils/tipoEquipamentoMap"
+import { tipoMobiliarioMap, tipoMobiliarioReverseMap } from "@/utils/tipoMobiliarioMap"
 import Link from "next/link"
 import React, { useEffect } from "react"
 import { useState } from "react"
 import { TbCircleArrowLeftFilled } from "react-icons/tb"
-import Select, { GroupBase, OptionsOrGroups, SingleValue, StylesConfig } from 'react-select'
+import Select, { SingleValue, StylesConfig } from 'react-select'
 
 export default function GerenciamentoSala({ params }: { params: Promise<{ salaId: string }> }){
     const { salaId } = React.use(params)
@@ -34,6 +34,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     const [temAcessibilidade, setTemAcessibilidade] = useState<boolean | undefined>(sala?.temAcessibilidade)
     const [novoEquipamento, setNovoEquipamento] = useState<Equipamento[]>([])
     const [novoMobiliario, setNovoMobiliario] = useState<Mobiliario[]>([])
+    const [novoStatusSala, setNovoStatusSala] = useState<SalaAdmin["statusSala"]>
 
     useEffect(() => {
       if (sala) {
@@ -111,6 +112,9 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     async function salvarAlteracoes(){
       setMensagemErroAtualizarSala("")
         let permiteAtualizar = true
+        let equipamentoAtualizacao: string[]
+        let mobiliarioAtualizacao: string[]
+        let blocoAtualizacao: string
         setErroAtualizarSala(false)
         setIsSalaAtualizada(false)
 
@@ -131,12 +135,9 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
             permiteAtualizar = false
             return
         }
-        console.log("oiiiiiiiii")
-        console.log(novaCapacidade)
-        if(novoSetor === undefined && novoBloco === undefined && novoNumeroSala === undefined
-            && novaCapacidade === undefined && temAcessibilidade === undefined
-            && novoEquipamento.length === 0
-            && novoMobiliario.length === 0
+
+        if(novoSetor === undefined || novoBloco === undefined || novoNumeroSala === undefined
+            || novaCapacidade === undefined || temAcessibilidade === undefined
           ){
             setErroAtualizarSala(true)
             setMensagemErroAtualizarSala("Os valores não podem ser vazios")
@@ -145,13 +146,72 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
             return
           }
 
-        if(novaCapacidade === 0 || novoNumeroSala === 0){
+        if(novaCapacidade === 0){
           setErroAtualizarSala(true)
-          setMensagemErroAtualizarSala("Os valores não podem ter o valor 0")
+          setMensagemErroAtualizarSala("A capacidade não pode ser 0")
           setTimeout(() => setErroAtualizarSala(false), 3000)
           permiteAtualizar = false
           return
         }
+
+        if(novoNumeroSala === 0){
+          setErroAtualizarSala(true)
+          setMensagemErroAtualizarSala("A sala não pode ser 0")
+          setTimeout(() => setErroAtualizarSala(false), 3000)
+          permiteAtualizar = false
+          return
+        }
+
+        if(novoEquipamento.length !== 0){
+          equipamentoAtualizacao = novoEquipamento.map(e => tipoEquipamentoReverseMap[e])
+        }
+
+        if(novoMobiliario.length !== 0){
+          mobiliarioAtualizacao = novoMobiliario.map(m => tipoMobiliarioReverseMap[m])
+        }
+
+        if(novoSetor){
+          const setorDaSala = setores.find(s => s.nome === novoSetor)
+
+          if(setorDaSala){
+            const blocoDaSala = blocos.find(b => b.numero === novoBloco)
+            if(blocoDaSala){
+              blocoAtualizacao = blocoDaSala.id
+              const numeroSala = blocoDaSala.salas.find(s => s.numero === novoNumeroSala)
+              const proximaSalaDisponivel = Math.max(...blocoDaSala.salas.map(s => s.numero)) + 1
+              if(numeroSala){
+                setErroAtualizarSala(true)
+                setMensagemErroAtualizarSala(`Essa sala já existe em ${setorDaSala.nome}${String(blocoDaSala.numero).padStart(2, "0")}, a próxima sala disponivel nesse local é ${proximaSalaDisponivel}`)
+                setTimeout(() => setErroAtualizarSala(false), 3000)
+                permiteAtualizar = false
+                return
+              }
+            } else{
+              setErroAtualizarSala(true)
+              setMensagemErroAtualizarSala("Bloco não existente, por favor selecione uma das opções disponíveis")
+              setTimeout(() => setErroAtualizarSala(false), 3000)
+              permiteAtualizar = false
+              return
+            }
+          } else{
+            setErroAtualizarSala(true)
+            setMensagemErroAtualizarSala("Setor não existente, por favor selecione uma das opções disponíveis")
+            setTimeout(() => setErroAtualizarSala(false), 3000)
+            permiteAtualizar = false
+            return
+          }
+        }
+
+        const dataUpdateSala: UpdateSala = {
+          numero: novoNumeroSala,
+          temAcessibilidade: temAcessibilidade,
+          capacidade: novaCapacidade,
+          blocoId: blocoAtualizacao!,
+          Equipamentos: equipamentoAtualizacao!,
+          Mobiliarios: mobiliarioAtualizacao!,
+        }
+
+
         console.log("novo: " + novoSetor)
         console.log(sala.bloco.setor.nome)
         console.log("novo: " + novoBloco)
@@ -163,12 +223,18 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         console.log("novo: " + temAcessibilidade)
         console.log(sala.temAcessibilidade)
         console.log("novo: " + novoEquipamento)
+        console.log("novo eqipamento: " + novoEquipamento.map(e => tipoEquipamentoReverseMap[e]))
         console.log(sala.Equipamentos.map(e => e.tipoEquipamento))
         console.log("novo: " + arraysIguais(novoEquipamento, sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])))
         console.log("novo: " + novoMobiliario)
         console.log(arraysIguais(novoMobiliario, sala.Mobiliarios.map(m => m.tipoMobiliario)))
         console.log(mensagemErroAtualizarSala)
         console.log(permiteAtualizar)
+    }
+
+    type OptionTypeStatusSala = {
+      value: SalaAdmin["statusSala"],
+      label: string
     }
 
     type OptionTypeEquipamentos = {
@@ -203,6 +269,10 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
       value: b.id,
       label: String(b.numero).padStart(2, "0")
     }))
+
+    const optionsStatusSala: OptionTypeStatusSala =
+      {value: "MANUTENCAO", label: "Manutenção"}
+      // {value: "DESATIVADA", label: "Desativada"}
 
     const optionsEquipamentos: OptionTypeEquipamentos[] = [
         { value: Equipamento.CAIXASOM, label: 'Caixa de som' },
@@ -364,14 +434,6 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                     <div className="flex justify-center items-center">
                         <p className="mt-6 text-gray-600">{mensagemErroBuscarSala}</p>
                     </div>
-                // ) : erroAtualizar ? (
-                //     <div className="flex justify-center items-center">
-                //         <p className="mt-6 text-gray-600">{mensagemErroAtualizar}</p>
-                //     </div>
-                // ) : erroBlocos ? (
-                //     <div className="flex justify-center items-center">
-                //         <p className="mt-6 text-gray-600">{mensagemErroBlocos}</p>
-                //     </div>
                 ) : sala && (
                     <>
                         <h1 className="flex gap-2 absolute top-2 text-4xl font-poppins text-blue-950 font-bold">
@@ -542,6 +604,18 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                           </span>
                                       </div>
                                   </div>
+                                </div>
+                                <div>
+                                  <label className="block font-semibold mb-3">Estado da sala</label>
+                                  <Select
+                                      styles={customStylesEquipamento}
+                                      options={optionsStatusSala}
+                                      isMulti
+                                      required
+                                      onChange={(selected) => setNovoEquipamento(selected.map((s) => s.value))}
+                                      value={optionsEquipamentos.filter(opt => novoEquipamento.includes(opt.value))}
+                                      placeholder="Selecione os equipamentos"
+                                    />
                                 </div>
                                 <div>
                                   <label className="block font-semibold mb-3">Equipamentos</label>

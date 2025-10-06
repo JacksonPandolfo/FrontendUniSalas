@@ -18,14 +18,12 @@ export enum Equipamento {
 export type TipoEquipamento = {
     id: string
     salaId: string
-    // tipoEquipamento: string
     tipoEquipamento: Equipamento
 }
 
 export type TipoMobiliario = {
     id: string
     salaId: string
-    // tipoMobiliario: string
     tipoMobiliario: Mobiliario
 }
 
@@ -47,6 +45,6 @@ export interface UpdateSala {
     capacidade: number
     blocoId: string
     statusSala: "MANUTENCAO" | "DESATIVADA"
-    Equipamentos: TipoEquipamento[]
-    Mobiliarios: TipoMobiliario[]
+    Equipamentos: string[]
+    Mobiliarios: string[]
 }

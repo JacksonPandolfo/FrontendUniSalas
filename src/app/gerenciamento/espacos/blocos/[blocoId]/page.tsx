@@ -108,6 +108,7 @@ export default function GerenciamentoBloco({ params }: { params: Promise<{ bloco
                         setMensagemErroAtualizarBloco("Já existe um bloco com este número setor");
                         setTimeout(() => setErroAtualizar(false), 3000)
                         permiteAtualizar = false
+                        return
                     }
             }
         }
