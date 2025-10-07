@@ -4,8 +4,9 @@ import { getBlocosSetor } from "@/lib/api/blocos/api"
 import { getSalaById } from "@/lib/api/salas/api"
 import { getSetores } from "@/lib/api/setores/api"
 import { BlocoAdmin } from "@/types/bloco"
-import { Equipamento, Mobiliario, SalaAdmin, TipoEquipamento, UpdateSala } from "@/types/sala"
+import { Equipamento, Mobiliario, SalaAdmin, UpdateSala } from "@/types/sala"
 import { SetorAdmin } from "@/types/setor"
+import { statusSalaMap } from "@/utils/statusSalaMap"
 import { tipoEquipamentoMap, tipoEquipamentoReverseMap } from "@/utils/tipoEquipamentoMap"
 import { tipoMobiliarioMap, tipoMobiliarioReverseMap } from "@/utils/tipoMobiliarioMap"
 import Link from "next/link"
@@ -34,7 +35,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     const [temAcessibilidade, setTemAcessibilidade] = useState<boolean | undefined>(sala?.temAcessibilidade)
     const [novoEquipamento, setNovoEquipamento] = useState<Equipamento[]>([])
     const [novoMobiliario, setNovoMobiliario] = useState<Mobiliario[]>([])
-    const [novoStatusSala, setNovoStatusSala] = useState<SalaAdmin["statusSala"]>
+    const [novoStatusSala, setNovoStatusSala] = useState<SalaAdmin["statusSala"]>()
 
     useEffect(() => {
       if (sala) {
@@ -270,9 +271,12 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
       label: String(b.numero).padStart(2, "0")
     }))
 
-    const optionsStatusSala: OptionTypeStatusSala =
-      {value: "MANUTENCAO", label: "Manutenção"}
-      // {value: "DESATIVADA", label: "Desativada"}
+    const optionsStatusSala: OptionTypeStatusSala[] = [
+      {value: "LIVRE", label: "Livre"},
+      {value: "OCUPADA", label: "Ocupada"},
+      {value: "MANUTENCAO", label: "Manutenção"},
+      {value: "DESATIVADA", label: "Desativada"}
+    ]
 
     const optionsEquipamentos: OptionTypeEquipamentos[] = [
         { value: Equipamento.CAIXASOM, label: 'Caixa de som' },
@@ -301,6 +305,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
           boxShadow: 'none',
           color: '#162456',
           cursor: 'pointer',
+          height: '90px',
           '&:hover': { borderColor: '#162456' },
         }),
         option: (provided, state) => ({
@@ -345,6 +350,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         boxShadow: 'none',
         color: '#162456',
         cursor: 'pointer',
+        height: "90px",
         '&:hover': { borderColor: '#162456' },
       }),
       option: (provided, state) => ({
@@ -385,6 +391,47 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         // minWidth: '220px',
         maxWidth: '120px',
         flexWrap: 'wrap',
+        padding: '2px',
+        boxShadow: 'none',
+        color: '#162456',
+        cursor: 'pointer',
+        '&:hover': { borderColor: '#162456' },
+      }),
+      option: (provided, state) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? '#162456' : state.isFocused ? '#bedbff' : 'white',
+        color: state.isSelected ? 'white' : 'black',
+        cursor: 'pointer',
+      }),
+      valueContainer: (provided) => ({
+        ...provided,
+        display: "flex",
+        flexWrap: "wrap",
+        overflow: "visible",
+        maxHeight: "none",
+        gap: "4px",
+      }),
+      multiValue: (provided) => ({
+        ...provided,
+        backgroundColor: '#bedbff',
+        borderRadius: '4px',
+      }),
+      multiValueLabel: (provided) => ({
+        ...provided,
+        color: '#162456',
+        fontWeight: 500,
+      }),
+      placeholder: (provided) => ({
+        ...provided,
+        color: '#162456',
+      }),
+    };
+
+    const customStylesStatus: StylesConfig<OptionTypeStatusSala, false> = {
+      control: (provided) => ({
+        ...provided,
+        borderRadius: '8px',
+        borderColor: '#99a1af',
         padding: '2px',
         boxShadow: 'none',
         color: '#162456',
@@ -516,6 +563,18 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                   </div>
                                 </div>
                                 <div>
+                                      <label className="block font-semibold mb-1">Estado da sala</label>
+                                      <div className="relative">
+                                        <input
+                                          type="text"
+                                          min={0}
+                                          value={statusSalaMap[sala.statusSala]}
+                                          readOnly
+                                          className="w-full border rounded p-2 bg-gray-200"
+                                        />
+                                      </div>
+                                  </div>
+                                <div>
                                   <label className="block font-semibold mb-3">Equipamentos</label>
                                   <textarea
                                     readOnly
@@ -606,15 +665,14 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                   </div>
                                 </div>
                                 <div>
-                                  <label className="block font-semibold mb-3">Estado da sala</label>
+                                  <label className="block font-semibold mb-1">Estado da sala</label>
                                   <Select
-                                      styles={customStylesEquipamento}
+                                      styles={customStylesStatus}
                                       options={optionsStatusSala}
-                                      isMulti
                                       required
-                                      onChange={(selected) => setNovoEquipamento(selected.map((s) => s.value))}
-                                      value={optionsEquipamentos.filter(opt => novoEquipamento.includes(opt.value))}
-                                      placeholder="Selecione os equipamentos"
+                                      onChange={(selected) => setNovoStatusSala(selected?.value)}
+                                      value={optionsStatusSala.find(opt => opt.value === (novoStatusSala ?? sala.statusSala))}
+                                      placeholder="Selecione o status da sala"
                                     />
                                 </div>
                                 <div>

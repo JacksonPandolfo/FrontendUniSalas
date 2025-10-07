@@ -92,7 +92,6 @@ function gerarEventosPorHorario(dataInicial: Date, dataFinal: Date, horaInicial:
   if (tipoReserva === "ESPORADICA") {
     const start = criarDataLocal(dataInicio.toISOString(), horaInicial)
     const end = criarDataLocal(dataFim.toISOString(), horaFinal)
-    console.log(start, end)
 
     dataHoraEventos.push({ start, end })
 

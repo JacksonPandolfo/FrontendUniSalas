@@ -5,7 +5,12 @@ import { NextResponse } from "next/server";
 async function getUsuariosByID(usuarioId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
   const token = (await cookies()).get('jwt')
-  const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`)
+  const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`, {
+    method: "GET",
+    headers: {
+      cookie: `jwt=${token!.value}`
+    }
+  })
   if(!res.ok) throw new Error("Erro ao buscar o usuário")
   return res.json()
 }
@@ -15,7 +20,10 @@ async function updateUsuariosByID(usuarioId: string, usuarioData: UsuarioAdmin) 
   const token = (await cookies()).get('jwt')
   const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`, {
     method: "POST",
-    headers: { "Content-Type": "application.json" },
+    headers: {
+      "Content-Type": "application/json",
+      cookie: `jwt=${token!.value}`
+    },
     body: JSON.stringify(usuarioData)
   })
   if(!res.ok) throw new Error("Erro ao atualizar o usuário")
@@ -24,12 +32,13 @@ async function updateUsuariosByID(usuarioId: string, usuarioData: UsuarioAdmin) 
 
 async function deleteUsuariosByID(usuarioId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = localStorage.getItem("token")
+  const token = (await cookies()).get('jwt')
   const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`, {
     method: "DELETE",
     headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        cookie: `jwt=${token!.value}`,
+        // "Authorization": `Bearer ${token}`,
     }
   })
   if(!res.ok) throw new Error("Erro ao excluir o usuário")

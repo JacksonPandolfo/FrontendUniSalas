@@ -3,8 +3,18 @@ import { NextResponse } from "next/server";
 
 async function getEventosSala(salaId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = (await cookies()).get('jwt')
-  const res = await fetch(`${BACKEND_URL}/reserva/bySala/${salaId}`)
+//   const token = (await cookies()).get('jwt')
+  const cookieStore = cookies();
+  const token = (await cookieStore).get("jwt")?.value
+  if (!token) {
+    throw new Error("Token JWT não encontrado");
+  }
+  const res = await fetch(`${BACKEND_URL}/reserva/bySala/${salaId}`, {
+    method: "GET",
+    headers: {
+        cookie: `jwt=${token!}`
+    }
+  })
   if(!res.ok) throw new Error("Erro ao carregar os eventos da sala")
   return res.json()
 }

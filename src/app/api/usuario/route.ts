@@ -9,7 +9,10 @@ async function createUsuario(usuarioData: CreateUsuario) {
 
   const res = await fetch(`${BACKEND_URL}/usuario/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      cookie: `jwt=${token!.value}`
+    },
     body: JSON.stringify(usuarioData)
   })
 
@@ -23,10 +26,13 @@ async function createUsuario(usuarioData: CreateUsuario) {
 
 async function getUsuarios() {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-
   const token = (await cookies()).get('jwt')
-
-  const res = await fetch(`${BACKEND_URL}/usuario/`)
+  const res = await fetch(`${BACKEND_URL}/usuario/`, {
+    method: "GET",
+    headers: {
+      cookie: `jwt=${token!.value}`
+    }
+  })
 
   const data = await res.json()
   if(!res.ok){
