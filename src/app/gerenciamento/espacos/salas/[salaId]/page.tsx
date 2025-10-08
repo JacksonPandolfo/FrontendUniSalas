@@ -45,6 +45,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         setNovoBloco(sala.bloco.numero)
         setNovoNumeroSala(sala.numero)
         setNovaCapacidade(sala.capacidade)
+        setNovoStatusSala(sala.statusSala)
         setTemAcessibilidade(sala.temAcessibilidade)
         setNovoEquipamento(equipamentos)
         setNovoMobiliario(mobiliarios)
@@ -52,8 +53,10 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
 }, [sala])
 
     useEffect(() => {
+      if(salaId){
         setLoadingSala(true)
         buscarSalaByID(salaId)
+      }
     }, [salaId])
 
     useEffect(() => {
@@ -73,7 +76,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
       }
 
       useEffect(() => {
-        if(novoSetor){
+        if(novoSetor && setores){
           const setorId = setores.find((s) => s.nome === novoSetor)!.id
           carregarBlocos(setorId)
         }
@@ -126,6 +129,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
 
         if(novoSetor === sala.bloco.setor.nome && novoBloco === sala.bloco.numero && novoNumeroSala === sala.numero
             && novaCapacidade === sala.capacidade && temAcessibilidade === sala.temAcessibilidade
+            && novoStatusSala === sala.statusSala
             && arraysIguais(novoEquipamento, equipamentos)
             && arraysIguais(novoMobiliario, mobiliarios)
 
@@ -138,7 +142,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         }
 
         if(novoSetor === undefined || novoBloco === undefined || novoNumeroSala === undefined
-            || novaCapacidade === undefined || temAcessibilidade === undefined
+            || novaCapacidade === undefined || temAcessibilidade === undefined || novoStatusSala === undefined
           ){
             setErroAtualizarSala(true)
             setMensagemErroAtualizarSala("Os valores não podem ser vazios")
@@ -173,14 +177,21 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
 
         if(novoSetor){
           const setorDaSala = setores.find(s => s.nome === novoSetor)
+          const mesmoSetor = (setorDaSala?.id === sala.bloco.setor.id)
+          console.log("Mesmo setor: " + mesmoSetor)
 
           if(setorDaSala){
             const blocoDaSala = blocos.find(b => b.numero === novoBloco)
+            const mesmoBloco = (blocoDaSala?.id === sala.bloco.id)
+            console.log("Mesmo bloco: " + mesmoBloco)
             if(blocoDaSala){
               blocoAtualizacao = blocoDaSala.id
               const numeroSala = blocoDaSala.salas.find(s => s.numero === novoNumeroSala)
+              const mesmaSala = (numeroSala?.id === sala.id)
+              console.log("Mesma sala: " + mesmaSala)
               const proximaSalaDisponivel = Math.max(...blocoDaSala.salas.map(s => s.numero)) + 1
-              if(numeroSala){
+              console.log(mesmoSetor, mesmoBloco, mesmaSala)
+              if(numeroSala && ((mesmoSetor && mesmoBloco && !mesmaSala) || (!mesmoSetor && !mesmoBloco) || (!mesmoSetor && mesmoBloco) || (mesmoSetor && !mesmoBloco))){
                 setErroAtualizarSala(true)
                 setMensagemErroAtualizarSala(`Essa sala já existe em ${setorDaSala.nome}${String(blocoDaSala.numero).padStart(2, "0")}, a próxima sala disponivel nesse local é ${proximaSalaDisponivel}`)
                 setTimeout(() => setErroAtualizarSala(false), 3000)
@@ -208,29 +219,31 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
           temAcessibilidade: temAcessibilidade,
           capacidade: novaCapacidade,
           blocoId: blocoAtualizacao!,
+          statusSala: novoStatusSala!,
           Equipamentos: equipamentoAtualizacao!,
           Mobiliarios: mobiliarioAtualizacao!,
         }
 
+        console.log(dataUpdateSala)
 
-        console.log("novo: " + novoSetor)
-        console.log(sala.bloco.setor.nome)
-        console.log("novo: " + novoBloco)
-        console.log(sala.bloco.numero)
-        console.log("novo: " + novoNumeroSala)
-        console.log(sala.numero)
-        console.log("novo: " + novaCapacidade)
-        console.log(sala.capacidade)
-        console.log("novo: " + temAcessibilidade)
-        console.log(sala.temAcessibilidade)
-        console.log("novo: " + novoEquipamento)
-        console.log("novo eqipamento: " + novoEquipamento.map(e => tipoEquipamentoReverseMap[e]))
-        console.log(sala.Equipamentos.map(e => e.tipoEquipamento))
-        console.log("novo: " + arraysIguais(novoEquipamento, sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])))
-        console.log("novo: " + novoMobiliario)
-        console.log(arraysIguais(novoMobiliario, sala.Mobiliarios.map(m => m.tipoMobiliario)))
-        console.log(mensagemErroAtualizarSala)
-        console.log(permiteAtualizar)
+        // console.log("novo: " + novoSetor)
+        // console.log(sala.bloco.setor.nome)
+        // console.log("novo: " + novoBloco)
+        // console.log(sala.bloco.numero)
+        // console.log("novo: " + novoNumeroSala)
+        // console.log(sala.numero)
+        // console.log("novo: " + novaCapacidade)
+        // console.log(sala.capacidade)
+        // console.log("novo: " + temAcessibilidade)
+        // console.log(sala.temAcessibilidade)
+        // console.log("novo: " + novoEquipamento)
+        // console.log("novo eqipamento: " + novoEquipamento.map(e => tipoEquipamentoReverseMap[e]))
+        // console.log(sala.Equipamentos.map(e => e.tipoEquipamento))
+        // console.log("novo: " + arraysIguais(novoEquipamento, sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])))
+        // console.log("novo: " + novoMobiliario)
+        // console.log(arraysIguais(novoMobiliario, sala.Mobiliarios.map(m => m.tipoMobiliario)))
+        // console.log(mensagemErroAtualizarSala)
+        // console.log(permiteAtualizar)
     }
 
     type OptionTypeStatusSala = {
@@ -254,11 +267,12 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     };
 
     const optionsSetores: OptionTypeSetoresBlocos[] = setores
-    .sort((a, b) => a.nome.localeCompare(b.nome))
-    .map(s => ({
-      value: s.id,
-      label: s.nome
-    }))
+      .sort((a, b) => a.nome.localeCompare(b.nome))
+      .map(s => ({
+        value: s.id,
+        label: s.nome
+      })
+    )
 
     const optionsBlocos: OptionTypeSetoresBlocos[] = blocos
     .sort((a, b) => {
@@ -469,7 +483,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     };
 
     return (
-      <div className="relative flex flex-col gap-4 items-center justify-center w-full">
+      <div className="relative flex flex-col gap-4 items-center justify-center w-full px-4 py-8">
             {loadingSala ? (
               <div className="flex justify-center items-center">
                     <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
@@ -497,8 +511,8 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                             <TbCircleArrowLeftFilled size={30} /> Voltar para salas
                           </button>
                         </Link>
-                        <div className="flex gap-2 items-center justify-center">
-                            <div className="flex flex-col border-2 border-blue-950 p-4 rounded-lg bg-gray-100 gap-4 h-full">
+                        <div className="flex gap-2 items-center justify-center pt-2 px-4 mt-">
+                            <div className="flex flex-col border-2 border-blue-950 p-4 rounded-lg bg-gray-100 gap-4 h-full max-w-[375px] w-[375px]">
                                 <p className="text-center font-bold text-blue-950">Dados atuais</p>
                                 <div className="flex gap-2">
                                   <div className="flex flex-col w-fit">
@@ -574,7 +588,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                         />
                                       </div>
                                   </div>
-                                <div>
+                                <div className="min-w-[220px] max-w-[340px]">
                                   <label className="block font-semibold mb-3">Equipamentos</label>
                                   <textarea
                                     readOnly
@@ -583,7 +597,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                     rows={3} // ajusta a altura inicial
                                   />
                                 </div>
-                                <div>
+                                <div className="min-w-[220px] max-w-[340px]">
                                   <label className="block font-semibold mb-3">Mobiliários</label>
                                   <textarea
                                     readOnly

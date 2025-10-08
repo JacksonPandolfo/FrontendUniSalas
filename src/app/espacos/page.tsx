@@ -232,6 +232,7 @@ export default function Espacos() {
               </div>
               )
             )}
+            {salaSelecionada &&
             <div className={`${salaSelecionada? "opacity-100" : "opacity-0"} relative flex w-full mt-4 pt-14 border-4 gap-2 border-blue-950 rounded-lg items-center justify-center p-4 transition transform duration-700`}>
               <div className="absolute top-0 w-full flex gap-2 items-center justify-center text-center p-2 bg-blue-950">
                 <h1 className="font-poppins items-center text-white font-bold">Detalhes da sala</h1>
@@ -261,7 +262,7 @@ export default function Espacos() {
                     )
                   }) : null
                 }
-                {loadingEventos ? (
+                {salaSelecionada && loadingEventos ? (
                   <p className="mt-6 text-gray-600">Carregando eventos da sala...</p>
                 ) : erroEventos ? (
                   <p className="mt-6 text-gray-600">{erroEventos}</p>
@@ -296,6 +297,7 @@ export default function Espacos() {
                   </div>
                 )}
             </div>
+          }
     </div>
   );
 }

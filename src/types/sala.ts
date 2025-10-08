@@ -44,7 +44,7 @@ export interface UpdateSala {
     temAcessibilidade: boolean
     capacidade: number
     blocoId: string
-    statusSala: "MANUTENCAO" | "DESATIVADA"
+    statusSala: "LIVRE" | "OCUPADA" | "MANUTENCAO" | "DESATIVADA"
     Equipamentos: string[]
     Mobiliarios: string[]
 }

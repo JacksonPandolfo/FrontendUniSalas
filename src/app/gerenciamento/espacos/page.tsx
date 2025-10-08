@@ -6,20 +6,18 @@ import { TbCircleArrowLeftFilled } from "react-icons/tb";
 export default function GerenciamentoEspacos(){
 
     return (
-        <div className="flex flex-col gap-6 mt-2 justify-center items-center">
+        <div className="flex flex-col gap-6 mt-2 justify-center items-center py-6 px-4">
             <Link href={'/gerenciamento'} className="border-2 flex items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition duration-500">
-                {/* <button className="border-2 flex items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105"> */}
                     <TbCircleArrowLeftFilled size={30}/> Voltar para gerenciamento
-                {/* </button> */}
             </Link>
             <div className="grid justify-items-center place-items-center grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
                 <Link href={'/gerenciamento/espacos/setores'} className="
                     w-[340px] h-[400px]        /* base → mobile */
-                    sm:w-[360px] sm:h-[440px]  /* ≥640px */
-                    md:w-[380px] md:h-[480px]  /* ≥768px */
-                    lg:w-[400px] lg:h-[520px]  /* ≥1024px */
-                    xl:w-[420px] xl:h-[560px]  /* ≥1280px (23–24” monitor padrão) */
-                    2xl:w-[440px] 2xl:h-[600px] /* ≥1536px */
+                    sm:w-[360px] sm:h-[420px]  /* ≥640px */
+                    md:w-[380px] md:h-[460px]  /* ≥768px */
+                    lg:w-[400px] lg:h-[500px]  /* ≥1024px */
+                    xl:w-[420px] xl:h-[540px]  /* ≥1280px (23–24” monitor padrão) */
+                    2xl:w-[440px] 2xl:h-[560px] /* ≥1536px */
                 ">
                     <div
                         className="relative flex flex-col items-center justify-center w-full h-full border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
@@ -38,11 +36,11 @@ export default function GerenciamentoEspacos(){
                 </Link>
                 <Link href={'/gerenciamento/espacos/blocos'} className="
                     w-[340px] h-[400px]        /* base → mobile */
-                    sm:w-[360px] sm:h-[440px]  /* ≥640px */
-                    md:w-[380px] md:h-[480px]  /* ≥768px */
-                    lg:w-[400px] lg:h-[520px]  /* ≥1024px */
-                    xl:w-[420px] xl:h-[560px]  /* ≥1280px (23–24” monitor padrão) */
-                    2xl:w-[440px] 2xl:h-[600px] /* ≥1536px */
+                    sm:w-[360px] sm:h-[420px]  /* ≥640px */
+                    md:w-[380px] md:h-[460px]  /* ≥768px */
+                    lg:w-[400px] lg:h-[500px]  /* ≥1024px */
+                    xl:w-[420px] xl:h-[540px]  /* ≥1280px (23–24” monitor padrão) */
+                    2xl:w-[440px] 2xl:h-[560px] /* ≥1536px */
                 ">
                     <div
                         className="relative flex flex-col items-center justify-center w-full h-full border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
@@ -61,11 +59,11 @@ export default function GerenciamentoEspacos(){
                 </Link>
                 <Link href={'/gerenciamento/espacos/salas'} className="
                     w-[340px] h-[400px]        /* base → mobile */
-                    sm:w-[360px] sm:h-[440px]  /* ≥640px */
-                    md:w-[380px] md:h-[480px]  /* ≥768px */
-                    lg:w-[400px] lg:h-[520px]  /* ≥1024px */
-                    xl:w-[420px] xl:h-[560px]  /* ≥1280px (23–24” monitor padrão) */
-                    2xl:w-[440px] 2xl:h-[600px] /* ≥1536px */
+                    sm:w-[360px] sm:h-[420px]  /* ≥640px */
+                    md:w-[380px] md:h-[460px]  /* ≥768px */
+                    lg:w-[400px] lg:h-[500px]  /* ≥1024px */
+                    xl:w-[420px] xl:h-[540px]  /* ≥1280px (23–24” monitor padrão) */
+                    2xl:w-[440px] 2xl:h-[560px] /* ≥1536px */
                 ">
                     <div
                         className="relative flex flex-col items-center justify-center w-full h-full border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
