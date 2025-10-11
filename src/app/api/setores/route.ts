@@ -1,10 +1,10 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+// import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
-async function fetchSetores() {
+async function fetchSetores(req: NextRequest) {
+
+  const token = req.cookies.get('jwt')
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-
-  const token = (await cookies()).get('jwt')
 
   const res = await fetch(`${BACKEND_URL}/setores`, {
     method: "GET",
@@ -16,9 +16,9 @@ async function fetchSetores() {
   return res.json()
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const setores = await fetchSetores()
+    const setores = await fetchSetores(req)
     return NextResponse.json(setores)
   } catch (err) {
     console.log(err)

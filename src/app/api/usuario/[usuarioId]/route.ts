@@ -1,10 +1,9 @@
 import { UsuarioAdmin } from "@/types/usuario";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-async function getUsuariosByID(usuarioId: string) {
+async function getUsuariosByID(req: NextRequest, usuarioId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = (await cookies()).get('jwt')
+  const token = req.cookies.get('jwt')
   const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`, {
     method: "GET",
     headers: {
@@ -15,9 +14,9 @@ async function getUsuariosByID(usuarioId: string) {
   return res.json()
 }
 
-async function updateUsuariosByID(usuarioId: string, usuarioData: UsuarioAdmin) {
+async function updateUsuariosByID(req: NextRequest, usuarioId: string, usuarioData: UsuarioAdmin) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = (await cookies()).get('jwt')
+  const token = req.cookies.get('jwt')
   const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`, {
     method: "POST",
     headers: {
@@ -30,9 +29,9 @@ async function updateUsuariosByID(usuarioId: string, usuarioData: UsuarioAdmin) 
   return res.json()
 }
 
-async function deleteUsuariosByID(usuarioId: string) {
+async function deleteUsuariosByID(req: NextRequest, usuarioId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = (await cookies()).get('jwt')
+  const token = req.cookies.get('jwt')
   const res = await fetch(`${BACKEND_URL}/usuario/${usuarioId}`, {
     method: "DELETE",
     headers: {
@@ -45,31 +44,31 @@ async function deleteUsuariosByID(usuarioId: string) {
   return res.json()
 }
 
-export async function GET(req: Request, context: { params: { usuarioId: string } }) {
+export async function GET(req: NextRequest, context: { params: { usuarioId: string } }) {
   try {
     const { usuarioId } = context.params
-    const usuarios = await getUsuariosByID(usuarioId)
+    const usuarios = await getUsuariosByID(req, usuarioId)
     return NextResponse.json(usuarios)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }
 
-export async function PUT(req: Request, context: { params: { usuarioId: string } }) {
+export async function PUT(req: NextRequest, context: { params: { usuarioId: string } }) {
   try {
     const { usuarioId } = context.params
     const usuarioData: UsuarioAdmin = await req.json()
-    const usuarios = await updateUsuariosByID(usuarioId, usuarioData)
+    const usuarios = await updateUsuariosByID(req, usuarioId, usuarioData)
     return NextResponse.json(usuarios)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }
 
-export async function DELETE(req: Request, context: { params: { usuarioId: string } }) {
+export async function DELETE(req: NextRequest, context: { params: { usuarioId: string } }) {
   try {
     const { usuarioId } = context.params
-    const usuarios = await deleteUsuariosByID(usuarioId)
+    const usuarios = await deleteUsuariosByID(req, usuarioId)
     return NextResponse.json(usuarios)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })

@@ -1,11 +1,9 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-async function getEventosSala(salaId: string) {
+async function getEventosSala(req: NextRequest,salaId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-//   const token = (await cookies()).get('jwt')
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("jwt")?.value
+
+  const token = req.cookies.get('jwt')
   if (!token) {
     throw new Error("Token JWT não encontrado");
   }
@@ -19,12 +17,12 @@ async function getEventosSala(salaId: string) {
   return res.json()
 }
 
-export async function GET(req: Request, context: { params: Promise<{ salaId: string }> } ){
+export async function GET(req: NextRequest, context: { params: Promise<{ salaId: string }> } ){
     try {
         const { salaId } = await context.params
         if(!salaId) throw Error("ID da sala não informado")
 
-        const eventos = await getEventosSala(salaId)
+        const eventos = await getEventosSala(req, salaId)
         return NextResponse.json(eventos)
     } catch (err) {
         return NextResponse.json({ error: (err as Error).message }, { status: 500 })

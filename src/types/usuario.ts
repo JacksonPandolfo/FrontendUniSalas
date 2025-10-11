@@ -23,3 +23,5 @@ export interface CreateUsuario {
     email: string
     senha: string
 }
+
+export type CargoUsuario = Pick<UsuarioAdmin, "cargos">

@@ -86,7 +86,7 @@ export default function GereciamentoSetor({ params }: { params: Promise<{ setorI
     return(
         <div className="relative flex flex-col gap-4 items-center justify-center">
             {loadingDataSetor ? (
-                <p className="mt-6 text-gray-600">{"Carregando setores" + "...".split("").map((char, i) => (
+                <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
                       <span key={i} className="inline-block animate-bounce">{char}</span>
                   ))}
                 </p>

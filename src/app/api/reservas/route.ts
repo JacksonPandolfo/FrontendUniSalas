@@ -1,9 +1,8 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-async function getEventos() {
+async function getEventos(req: NextRequest) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = (await cookies()).get('jwt')
+  const token = req.cookies.get('jwt')
   const res = await fetch(`${BACKEND_URL}/reserva/`, {
     method: "GET",
     headers: {
@@ -15,9 +14,9 @@ async function getEventos() {
 }
 
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const eventos = await getEventos()
+    const eventos = await getEventos(req)
     return NextResponse.json(eventos)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })

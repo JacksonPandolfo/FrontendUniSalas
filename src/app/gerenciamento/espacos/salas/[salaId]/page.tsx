@@ -1,7 +1,7 @@
 'use client'
 
 import { getBlocosSetor } from "@/lib/api/blocos/api"
-import { getSalaById } from "@/lib/api/salas/api"
+import { getSalaById, updateSalaById } from "@/lib/api/salas/api"
 import { getSetores } from "@/lib/api/setores/api"
 import { BlocoAdmin } from "@/types/bloco"
 import { Equipamento, Mobiliario, SalaAdmin, UpdateSala } from "@/types/sala"
@@ -16,7 +16,8 @@ import { TbCircleArrowLeftFilled } from "react-icons/tb"
 import Select, { SingleValue, StylesConfig } from 'react-select'
 
 export default function GerenciamentoSala({ params }: { params: Promise<{ salaId: string }> }){
-    const { salaId } = React.use(params)
+    const resolvedParams = React.use(params)
+    const salaId = resolvedParams.salaId
     const [sala, setSala] = useState<SalaAdmin>()
     const [loadingSala, setLoadingSala] = useState(false)
     const [erroBuscarSala, setErroBuscarSala] = useState(false)
@@ -38,7 +39,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     const [novoStatusSala, setNovoStatusSala] = useState<SalaAdmin["statusSala"]>()
 
     useEffect(() => {
-      if (sala) {
+      if (sala?.bloco?.setor) {
         const equipamentos = sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])
         const mobiliarios = sala.Mobiliarios.map(m => Mobiliario[m.tipoMobiliario as unknown as keyof typeof Mobiliario])
         setNovoSetor(sala.bloco.setor.nome)
@@ -77,10 +78,12 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
 
       useEffect(() => {
         if(novoSetor && setores){
-          const setorId = setores.find((s) => s.nome === novoSetor)!.id
-          carregarBlocos(setorId)
+          const setor = setores.find((s) => s.nome === novoSetor)
+          if(setor){
+            carregarBlocos(setor.id)
+          }
         }
-      }, [novoSetor])
+      }, [novoSetor, setores])
 
       async function carregarBlocos(setorId: string) {
         try {
@@ -178,19 +181,17 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         if(novoSetor){
           const setorDaSala = setores.find(s => s.nome === novoSetor)
           const mesmoSetor = (setorDaSala?.id === sala.bloco.setor.id)
-          console.log("Mesmo setor: " + mesmoSetor)
 
           if(setorDaSala){
             const blocoDaSala = blocos.find(b => b.numero === novoBloco)
             const mesmoBloco = (blocoDaSala?.id === sala.bloco.id)
-            console.log("Mesmo bloco: " + mesmoBloco)
+
             if(blocoDaSala){
               blocoAtualizacao = blocoDaSala.id
               const numeroSala = blocoDaSala.salas.find(s => s.numero === novoNumeroSala)
               const mesmaSala = (numeroSala?.id === sala.id)
-              console.log("Mesma sala: " + mesmaSala)
               const proximaSalaDisponivel = Math.max(...blocoDaSala.salas.map(s => s.numero)) + 1
-              console.log(mesmoSetor, mesmoBloco, mesmaSala)
+
               if(numeroSala && ((mesmoSetor && mesmoBloco && !mesmaSala) || (!mesmoSetor && !mesmoBloco) || (!mesmoSetor && mesmoBloco) || (mesmoSetor && !mesmoBloco))){
                 setErroAtualizarSala(true)
                 setMensagemErroAtualizarSala(`Essa sala já existe em ${setorDaSala.nome}${String(blocoDaSala.numero).padStart(2, "0")}, a próxima sala disponivel nesse local é ${proximaSalaDisponivel}`)
@@ -214,36 +215,31 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
           }
         }
 
-        const dataUpdateSala: UpdateSala = {
-          numero: novoNumeroSala,
-          temAcessibilidade: temAcessibilidade,
-          capacidade: novaCapacidade,
-          blocoId: blocoAtualizacao!,
-          statusSala: novoStatusSala!,
-          Equipamentos: equipamentoAtualizacao!,
-          Mobiliarios: mobiliarioAtualizacao!,
+
+        if(permiteAtualizar){
+          const dataUpdateSala: UpdateSala = {
+            numero: novoNumeroSala,
+            temAcessibilidade: temAcessibilidade,
+            capacidade: novaCapacidade,
+            blocoId: blocoAtualizacao!,
+            statusSala: novoStatusSala!,
+            Equipamentos: equipamentoAtualizacao!,
+            Mobiliarios: mobiliarioAtualizacao!,
+          }
+          try {
+                const salaAtualizada = await updateSalaById(salaId, dataUpdateSala)
+                const setSalaAtualizada = await getSalaById(salaAtualizada.id)
+                setSala(setSalaAtualizada)
+                setIsSalaAtualizada(true)
+                setTimeout(() => setIsSalaAtualizada(false), 3000)
+            } catch (err) {
+                const mensagem = err instanceof Error ? err.message : String(err);
+                console.error("Erro ao atualizar o setor:", mensagem);
+                setErroAtualizarSala(true)
+                setMensagemErroAtualizarSala("Erro ao atualizar o bloco")
+                setTimeout(() => setErroAtualizarSala(false), 3000)
+            }
         }
-
-        console.log(dataUpdateSala)
-
-        // console.log("novo: " + novoSetor)
-        // console.log(sala.bloco.setor.nome)
-        // console.log("novo: " + novoBloco)
-        // console.log(sala.bloco.numero)
-        // console.log("novo: " + novoNumeroSala)
-        // console.log(sala.numero)
-        // console.log("novo: " + novaCapacidade)
-        // console.log(sala.capacidade)
-        // console.log("novo: " + temAcessibilidade)
-        // console.log(sala.temAcessibilidade)
-        // console.log("novo: " + novoEquipamento)
-        // console.log("novo eqipamento: " + novoEquipamento.map(e => tipoEquipamentoReverseMap[e]))
-        // console.log(sala.Equipamentos.map(e => e.tipoEquipamento))
-        // console.log("novo: " + arraysIguais(novoEquipamento, sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])))
-        // console.log("novo: " + novoMobiliario)
-        // console.log(arraysIguais(novoMobiliario, sala.Mobiliarios.map(m => m.tipoMobiliario)))
-        // console.log(mensagemErroAtualizarSala)
-        // console.log(permiteAtualizar)
     }
 
     type OptionTypeStatusSala = {
@@ -319,7 +315,8 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
           boxShadow: 'none',
           color: '#162456',
           cursor: 'pointer',
-          height: '90px',
+          height: 'auto',
+          minHeight: "90px",
           '&:hover': { borderColor: '#162456' },
         }),
         option: (provided, state) => ({
@@ -364,7 +361,8 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         boxShadow: 'none',
         color: '#162456',
         cursor: 'pointer',
-        height: "90px",
+        height: "auto",
+        minHeight: "90px",
         '&:hover': { borderColor: '#162456' },
       }),
       option: (provided, state) => ({
@@ -689,7 +687,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                       placeholder="Selecione o status da sala"
                                     />
                                 </div>
-                                <div>
+                                <div className="min-w-[220px] max-w-[340px] pb-1.5">
                                   <label className="block font-semibold mb-3">Equipamentos</label>
                                   <Select
                                       styles={customStylesEquipamento}
@@ -701,7 +699,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                                       placeholder="Selecione os equipamentos"
                                     />
                                 </div>
-                                <div>
+                                <div className="min-w-[220px] max-w-[340px]">
                                   <label className="block font-semibold mb-3">Mobiliários</label>
                                   <Select
                                       styles={customStylesMobiliario}

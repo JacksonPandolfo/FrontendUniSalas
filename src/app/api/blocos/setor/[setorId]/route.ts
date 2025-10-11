@@ -1,9 +1,8 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-async function fetchBlocosBySetorId(setorId: string) {
+async function fetchBlocosBySetorId(req: NextRequest, setorId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = (await cookies()).get('jwt')
+  const token = req.cookies.get('jwt')
   const res = await fetch(`${BACKEND_URL}/bloco/bySetor/${setorId}`, {
     method: "GET",
     headers: {
@@ -14,12 +13,12 @@ async function fetchBlocosBySetorId(setorId: string) {
   return res.json()
 }
 
-export async function GET(req: Request, context: { params: Promise<{setorId: string}>}) {
+export async function GET(req: NextRequest, context: { params: Promise<{setorId: string}>}) {
   try {
     const { setorId } = await context.params
     if(!setorId) throw Error("ID do setor não informado")
 
-    const blocos = await fetchBlocosBySetorId(setorId)
+    const blocos = await fetchBlocosBySetorId(req, setorId)
     return NextResponse.json(blocos)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })

@@ -1,10 +1,9 @@
 import { UpdateBloco } from "@/types/bloco";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-async function fetchBlocosByBlocoId(blocoId: string) {
+async function fetchBlocosByBlocoId(reqNext: NextRequest, blocoId: string) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = (await cookies()).get('jwt')
+  const token = reqNext.cookies.get('jwt')
   const res = await fetch(`${BACKEND_URL}/bloco/${blocoId}`, {
     method: "GET",
     headers: {
@@ -15,8 +14,8 @@ async function fetchBlocosByBlocoId(blocoId: string) {
   return res.json()
 }
 
-async function updateBlocoById(setorId: string, dataBloco: UpdateBloco) {
-  const token = (await cookies()).get('jwt')
+async function updateBlocoById(reqNext: NextRequest, setorId: string, dataBloco: UpdateBloco) {
+  const token = reqNext.cookies.get('jwt')
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
   const res = await fetch(`${BACKEND_URL}/bloco/${setorId}`, {
     method: "PATCH",
@@ -26,29 +25,29 @@ async function updateBlocoById(setorId: string, dataBloco: UpdateBloco) {
     },
     body: JSON.stringify(dataBloco)
   })
-  if(!res.ok) throw new Error("Erro ao carregar os blocos")
+  if(!res.ok) throw new Error("Erro ao atualizar o bloco")
   return res.json()
 }
 
-export async function GET(req: Request, context: { params: Promise<{blocoId: string}>}) {
+export async function GET(req: NextRequest, context: { params: Promise<{blocoId: string}>}) {
   try {
     const { blocoId } = await context.params
     if(!blocoId) throw Error("ID do setor não informado")
 
-    const bloco = await fetchBlocosByBlocoId(blocoId)
+    const bloco = await fetchBlocosByBlocoId(req, blocoId)
     return NextResponse.json(bloco)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }
 
-export async function PATCH(req: Request, context: { params: Promise<{ blocoId: string }> }) {
+export async function PATCH(req: NextRequest, context: { params: Promise<{ blocoId: string }> }) {
   try {
     const { blocoId } = await context.params
     const dataBloco: UpdateBloco = await req.json()
     if(!blocoId) throw Error("ID do bloco não informado")
 
-    const setor = await updateBlocoById(blocoId, dataBloco)
+    const setor = await updateBlocoById(req, blocoId, dataBloco)
     return NextResponse.json(setor)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })

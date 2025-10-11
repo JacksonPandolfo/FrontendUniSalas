@@ -1,3 +1,5 @@
+import { SalaAdmin, UpdateSala } from "@/types/sala";
+
 export async function getSalas() {
   const res = await fetch(`/api/salas/`, {
     method: "GET",
@@ -31,5 +33,19 @@ export async function getSalasSetor(setorId: string) {
     credentials: "include"
   });
   if (!res.ok) throw new Error('Erro ao carregar salas');
+  return res.json();
+}
+
+export async function updateSalaById(SalaId:string, dataSala: UpdateSala): Promise<SalaAdmin>{
+  const res = await fetch(`/api/salas/sala/${SalaId}`, {
+    method: "PATCH",
+    headers: {"Content-type": "application/json"},
+    body: JSON.stringify(dataSala),
+    credentials: "include"
+  })
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Erro ao atualizar a sala');
+  }
   return res.json();
 }

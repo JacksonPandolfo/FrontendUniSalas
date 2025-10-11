@@ -31,7 +31,7 @@ export async function updateBlocoById(blocoId:string, dataBloco: UpdateBloco){
   })
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.message || 'Erro ao logar');
+    throw new Error(error.message || 'Erro ao atualizar o setor');
   }
   return res.json();
 }

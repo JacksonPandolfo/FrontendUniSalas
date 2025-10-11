@@ -1,10 +1,9 @@
 import { UpdateSetor } from "@/types/setor";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
-async function getSetorById(setorId: string) {
-  const token = (await cookies()).get('jwt')
+async function getSetorById(req: NextRequest, setorId: string) {
+  const token = req.cookies.get('jwt')
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
   const res = await fetch(`${BACKEND_URL}/setores/${setorId}`, {
     method: "GET",
@@ -16,8 +15,8 @@ async function getSetorById(setorId: string) {
   return res.json()
 }
 
-async function updateSetorById(setorId: string, dataSetor: UpdateSetor) {
-  const token = (await cookies()).get('jwt')
+async function updateSetorById(req: NextRequest, setorId: string, dataSetor: UpdateSetor) {
+  const token = req.cookies.get('jwt')
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
   const res = await fetch(`${BACKEND_URL}/setores/${setorId}`, {
     method: "PATCH",
@@ -31,8 +30,8 @@ async function updateSetorById(setorId: string, dataSetor: UpdateSetor) {
   return res.json()
 }
 
-async function deleteSetorByID(setorId: string) {
-  const token = (await cookies()).get('jwt')
+async function deleteSetorByID(req: NextRequest, setorId: string) {
+  const token = req.cookies.get('jwt')
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
   const res = await fetch(`${BACKEND_URL}/setores/${setorId}`, {
     method: "DELETE",
@@ -45,35 +44,35 @@ async function deleteSetorByID(setorId: string) {
   return res.json()
 }
 
-export async function GET(req: Request, context: { params: Promise<{setorId: string}> }) {
+export async function GET(req: NextRequest, context: { params: Promise<{setorId: string}> }) {
   try {
     const { setorId } = await context.params
     if(!setorId) throw Error("ID do setor não informado")
 
-    const setor = await getSetorById(setorId)
+    const setor = await getSetorById(req, setorId)
     return NextResponse.json(setor)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }
 
-export async function PATCH(req: Request, context: { params: Promise<{ setorId: string }> }) {
+export async function PATCH(req: NextRequest, context: { params: Promise<{ setorId: string }> }) {
   try {
     const { setorId } = await context.params
     const dataSetor: UpdateSetor = await req.json()
     if(!setorId) throw Error("ID do setor não informado")
 
-    const setor = await updateSetorById(setorId, dataSetor)
+    const setor = await updateSetorById(req, setorId, dataSetor)
     return NextResponse.json(setor)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }
 }
 
-export async function DELETE(req: Request, context: { params: Promise<{ setorId: string }> }) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ setorId: string }> }) {
   try {
     const { setorId } = await context.params
-    const setor = await deleteSetorByID(setorId)
+    const setor = await deleteSetorByID(req, setorId)
     return NextResponse.json(setor)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })

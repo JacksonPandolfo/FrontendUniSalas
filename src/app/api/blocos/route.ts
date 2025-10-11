@@ -1,10 +1,9 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-async function fetchBlocos() {
+async function fetchBlocos(req: NextRequest) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
 
-  const token = (await cookies()).get('jwt')
+  const token = req.cookies.get('jwt')
   const res = await fetch(`${BACKEND_URL}/bloco`, {
     method: "GET",
     headers: {
@@ -15,9 +14,9 @@ async function fetchBlocos() {
   return res.json()
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const blocos = await fetchBlocos()
+    const blocos = await fetchBlocos(req)
     return NextResponse.json(blocos)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })

@@ -1,11 +1,10 @@
 import { CreateUsuario } from "@/types/usuario"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
-async function createUsuario(usuarioData: CreateUsuario) {
+async function createUsuario(req: NextRequest, usuarioData: CreateUsuario) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
 
-  const token = (await cookies()).get('jwt')
+  const token = req.cookies.get('jwt')
 
   const res = await fetch(`${BACKEND_URL}/usuario/`, {
     method: "POST",
@@ -24,9 +23,9 @@ async function createUsuario(usuarioData: CreateUsuario) {
   return data
 }
 
-async function getUsuarios() {
+async function getUsuarios(req: NextRequest) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
-  const token = (await cookies()).get('jwt')
+  const token = req.cookies.get('jwt')
   const res = await fetch(`${BACKEND_URL}/usuario/`, {
     method: "GET",
     headers: {
@@ -41,9 +40,9 @@ async function getUsuarios() {
   return data
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const usuarios = await getUsuarios()
+    const usuarios = await getUsuarios(req)
     return NextResponse.json(usuarios)
   } catch (err) {
     return NextResponse.json(
@@ -52,10 +51,10 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     try {
         const usuarioData: CreateUsuario = await req.json()
-        const usuarios = await createUsuario(usuarioData)
+        const usuarios = await createUsuario(req, usuarioData)
         return NextResponse.json(usuarios)
     } catch (err) {
         const errorMessage = (err as Error).message

@@ -5,6 +5,7 @@ import { VscHome } from "react-icons/vsc";
 import { RiCalendarEventLine } from "react-icons/ri";
 import { BsBuildingGear, BsGear } from "react-icons/bs";
 import Image from "next/image";
+import { TbCalendarPlus } from "react-icons/tb";
 
 type MenuProps = {
   className?: string
@@ -66,46 +67,56 @@ export function Menu({className} : MenuProps) {
           </button>
         </div>
         <div className={`flex flex-col space-y-4 mt-8`}>
-          <div className="flex items-baseline gap-2 hover:cursor-pointer">
+          <div className="flex items-center gap-2 hover:cursor-pointer h-8">
             <Link href="/" className={`w-6 h-6`}>
-              <VscHome className={`w-6 h-6 align-baseline relative top-[3px]`}/>
+              <VscHome className={`w-6 h-6 align-baseline relative`}/>
             </Link>
             <Link href="/"
               className={`relative font-semibold text-lg font-poppins text-white
               after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
               after:bg-blue-400 after:transition-all after:duration-300
-              hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`}>
+              hover:after:w-full transform transition-transform duration-400 origin-left ${isOpen ? "ease-in scale-100 opacity-100 translate-x-0" : "ease-out opacity-0 scale-50 -translate-x-52"}`}>
               Home
             </Link>
           </div>
-          <div className="flex items-baseline gap-2 hover:cursor-pointer">
+          <div className="flex items-center gap-2 hover:cursor-pointer h-8">
             <Link href="/reservas">
-              <RiCalendarEventLine className={`w-6 h-6 align-baseline relative top-[3px]`} />
+              <RiCalendarEventLine className={`w-6 h-6 align-baseline relative`} />
             </Link>
             <Link className={`relative font-semibold text-lg font-poppins text-white
            after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
            after:bg-blue-500 after:transition-all after:duration-300
-           hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`} href="/reservas">Reservas</Link>
+           hover:after:w-full transform transition-transform duration-400 origin-left ${isOpen ? "ease-in scale-100 opacity-100 translate-x-0" : "ease-out opacity-0 scale-50 -translate-x-52"}`} href="/reservas">Ver reservas</Link>
           </div>
-          <div className="flex items-baseline gap-2 hover:cursor-pointer">
+          <div className="flex items-center gap-2 hover:cursor-pointer h-8">
+            <Link href="/reservas/agendamento">
+              <TbCalendarPlus className={`w-6 h-6 align-baseline relative`} />
+            </Link>
+            <Link className={`relative font-semibold text-lg font-poppins text-white
+           after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
+           after:bg-blue-500 after:transition-all after:duration-300
+           hover:after:w-full transform transition-transform duration-400 origin-left ${isOpen ? "ease-in scale-100 opacity-100 translate-x-0" : "ease-out opacity-0 scale-50 -translate-x-52"}`} href="/reservas">Solicitar reserva</Link>
+          </div>
+          <div className="flex items-center gap-2 hover:cursor-pointer h-8">
             <Link href="/espacos">
               <BsBuildingGear className={`w-6 h-6 align-baseline relative`} />
             </Link>
             <Link className={`relative font-semibold text-lg font-poppins text-white
            after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
            after:bg-blue-500 after:transition-all after:duration-300
-           hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`} href="/espacos">Espaços</Link>
+           hover:after:w-full transform transition-transform duration-400 origin-left ${isOpen ? "ease-in scale-100 opacity-100 translate-x-0" : "ease-out opacity-0 scale-50 -translate-x-52"}`} href="/espacos">Espaços</Link>
           </div>
-          <div className="flex items-baseline gap-2 hover:cursor-pointer">
-            <Link href="/gerenciamento" className={`w-6 h-6`}>
-              <BsGear className={`w-6 h-6 align-baseline relative top-[3px]`}/>
+          <div className="flex items-center gap-2 hover:cursor-pointer h-8">
+            <Link href="/gerenciamento">
+              <BsGear className={`w-6 h-6 align-baseline relative`}/>
             </Link>
             <Link href="/gerenciamento"
               className={`relative font-semibold text-lg font-poppins text-white
               after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
               after:bg-blue-400 after:transition-all after:duration-300
-              hover:after:w-full transform transition-all duration-400 ${isOpen ? "ease-in opacity-100 translate-x-0" : "ease-out opacity-0 -translate-x-50"}`}>
+              hover:after:w-full transform transition-transform duration-400 origin-left ${isOpen ? "ease-in scale-100 opacity-100 translate-x-0" : "ease-out opacity-0 scale-50 -translate-x-52"}`}>
               Gerenciamento
+              {/* transform transition-all duration-400  */}
             </Link>
           </div>
         </div>
