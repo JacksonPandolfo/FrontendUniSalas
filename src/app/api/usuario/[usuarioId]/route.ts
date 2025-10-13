@@ -44,9 +44,9 @@ async function deleteUsuariosByID(req: NextRequest, usuarioId: string) {
   return res.json()
 }
 
-export async function GET(req: NextRequest, context: { params: { usuarioId: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ usuarioId: string }> }) {
   try {
-    const { usuarioId } = context.params
+    const { usuarioId } = await context.params
     const usuarios = await getUsuariosByID(req, usuarioId)
     return NextResponse.json(usuarios)
   } catch (err) {
@@ -54,9 +54,9 @@ export async function GET(req: NextRequest, context: { params: { usuarioId: stri
   }
 }
 
-export async function PUT(req: NextRequest, context: { params: { usuarioId: string } }) {
+export async function PUT(req: NextRequest, context: { params: Promise<{ usuarioId: string }> }) {
   try {
-    const { usuarioId } = context.params
+    const { usuarioId } = await context.params
     const usuarioData: UsuarioAdmin = await req.json()
     const usuarios = await updateUsuariosByID(req, usuarioId, usuarioData)
     return NextResponse.json(usuarios)
@@ -65,9 +65,9 @@ export async function PUT(req: NextRequest, context: { params: { usuarioId: stri
   }
 }
 
-export async function DELETE(req: NextRequest, context: { params: { usuarioId: string } }) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ usuarioId: string }> }) {
   try {
-    const { usuarioId } = context.params
+    const { usuarioId } = await context.params
     const usuarios = await deleteUsuariosByID(req, usuarioId)
     return NextResponse.json(usuarios)
   } catch (err) {

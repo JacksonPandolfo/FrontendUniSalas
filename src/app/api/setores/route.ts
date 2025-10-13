@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 async function fetchSetores(req: NextRequest) {
-
   const token = req.cookies.get('jwt')
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
 

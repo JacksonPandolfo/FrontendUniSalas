@@ -1,5 +1,13 @@
 import { TurmaAdmin } from "./turma"
 
+export enum tipoEventoEnum{
+    AULA = "Aula",
+    PALESTRA = "Palestra",
+    BANCA = "Banca",
+    REUNIAO = "Reunião",
+    EVENTO = "Evento"
+}
+
 export type tipoEvento = "AULA" | "PALESTRA" | "BANCA" | "REUNIAO" | "EVENTO"
 export type tipoReserva = "ESPORADICA" | "RECORRENTE"
 
