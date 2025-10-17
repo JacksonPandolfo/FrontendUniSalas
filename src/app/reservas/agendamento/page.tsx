@@ -1,15 +1,16 @@
 'use client'
-import { getDisciplinas } from "@/lib/api/disciplinas/api"
 import { getHorarios } from "@/lib/api/horarios/api"
 import { getSetores } from "@/lib/api/setores/api"
-import { getUsuarioByNome, getUsuarioMinistranteByNome } from "@/lib/api/usuario/api"
-import { Disciplina } from "@/types/disciplina"
-import { tipoEventoEnum } from "@/types/evento"
+import { getTurmasByMinistrante } from "@/lib/api/turma/api"
+import { getUsuarioByNome, getUsuarioMinistranteByNome, getUsuarios } from "@/lib/api/usuario/api"
+import {  SolicitaReserva, tipoEventoEnum, tipoReserva, tipoReservaEnum } from "@/types/evento"
 import { Horario } from "@/types/horario"
 import { Equipamento, Mobiliario } from "@/types/sala"
 import { SetorAdmin } from "@/types/setor"
-import { Cargo } from "@/types/usuario"
-import { useEffect, useState } from "react"
+import { TurmaAdmin } from "@/types/turma"
+import { Cargo, UsuarioAdmin } from "@/types/usuario"
+import { tipoReservaMap } from "@/utils/tipoReservaMap"
+import { useEffect, useRef, useState } from "react"
 import Select, { StylesConfig } from "react-select"
 import AsyncSelect from "react-select/async"
 
@@ -23,46 +24,54 @@ function formataHorarioLocal(horario: string) {
 export default function SolicitarReserva() {
   // SOLICITANTE
   const [solicitante, setSolicitante] = useState<UsuarioOption>()
+  const [solicitanteId, setSolicitanteId] = useState<string>("")
   const [nomeSolicitante, setNomeSolicitante] = useState<string>("")
   const [emailSolicitante, setEmailSolicitante] = useState<string>("")
   const [telefoneSolicitante, setTelefoneSolicitante] = useState<string>("")
 
   // MINISTRANTE
   const [ministrante, setMinistrante] = useState<UsuarioOption>()
+  const [ministranteId, setMinistranteId] = useState<string>("")
   const [nomeMinistrante, setNomeMinistrante] = useState<string>("")
   const [emailMinistrante, setEmailMinistrante] = useState<string>("")
   const [telefoneMinistrante, setTelefoneMinistrante] = useState<string>("")
 
+  //APROVADOR
+  const [aprovadores, setAprovadores] = useState<UsuarioAdmin[]>()
+  const [aprovadorId, setAprovadorId] = useState<string>("")
+
   // EVENTO
   const [tipoEvento, setTipoEvento] = useState<tipoEventoEnum>()
-  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
-  const [disciplinaId, setDisciplinaId] = useState<string>("")
+  const [tipoReserva, setTipoReserva] = useState<tipoReservaEnum>()
+  const [turmas, setTurmas] = useState<TurmaAdmin[]>([])
+  const [turmaId, setTurmaId] = useState<string | undefined>("")
   const [quantidadeParticipantes, setQuantidadeParticipantes] = useState<number>(1)
   const [dataInicial, setDataInicial] = useState<Date>(() => new Date())
   const [dataFinal, setDataFinal] = useState<Date>(() => new Date())
   const [horarios, setHorarios] = useState<Horario[]>([])
   const [horario, setHorario] = useState<string>("")
   const [horaInicial, setHoraInicial] = useState<Date>(() => {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      return d;
-    })
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  })
   const [horaFinal, setHoraFinal] = useState<Date>(() => {
       const d = new Date();
       d.setHours(23, 59, 0, 0);
       return d;
     })
-  const [aulaSemanal, setAulaSemanal] = useState(false)
+  const [frequencia, setFrequencia] = useState<tipoReservaEnum>(tipoReservaEnum.ESPORADICA);
+  const [diaSemanaEvento, setDiaSemanaEvento] = useState<number>()
   const [acessibilidade, setAcessibilidade] = useState(false)
   const [setores, setSetores] = useState<SetorAdmin[]>([])
-  const [setor, setSetor] = useState<SetorAdmin>()
+  const [setorId, setSetorId] = useState<string>()
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>([])
   const [mobiliarios, setMobiliarios] = useState<Mobiliario[]>([])
 
   //FETCHS
-  const [loadingDisciplinas, setLoadingDisciplinas] = useState(false)
-  const [erroBuscarDisciplinas, setErroBuscarDisciplinas] = useState(false)
-  const [mensagemErroBuscarDisciplinas, setMensagemErroBuscarDisciplinas] = useState("")
+  const [loadingTurmas, setLoadingTurmas] = useState(false)
+  const [erroBuscarTurmas, setErroBuscarTurmas] = useState(false)
+  const [mensagemErroBuscarTurmas, setMensagemErroBuscarTurmas] = useState("")
   const [loadingHorarios, setLoadingHorarios] = useState(false)
   const [erroBuscarHorarios, setErroBuscarHorarios] = useState(false)
   const [mensagemErroBuscarHorarios, setMensagemErroBuscarHorarios] = useState("")
@@ -71,30 +80,58 @@ export default function SolicitarReserva() {
   const [mensagemErroBuscarSetores, setMensagemErroBuscarSetores] = useState("")
   const [erroSolicitarReserva, setErroSolicitarReserva] = useState(false)
   const [mensagemErroSolicitarReserva, setMensagemErroSolicitarReserva] = useState("")
+  const [erroBuscarUsuarios, setErroBuscarUsuarios] = useState(false)
+  const [mensagemErroBuscarUsuarios, setMensagemErroBuscarUsuarios] = useState("")
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false)
   const [isReservaSolicitada, setIsReservaSolicitada] = useState(false)
+
+  const formRef = useRef<HTMLFormElement>(null);
 
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    setLoadingDisciplinas(true)
+    setLoadingTurmas(true)
     setLoadingHorarios(true)
     setLoadingSetores(true)
-    buscarDisciplinas() //buscar disciplinas
     buscarHorarios()    //buscar horários
     buscarSetores()   //buscar setores
   },[])
 
-  async function buscarDisciplinas() {
+  useEffect(() => {
+    if(ministrante?.id){
+      buscarTurmasByMinistrante(ministrante.id)
+    }
+  },[ministrante])
+
+  useEffect(() => {
+    setDiaSemanaEvento(dataInicial.getDay())
+  },[dataInicial])
+
+  async function buscarTurmasByMinistrante(ministranteId: string) {
     try {
-      const disciplinas = await getDisciplinas()
-      setDisciplinas(disciplinas)
+      const turmas = await getTurmasByMinistrante(ministranteId)
+      setTurmas(turmas)
     } catch (err) {
       const mensagem = err instanceof Error ? err.message : String(err);
-        console.error("Erro ao buscar as disciplinas:", mensagem);
-        setErroBuscarDisciplinas(true)
-        setMensagemErroBuscarDisciplinas("Não foi possível carregar as disciplinas")
+        console.error("Erro ao buscar as turmas:", mensagem);
+        setErroBuscarTurmas(true)
+        setMensagemErroBuscarTurmas("Não foi possível carregar as turmas")
     } finally {
-      setLoadingDisciplinas(false)
+      setLoadingTurmas(false)
+    }
+  }
+
+  async function buscarUsuarios() {
+    try {
+      const Usuarios = await getUsuarios()
+      setAprovadores(Usuarios)
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : String(err);
+        console.error("Erro ao buscar os horários:", mensagem);
+        setErroBuscarUsuarios(true)
+        setMensagemErroBuscarUsuarios("Não foi possível buscar os horários")
+    } finally {
+      setLoadingUsuarios(false)
     }
   }
 
@@ -142,19 +179,19 @@ export default function SolicitarReserva() {
     )
   }
 
-  type OptionTypeDisciplinas = {
+  type OptionTypeTurmas = {
     value: string;
     label: string;
   };
 
-  const optionsDisciplinas: OptionTypeDisciplinas[] = disciplinas
+  const optionsTurmas: OptionTypeTurmas[] = turmas
     .sort((a, b) => a.nome.localeCompare(b.nome))
-    .map(d => ({
-      value: d.id,
-      label: d.nome
+    .map(t => ({
+      value: t.id,
+      label: `${t.nome} - ${t.disciplina.nome}`
     }))
 
-  const customStylesDisciplinas: StylesConfig<OptionTypeDisciplinas, false> = {
+  const customStylesTurmas: StylesConfig<OptionTypeTurmas, false> = {
       control: (provided) => ({
         ...provided,
         borderRadius: 8,
@@ -223,20 +260,76 @@ export default function SolicitarReserva() {
     return usuarios.map((u) => ({value: u, label: `${u.nome} ${u.sobrenome}`}));
   };
 
-  async function solicitarReserva(){}
+  async function solicitarReserva(e: React.FormEvent){
+    buscarUsuarios()
+    const usuariosAprovadores = aprovadores?.filter(u => u.cargos.some(c => c === Cargo.ATENDIMENTO ))
+    e.preventDefault()
+    if (formRef.current && !formRef.current.reportValidity()) return;
+
+    let permiteAtualizar = true
+    setDiaSemanaEvento(dataInicial.getDay())
+    console.log(usuariosAprovadores)
+    console.log(tipoEvento)
+    console.log(frequencia)
+    console.log(acessibilidade)
+    console.log(diaSemanaEvento);
+    console.log(dataInicial);
+    console.log(dataFinal)
+    console.log(horario);
+    console.log(horaInicial)
+    console.log(horaFinal)
+    console.log(turmaId)
+    console.log(ministranteId)
+    console.log(solicitanteId)
+    console.log(quantidadeParticipantes)
+    console.log(equipamentos)
+    console.log(mobiliarios)
+    console.log(setor)
+
+    if(!tipoEvento || !frequencia || !acessibilidade || !diaSemanaEvento || !dataInicial
+      || !dataFinal || !horaInicial || !horaFinal || !ministranteId || !solicitanteId || !quantidadeParticipantes){
+        setErroSolicitarReserva(true)
+        setMensagemErroSolicitarReserva("Os valores não podem ser vazios")
+        setTimeout(() => setErroSolicitarReserva(false), 3000)
+        permiteAtualizar = false
+        return
+  }
+
+  if(permiteAtualizar){
+    const solicitaReservaData: SolicitaReserva = {
+      tipoEvento: tipoEvento,
+      tipoReserva: frequencia,
+      acessibilidade: acessibilidade,
+      diaSemana: diaSemanaEvento,
+      dataInicio: dataInicial,
+      dataFim: dataFinal,
+      horarioId: horario,
+      horaInicial: horaInicial,
+      horaFinal: horaFinal,
+      turmaId: turmaId,
+      qtdParticipantes: quantidadeParticipantes,
+      ministranteId: ministranteId,
+      solicitanteId: solicitanteId,
+      aprovadorId: aprovadorId,
+      equipamentos: equipamentos,
+      mobiliarios: mobiliarios,
+      setorPreferido: setorId
+    }
+  }
+}
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
-      {loadingDisciplinas || loadingHorarios || loadingSetores || !dataInicial || !dataFinal || !horaInicial || !horaFinal ? (
+      {loadingHorarios || loadingSetores || !dataInicial || !dataFinal || !horaInicial || !horaFinal ? (
           <div className="flex justify-center items-center">
                 <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
                   <span key={i} className="inline-block animate-bounce">{char}</span>
                 ))}
                 </p>
           </div>
-        ) : ( erroBuscarDisciplinas ? (
+        ) : ( erroBuscarTurmas ? (
           <div className="flex justify-center items-center">
-              <p className="mt-6 text-gray-600">{mensagemErroBuscarDisciplinas}</p>
+              <p className="mt-6 text-gray-600">{mensagemErroBuscarTurmas}</p>
           </div>
         ) : (erroBuscarHorarios ? (
           <div className="flex justify-center items-center">
@@ -249,7 +342,7 @@ export default function SolicitarReserva() {
         ) : (
         <div>
           <h1 className="text-4xl font-poppins text-blue-950 font-bold mt-2">Solicitação de reserva</h1>
-          <form action="" className="grid grid-cols-2 grid-rows-2 gap-x-4 border rounded-lg p-4 my-8">
+          <form ref={formRef} onSubmit={solicitarReserva} action="" className="grid grid-cols-2 grid-rows-2 gap-x-4 border rounded-lg p-4 my-8">
             <div className="flex flex-col row-start-1 row-end-2 col-start-1 col-end-2 gap-4">
               <h1 className="font-poppins text-2xl text-blue-950">Dados do solicitante</h1>
               <div className="flex flex-col gap-2">
@@ -257,6 +350,7 @@ export default function SolicitarReserva() {
                   Nome do solicitante:
                 </label>
                 <AsyncSelect<{ value: UsuarioOption, label: string },false>
+                  required
                   cacheOptions
                   defaultOptions
                   loadOptions={loadOptionsSolicitante}
@@ -266,9 +360,12 @@ export default function SolicitarReserva() {
                     if (selected) {
                       const usuario = selected.value;  // Objeto completo
                       setSolicitante(usuario);         // Guarda tudo
+                      setSolicitanteId(usuario.id)
                       setEmailSolicitante(usuario.email);
                       setTelefoneSolicitante(usuario.telefone);
                     } else {
+                      setSolicitante(undefined)
+                      setSolicitanteId("")
                       setEmailSolicitante("")
                       setTelefoneSolicitante("")
                     }
@@ -310,6 +407,7 @@ export default function SolicitarReserva() {
                   Nome do ministrante:
                 </label>
                 <AsyncSelect<{ value: UsuarioOption, label: string },false>
+                  required
                   cacheOptions
                   defaultOptions
                   loadOptions={loadOptionsMinistrante}
@@ -319,9 +417,12 @@ export default function SolicitarReserva() {
                     if (selected) {
                       const usuario = selected.value;  // Objeto completo
                       setMinistrante(usuario);         // Guarda tudo
+                      setMinistranteId(usuario.id)
                       setEmailMinistrante(usuario.email);
                       setTelefoneMinistrante(usuario.telefone);
                     } else {
+                      setMinistrante(undefined)
+                      setMinistranteId("")
                       setEmailMinistrante("")
                       setTelefoneMinistrante("")
                     }
@@ -365,7 +466,14 @@ export default function SolicitarReserva() {
                   <select
                     value={tipoEvento}
                     className="border rounded h-10 p-2 bg-white"
-                    onChange={e => {setTipoEvento(e.target.value as tipoEventoEnum)}}
+                    onChange={e => {
+                      const novoTipoEvento = e.target.value as tipoEventoEnum
+                      if(novoTipoEvento !== tipoEventoEnum.AULA && novoTipoEvento !== tipoEventoEnum.BANCA){
+                        setTurmaId(undefined)
+                      }
+                      setTipoEvento(novoTipoEvento)
+                      }
+                    }
                     required>
                     <option value="">Selecione o evento</option>
                     {Object.values(tipoEventoEnum).map((tipo) => (
@@ -391,11 +499,17 @@ export default function SolicitarReserva() {
                   <label htmlFor="" className="font-semibold mb-1">Atividade:</label>
                   <Select
                     required
-                    styles={customStylesDisciplinas}
-                    options={optionsDisciplinas}
-                    placeholder="Selecione a atividade"
-                    value={disciplinaId !== undefined ? optionsDisciplinas.find(o => o.value === disciplinaId) || null : null}
-                    onChange={(selected) => setDisciplinaId(selected ? selected.value : "")}
+                    isDisabled={!ministrante}
+                    styles={customStylesTurmas}
+                    options={optionsTurmas}
+                    placeholder={ministrante ? "Selecione a atividade" : "Selecione o ministrante primeiro"}
+                    value={turmaId !== undefined ? optionsTurmas.find(o => o.value === turmaId) || null : null}
+                    onChange={(selected) => {
+                      if(tipoEvento === tipoEventoEnum.AULA || tipoEvento === tipoEventoEnum.BANCA){
+                        setTurmaId(selected ? selected.value : "")
+                      } else
+                        setTurmaId("")
+                      }}
                   />
                 </div>
                 ) : null
@@ -460,7 +574,8 @@ export default function SolicitarReserva() {
                     </label>
                     <input
                       required
-                      className="w-full border rounded h-10 bg-white p-2" type="time"
+                      className="w-full border rounded h-10 bg-white p-2"
+                      type="time"
                       value={horaInicial ? horaInicial.toTimeString().slice(0,5) : ""}
                       onChange={(e) => {
                         const [horas, minutos] = e.target.value.split(":").map(Number)
@@ -471,16 +586,16 @@ export default function SolicitarReserva() {
                   </div>
                   <div className="flex flex-col col-start-2 gap-2">
                     <label htmlFor="" className="font-semibold mb-1">
-                      Hora inicial:
+                      Hora final:
                     </label>
                     <input
                       required
                       className="w-full border rounded h-10 bg-white p-2"
                       type="time"
-                      value={horaFinal ? horaFinal.toTimeString().slice(0,5): ""}
+                      value={horaFinal ? horaFinal.toTimeString().slice(0,5) : ""}
                       onChange={(e) => {
                         const [horas, minutos] = e.target.value.split(":").map(Number)
-                        const novaHoraFinal = horaFinal
+                        const novaHoraFinal = new Date()
                         novaHoraFinal!.setHours(horas, minutos)
                         setHoraFinal(novaHoraFinal)
                       }}
@@ -492,46 +607,70 @@ export default function SolicitarReserva() {
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col col-start-1 col-end-2 gap-2">
                   <label className="block font-semibold">Frequência:</label>
-                  <div className="flex gap-2 items-center">
-                    <input
-                        type="checkbox"
-                        checked={aulaSemanal}
-                        onChange={(e) => setAulaSemanal(e.target.checked)}
-                        className="w-5 h-5 border rounded"/>
-                    <span>
-                        {aulaSemanal
-                          ? "Recorrente"
-                          : "Esporádica"}
-                    </span>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="frequencia"
+                        value={tipoReservaEnum.ESPORADICA}
+                        className="w-5 h-5 border rounded"
+                        checked={frequencia === tipoReservaEnum.ESPORADICA}
+                        onChange={(e) => setFrequencia(e.target.value as tipoReservaEnum)}
+                      />
+                      Esporádica
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="frequencia"
+                        value={tipoReservaEnum.RECORRENTE}
+                        className="w-5 h-5 border rounded"
+                        checked={frequencia === tipoReservaEnum.RECORRENTE}
+                        onChange={(e) => setFrequencia(e.target.value as tipoReservaEnum)}
+                      />
+                      Recorrente
+                    </label>
                   </div>
                 </div>
                 <div className="flex flex-col col-start-2 gap-2">
                   <label className="block font-semibold">Acessibilidade</label>
                   <div className="flex gap-2 items-center">
+                    <label className="flex items-center gap-2">
                     <input
-                        type="checkbox"
-                        checked={acessibilidade}
-                        onChange={(e) => setAcessibilidade(e.target.checked)}
+                        type="radio"
+                        name="acessibilidade"
+                        value="false"
+                        checked={acessibilidade === false}
+                        onChange={() => setAcessibilidade(false)}
                         className="w-5 h-5 border rounded"
                         />
-                    <span>
-                        {acessibilidade
-                          ? "Com acessibilidade"
-                          : "Sem acessibilidade"}
-                    </span>
+                        Sem acessibilidade
+                    </label>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <label className="flex items-center gap-2">
+                    <input
+                        type="radio"
+                        name="acessibilidade"
+                        value="true"
+                        checked={acessibilidade === true}
+                        onChange={() => setAcessibilidade(true)}
+                        className="w-5 h-5 border rounded"
+                        />
+                        Com acessibilidade
+                    </label>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
                 <label htmlFor="" className="font-semibold mb-1">Localização desejada</label>
                 <select
-                  required
-                  value={setor?.id ?? ""}
+                  value={setorId ?? ""}
                   className="w-full border rounded h-10 bg-white p-2 font-poppins"
                   onChange={e => {
                       const setorId = e.target.value;
-                      const selectedSetor = setores.find(s => s.id === setorId)!;
-                      setSetor(selectedSetor);
+                      const selectedSetor = setores.find(s => s.id === setorId)?.id;
+                      setSetorId(selectedSetor);
 
                   }}
                 >
@@ -584,6 +723,7 @@ export default function SolicitarReserva() {
             <div className="flex col-span-2 gap-2 items-center justify-center mt-4">
               <button
                 onClick={solicitarReserva}
+                type="submit"
                 className="bg-blue-700 font-poppins text-white px-4 py-2 rounded-lg hover:bg-blue-950 hover:cursor-pointer transition duration-300"
               >
                 Solicitar reserva

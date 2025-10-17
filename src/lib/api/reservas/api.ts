@@ -1,3 +1,5 @@
+import { CreateEvento } from "@/types/evento";
+
 export async function getEventos() {
   const res = await fetch(`/api/reserva`);
   if (!res.ok) throw new Error('Erro ao carregar salas');
@@ -11,7 +13,6 @@ export async function getEventosSala(salaId: string){
 }
 
 export async function getEventosSalaComData(salaId: string, dataInicio: Date, dataFim: Date){
-  console.log("Cheguei com data")
   const formatDate = (date: Date) => {
     const d = new Date(date)
     const ano = d.getFullYear()
@@ -24,4 +25,17 @@ export async function getEventosSalaComData(salaId: string, dataInicio: Date, da
   const res = await fetch(`/api/reservas/${salaId}/${formatDate(dataInicio)}/${formatDate(dataFim)}`);
   if (!res.ok) throw new Error('Erro ao carregar salas');
   return res.json();
+}
+
+export async function createReserva(reservaData: CreateEvento){
+  const res = await fetch(`/api/reservas`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(reservaData),
+    credentials: "include"
+  })
+
+  if (!res.ok) throw new Error('Erro ao solicitar a reserva');
+  const data = await res.json()
+  return data
 }
