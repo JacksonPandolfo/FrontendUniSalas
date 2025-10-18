@@ -1,6 +1,6 @@
 export interface Horario {
     id: string
     nome: string
-    horaInicio: string
-    horaFim: string
+    horaInicio: Date
+    horaFim: Date
 }

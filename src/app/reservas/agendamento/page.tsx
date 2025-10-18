@@ -3,46 +3,43 @@ import { getHorarios } from "@/lib/api/horarios/api"
 import { getSetores } from "@/lib/api/setores/api"
 import { getTurmasByMinistrante } from "@/lib/api/turma/api"
 import { getUsuarioByNome, getUsuarioMinistranteByNome, getUsuarios } from "@/lib/api/usuario/api"
-import {  SolicitaReserva, tipoEventoEnum, tipoReserva, tipoReservaEnum } from "@/types/evento"
+import {  SolicitaReserva, statusReservaEnum, tipoEventoEnum, tipoReservaEnum } from "@/types/evento"
 import { Horario } from "@/types/horario"
 import { Equipamento, Mobiliario } from "@/types/sala"
 import { SetorAdmin } from "@/types/setor"
 import { TurmaAdmin } from "@/types/turma"
 import { Cargo, UsuarioAdmin } from "@/types/usuario"
-import { tipoReservaMap } from "@/utils/tipoReservaMap"
+import { tipoEquipamentoReverseMap } from "@/utils/tipoEquipamentoMap"
+import { tipoMobiliarioReverseMap } from "@/utils/tipoMobiliarioMap"
 import { useEffect, useRef, useState } from "react"
 import Select, { StylesConfig } from "react-select"
 import AsyncSelect from "react-select/async"
 
-function formataHorarioLocal(horario: string) {
-  const [h, m] = horario.slice(11, 16).split(":").map(Number);
-  const horarioFormatado = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
+  export function formataHorarioLocal(horario: Date) {
+    const [h, m] = String(horario).slice(11, 16).split(":").map(Number);
+    const horarioFormatado = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
 
-  return horarioFormatado;
-}
+    return horarioFormatado;
+  }
 
 export default function SolicitarReserva() {
   // SOLICITANTE
-  const [solicitante, setSolicitante] = useState<UsuarioOption>()
   const [solicitanteId, setSolicitanteId] = useState<string>("")
-  const [nomeSolicitante, setNomeSolicitante] = useState<string>("")
   const [emailSolicitante, setEmailSolicitante] = useState<string>("")
   const [telefoneSolicitante, setTelefoneSolicitante] = useState<string>("")
 
   // MINISTRANTE
   const [ministrante, setMinistrante] = useState<UsuarioOption>()
   const [ministranteId, setMinistranteId] = useState<string>("")
-  const [nomeMinistrante, setNomeMinistrante] = useState<string>("")
   const [emailMinistrante, setEmailMinistrante] = useState<string>("")
   const [telefoneMinistrante, setTelefoneMinistrante] = useState<string>("")
 
   //APROVADOR
   const [aprovadores, setAprovadores] = useState<UsuarioAdmin[]>()
-  const [aprovadorId, setAprovadorId] = useState<string>("")
 
   // EVENTO
   const [tipoEvento, setTipoEvento] = useState<tipoEventoEnum>()
-  const [tipoReserva, setTipoReserva] = useState<tipoReservaEnum>()
+  const [tipoReserva, setTipoReserva] = useState<tipoReservaEnum>(tipoReservaEnum.ESPORADICA);
   const [turmas, setTurmas] = useState<TurmaAdmin[]>([])
   const [turmaId, setTurmaId] = useState<string | undefined>("")
   const [quantidadeParticipantes, setQuantidadeParticipantes] = useState<number>(1)
@@ -56,11 +53,10 @@ export default function SolicitarReserva() {
     return d;
   })
   const [horaFinal, setHoraFinal] = useState<Date>(() => {
-      const d = new Date();
+    const d = new Date();
       d.setHours(23, 59, 0, 0);
       return d;
     })
-  const [frequencia, setFrequencia] = useState<tipoReservaEnum>(tipoReservaEnum.ESPORADICA);
   const [diaSemanaEvento, setDiaSemanaEvento] = useState<number>()
   const [acessibilidade, setAcessibilidade] = useState(false)
   const [setores, setSetores] = useState<SetorAdmin[]>([])
@@ -95,6 +91,7 @@ export default function SolicitarReserva() {
     setLoadingSetores(true)
     buscarHorarios()    //buscar horários
     buscarSetores()   //buscar setores
+    buscarUsuarios()
   },[])
 
   useEffect(() => {
@@ -113,9 +110,9 @@ export default function SolicitarReserva() {
       setTurmas(turmas)
     } catch (err) {
       const mensagem = err instanceof Error ? err.message : String(err);
-        console.error("Erro ao buscar as turmas:", mensagem);
-        setErroBuscarTurmas(true)
-        setMensagemErroBuscarTurmas("Não foi possível carregar as turmas")
+      console.error("Erro ao buscar as turmas:", mensagem);
+      setErroBuscarTurmas(true)
+      setMensagemErroBuscarTurmas("Não foi possível carregar as turmas")
     } finally {
       setLoadingTurmas(false)
     }
@@ -130,9 +127,9 @@ export default function SolicitarReserva() {
         console.error("Erro ao buscar os horários:", mensagem);
         setErroBuscarUsuarios(true)
         setMensagemErroBuscarUsuarios("Não foi possível buscar os horários")
-    } finally {
-      setLoadingUsuarios(false)
-    }
+      } finally {
+        setLoadingUsuarios(false)
+      }
   }
 
   async function buscarHorarios() {
@@ -141,9 +138,9 @@ export default function SolicitarReserva() {
       setHorarios(horarios)
     } catch (err) {
       const mensagem = err instanceof Error ? err.message : String(err);
-        console.error("Erro ao buscar os horários:", mensagem);
-        setErroBuscarHorarios(true)
-        setMensagemErroBuscarHorarios("Não foi possível buscar os horários")
+      console.error("Erro ao buscar os horários:", mensagem);
+      setErroBuscarHorarios(true)
+      setMensagemErroBuscarHorarios("Não foi possível buscar os horários")
     } finally {
       setLoadingHorarios(false)
     }
@@ -158,26 +155,26 @@ export default function SolicitarReserva() {
         console.error("Erro ao buscar os setores:", mensagem);
         setErroBuscarSetores(true)
         setMensagemErroBuscarSetores("Não foi possível buscar os locais")
-    } finally {
-      setLoadingSetores(false)
+      } finally {
+        setLoadingSetores(false)
     }
   }
 
-  const handleEquipamentoChange = (tipo: Equipamento) => {
+  const handleEquipamentoChange = (value: Equipamento) => {
     setEquipamentos(prev =>
-      prev.includes(tipo)
-        ? prev.filter(e => e !== tipo)
-        : [...prev, tipo]
-    )
-  }
+      prev.includes(value)
+        ? prev.filter(e => e !== value)
+        : [...prev, value]
+      )
+    }
 
-  const handleMobiliarioChange = (tipo: Mobiliario) => {
+  const handleMobiliarioChange = (value: Mobiliario) => {
     setMobiliarios(prev =>
-      prev.includes(tipo)
-        ? prev.filter(m => m !== tipo)
-        : [...prev, tipo]
-    )
-  }
+      prev.includes(value)
+        ? prev.filter(m => m !== value)
+        : [...prev, value]
+      )
+    }
 
   type OptionTypeTurmas = {
     value: string;
@@ -185,13 +182,13 @@ export default function SolicitarReserva() {
   };
 
   const optionsTurmas: OptionTypeTurmas[] = turmas
-    .sort((a, b) => a.nome.localeCompare(b.nome))
-    .map(t => ({
-      value: t.id,
-      label: `${t.nome} - ${t.disciplina.nome}`
+  .sort((a, b) => a.nome.localeCompare(b.nome))
+  .map(t => ({
+    value: t.id,
+    label: `${t.nome} - ${t.disciplina.nome}`
     }))
 
-  const customStylesTurmas: StylesConfig<OptionTypeTurmas, false> = {
+    const customStylesTurmas: StylesConfig<OptionTypeTurmas, false> = {
       control: (provided) => ({
         ...provided,
         borderRadius: 8,
@@ -209,13 +206,13 @@ export default function SolicitarReserva() {
       option: (provided, state) => ({
         ...provided,
         backgroundColor: state.isSelected
-          ? '#162456'
-          : state.isFocused
-          ? '#bedbff'
-          : 'white',
+        ? '#162456'
+        : state.isFocused
+        ? '#bedbff'
+        : 'white',
         color: state.isSelected
-          ? 'white'
-          : 'black',
+        ? 'white'
+        : 'black',
         cursor: 'pointer',
       }),
       valueContainer: (provided) => ({
@@ -230,7 +227,7 @@ export default function SolicitarReserva() {
       }),
     };
 
-  type SelectOption = {
+    type SelectOption = {
     value: UsuarioOption,
     label: string
   }
@@ -260,67 +257,111 @@ export default function SolicitarReserva() {
     return usuarios.map((u) => ({value: u, label: `${u.nome} ${u.sobrenome}`}));
   };
 
+  function escolheAprovador(){
+    const usuariosAprovadores = aprovadores?.filter(u => u.cargos.includes(Cargo.ATENDIMENTO ))
+    if(!usuariosAprovadores) return
+    const aprovadorAleatorio = usuariosAprovadores[Math.floor(Math.random() * usuariosAprovadores.length)]
+    return aprovadorAleatorio
+  }
+
   async function solicitarReserva(e: React.FormEvent){
-    buscarUsuarios()
-    const usuariosAprovadores = aprovadores?.filter(u => u.cargos.some(c => c === Cargo.ATENDIMENTO ))
     e.preventDefault()
     if (formRef.current && !formRef.current.reportValidity()) return;
-
     let permiteAtualizar = true
-    setDiaSemanaEvento(dataInicial.getDay())
-    console.log(usuariosAprovadores)
-    console.log(tipoEvento)
-    console.log(frequencia)
-    console.log(acessibilidade)
-    console.log(diaSemanaEvento);
-    console.log(dataInicial);
-    console.log(dataFinal)
-    console.log(horario);
-    console.log(horaInicial)
-    console.log(horaFinal)
-    console.log(turmaId)
-    console.log(ministranteId)
-    console.log(solicitanteId)
-    console.log(quantidadeParticipantes)
-    console.log(equipamentos)
-    console.log(mobiliarios)
-    console.log(setor)
+    let equipamentoAtualizacao: Equipamento[]
+    let mobiliarioAtualizacao: Mobiliario[]
 
-    if(!tipoEvento || !frequencia || !acessibilidade || !diaSemanaEvento || !dataInicial
-      || !dataFinal || !horaInicial || !horaFinal || !ministranteId || !solicitanteId || !quantidadeParticipantes){
+    const aprovador = escolheAprovador()
+    if(!aprovador){
+      setErroSolicitarReserva(true)
+      setMensagemErroSolicitarReserva("Estamos tendo problemas. Tente novamente mais tarde.")
+      setTimeout(() => setErroSolicitarReserva(false), 3000)
+      permiteAtualizar = false
+      return
+    }
+
+    const aprovadorId = aprovador.id
+    if(equipamentos.length !== 0){
+      equipamentoAtualizacao.push(equipamentos.map(e => tipoEquipamentoReverseMap[e]))
+    }
+    if(mobiliarios.length !== 0){
+      mobiliarioAtualizacao = mobiliarios.map(m => tipoMobiliarioReverseMap[m])
+    }
+    setDiaSemanaEvento(dataInicial.getDay())
+
+    if(horario !== "Outro") {
+      const horarioEscolhido = horarios.find(h => h.id === horario)
+      if(horarioEscolhido){
+        const inicio = new Date(horarioEscolhido.horaInicio)
+        const fim = new Date(horarioEscolhido.horaFim)
+        const horaInicialFormatada = inicio.getUTCHours()
+        const minutosInicialFormatada = inicio.getUTCMinutes()
+        const horaFinalFormatada = fim.getUTCHours()
+        const minutosFinalFormatada = fim.getUTCMinutes()
+        horaInicial.setHours(horaInicialFormatada, minutosInicialFormatada)
+        horaFinal.setHours(horaFinalFormatada, minutosFinalFormatada)
+      }
+    }
+
+    if(!tipoEvento
+      || !tipoReserva
+      || (acessibilidade === undefined)
+      || !diaSemanaEvento
+      || !ministranteId
+      || !solicitanteId
+      || !quantidadeParticipantes){
         setErroSolicitarReserva(true)
         setMensagemErroSolicitarReserva("Os valores não podem ser vazios")
         setTimeout(() => setErroSolicitarReserva(false), 3000)
         permiteAtualizar = false
         return
-  }
-
-  if(permiteAtualizar){
-    const solicitaReservaData: SolicitaReserva = {
-      tipoEvento: tipoEvento,
-      tipoReserva: frequencia,
-      acessibilidade: acessibilidade,
-      diaSemana: diaSemanaEvento,
-      dataInicio: dataInicial,
-      dataFim: dataFinal,
-      horarioId: horario,
-      horaInicial: horaInicial,
-      horaFinal: horaFinal,
-      turmaId: turmaId,
-      qtdParticipantes: quantidadeParticipantes,
-      ministranteId: ministranteId,
-      solicitanteId: solicitanteId,
-      aprovadorId: aprovadorId,
-      equipamentos: equipamentos,
-      mobiliarios: mobiliarios,
-      setorPreferido: setorId
     }
-  }
+
+    if(!(horaInicial instanceof Date) || (isNaN(horaInicial.getTime())) || !(horaFinal instanceof Date) || (isNaN(horaFinal.getTime()))){
+      setErroSolicitarReserva(true)
+      setMensagemErroSolicitarReserva("Os campos de horário não podem ser vazios")
+      setTimeout(() => setErroSolicitarReserva(false), 3000)
+      permiteAtualizar = false
+      return
+    }
+
+    if(!(dataInicial instanceof Date) || (isNaN(dataInicial.getTime())) || !(dataFinal instanceof Date) || (isNaN(dataFinal.getTime()))){
+      setErroSolicitarReserva(true)
+      setMensagemErroSolicitarReserva("Os campos de horário não podem ser vazios")
+      setTimeout(() => setErroSolicitarReserva(false), 3000)
+      permiteAtualizar = false
+      return
+    }
+    console.log(mobiliarios)
+    if(permiteAtualizar){
+      const solicitaReservaData: SolicitaReserva = {
+        tipoEvento: tipoEvento,
+        tipoReserva: tipoReserva,
+        acessibilidade: acessibilidade,
+        diaSemana: diaSemanaEvento,
+        dataInicio: dataInicial,
+        dataFim: dataFinal,
+        horarioId: horario,
+        horaInicial: horaInicial,
+        horaFinal: horaFinal,
+        turmaId: turmaId,
+        qtdParticipantes: quantidadeParticipantes,
+        ministranteId: ministranteId,
+        solicitanteId: solicitanteId,
+        aprovadorId: aprovadorId,
+        equipamentos: equipamentoAtualizacao,
+        mobiliarios: mobiliarioAtualizacao,
+        setorPreferido: setorId,
+        statusReserva: statusReservaEnum.PENDENTE
+      }
+
+      console.log(solicitaReservaData)
+    }
 }
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
-      {loadingHorarios || loadingSetores || !dataInicial || !dataFinal || !horaInicial || !horaFinal ? (
+      {loadingHorarios || loadingSetores || loadingUsuarios || !dataInicial || !dataFinal || !horaInicial || !horaFinal ? (
           <div className="flex justify-center items-center">
                 <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
                   <span key={i} className="inline-block animate-bounce">{char}</span>
@@ -331,7 +372,11 @@ export default function SolicitarReserva() {
           <div className="flex justify-center items-center">
               <p className="mt-6 text-gray-600">{mensagemErroBuscarTurmas}</p>
           </div>
-        ) : (erroBuscarHorarios ? (
+        ) : ( erroBuscarUsuarios ? (
+          <div className="flex justify-center items-center">
+              <p className="mt-6 text-gray-600">{mensagemErroBuscarUsuarios}</p>
+          </div>
+        ): (erroBuscarHorarios ? (
           <div className="flex justify-center items-center">
               <p className="mt-6 text-gray-600">{mensagemErroBuscarHorarios}</p>
           </div>
@@ -359,12 +404,10 @@ export default function SolicitarReserva() {
                   onChange={(selected) =>{
                     if (selected) {
                       const usuario = selected.value;  // Objeto completo
-                      setSolicitante(usuario);         // Guarda tudo
                       setSolicitanteId(usuario.id)
                       setEmailSolicitante(usuario.email);
                       setTelefoneSolicitante(usuario.telefone);
                     } else {
-                      setSolicitante(undefined)
                       setSolicitanteId("")
                       setEmailSolicitante("")
                       setTelefoneSolicitante("")
@@ -502,7 +545,7 @@ export default function SolicitarReserva() {
                     isDisabled={!ministrante}
                     styles={customStylesTurmas}
                     options={optionsTurmas}
-                    placeholder={ministrante ? "Selecione a atividade" : "Selecione o ministrante primeiro"}
+                    placeholder={ministrante ? loadingTurmas ? "Carregando as atividades" : "Selecione a atividade" : "Selecione o ministrante primeiro"}
                     value={turmaId !== undefined ? optionsTurmas.find(o => o.value === turmaId) || null : null}
                     onChange={(selected) => {
                       if(tipoEvento === tipoEventoEnum.AULA || tipoEvento === tipoEventoEnum.BANCA){
@@ -611,22 +654,22 @@ export default function SolicitarReserva() {
                     <label className="flex items-center gap-2">
                       <input
                         type="radio"
-                        name="frequencia"
+                        name="tipoReserva"
                         value={tipoReservaEnum.ESPORADICA}
                         className="w-5 h-5 border rounded"
-                        checked={frequencia === tipoReservaEnum.ESPORADICA}
-                        onChange={(e) => setFrequencia(e.target.value as tipoReservaEnum)}
+                        checked={tipoReserva === tipoReservaEnum.ESPORADICA}
+                        onChange={(e) => setTipoReserva(e.target.value as tipoReservaEnum)}
                       />
                       Esporádica
                     </label>
                     <label className="flex items-center gap-2">
                       <input
                         type="radio"
-                        name="frequencia"
+                        name="tipoReserva"
                         value={tipoReservaEnum.RECORRENTE}
                         className="w-5 h-5 border rounded"
-                        checked={frequencia === tipoReservaEnum.RECORRENTE}
-                        onChange={(e) => setFrequencia(e.target.value as tipoReservaEnum)}
+                        checked={tipoReserva === tipoReservaEnum.RECORRENTE}
+                        onChange={(e) => setTipoReserva(e.target.value as tipoReservaEnum)}
                       />
                       Recorrente
                     </label>
@@ -690,31 +733,31 @@ export default function SolicitarReserva() {
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col col-start-1 col-end-2">
                   <label htmlFor="" className="font-semibold mb-2">Equipamentos:</label>
-                  {Object.values(Equipamento).map((tipo) => (
-                    <label key={tipo} className="flex items-center gap-2">
+                  {Object.entries(Equipamento).map(([key, value]) => (
+                    <label key={key} className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        value={tipo}
-                        checked={equipamentos.includes(tipo)}
-                        onChange={() => handleEquipamentoChange(tipo)}
+                        value={value}
+                        checked={equipamentos.includes(value)}
+                        onChange={() => handleEquipamentoChange(value)}
                         className="w-5 h-5 border rounded"
                         />
-                      {tipo}
+                      {value}
                     </label>
                   ))}
                 </div>
                 <div className="flex flex-col col-start-2">
                   <label htmlFor="" className="font-semibold mb-2">Mobiliários:</label>
-                  {Object.values(Mobiliario).map((tipo) => (
-                    <label key={tipo} className="flex items-center gap-2">
+                  {Object.entries(Mobiliario).map(([key, value]) => (
+                    <label key={key} className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        value={tipo}
-                        checked={mobiliarios.includes(tipo)}
-                        onChange={() => handleMobiliarioChange(tipo)}
+                        value={value}
+                        checked={mobiliarios.includes(value)}
+                        onChange={() => handleMobiliarioChange(value)}
                         className="w-5 h-5 border rounded"
                         />
-                      {tipo}
+                      {value}
                     </label>
                   ))}
                 </div>
@@ -741,7 +784,7 @@ export default function SolicitarReserva() {
             </div>
           </form>
         </div>
-        ))))}
+        )))))}
     </div>
   )
 }

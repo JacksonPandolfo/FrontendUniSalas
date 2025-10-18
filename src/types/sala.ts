@@ -45,6 +45,6 @@ export interface UpdateSala {
     capacidade: number
     blocoId: string
     statusSala: "LIVRE" | "OCUPADA" | "MANUTENCAO" | "DESATIVADA"
-    Equipamentos: string[]
-    Mobiliarios: string[]
+    Equipamentos: TipoEquipamento[]
+    Mobiliarios: TipoMobiliario[]
 }
