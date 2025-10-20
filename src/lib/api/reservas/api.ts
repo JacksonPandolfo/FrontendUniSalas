@@ -1,4 +1,4 @@
-import { CreateEvento } from "@/types/evento";
+import { CreateEvento, SolicitaReserva } from "@/types/evento";
 
 export async function getEventos() {
   const res = await fetch(`/api/reserva`);
@@ -28,6 +28,19 @@ export async function getEventosSalaComData(salaId: string, dataInicio: Date, da
 }
 
 export async function createReserva(reservaData: CreateEvento){
+  const res = await fetch(`/api/reservas`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(reservaData),
+    credentials: "include"
+  })
+
+  if (!res.ok) throw new Error('Erro ao solicitar a reserva');
+  const data = await res.json()
+  return data
+}
+
+export async function createSolicitacao(reservaData: SolicitaReserva){
   const res = await fetch(`/api/reservas`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},

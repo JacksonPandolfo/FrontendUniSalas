@@ -19,6 +19,7 @@ export function middleware(req: NextRequest) {
   // APIs públicas
   const publicApis = ['/api/auth/login', '/api/auth/cadastro']
   if (publicApis.some(path => req.nextUrl.pathname.startsWith(path))) {
+    console.log("to aqui no middleware")
     return NextResponse.next()
   }
 

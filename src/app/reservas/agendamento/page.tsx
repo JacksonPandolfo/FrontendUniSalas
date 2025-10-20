@@ -1,16 +1,21 @@
 'use client'
 import { getHorarios } from "@/lib/api/horarios/api"
+import { createSolicitacao } from "@/lib/api/reservas/api"
 import { getSetores } from "@/lib/api/setores/api"
 import { getTurmasByMinistrante } from "@/lib/api/turma/api"
 import { getUsuarioByNome, getUsuarioMinistranteByNome, getUsuarios } from "@/lib/api/usuario/api"
+import { Equipamento } from "@/types/equipamento"
 import {  SolicitaReserva, statusReservaEnum, tipoEventoEnum, tipoReservaEnum } from "@/types/evento"
 import { Horario } from "@/types/horario"
-import { Equipamento, Mobiliario } from "@/types/sala"
+import { Mobiliario } from "@/types/mobiliario"
 import { SetorAdmin } from "@/types/setor"
 import { TurmaAdmin } from "@/types/turma"
 import { Cargo, UsuarioAdmin } from "@/types/usuario"
+import { statusReservaReverseMap } from "@/utils/statusReservaMap"
 import { tipoEquipamentoReverseMap } from "@/utils/tipoEquipamentoMap"
+import { tipoEventoReverseMap } from "@/utils/tipoEventoMap"
 import { tipoMobiliarioReverseMap } from "@/utils/tipoMobiliarioMap"
+import { tipoReservaReverseMap } from "@/utils/tipoReservaMap"
 import { useEffect, useRef, useState } from "react"
 import Select, { StylesConfig } from "react-select"
 import AsyncSelect from "react-select/async"
@@ -23,6 +28,7 @@ import AsyncSelect from "react-select/async"
   }
 
 export default function SolicitarReserva() {
+  const [isClientReady, setIsClientReady] = useState(false)
   // SOLICITANTE
   const [solicitanteId, setSolicitanteId] = useState<string>("")
   const [emailSolicitante, setEmailSolicitante] = useState<string>("")
@@ -86,6 +92,7 @@ export default function SolicitarReserva() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    setIsClientReady(true)
     setLoadingTurmas(true)
     setLoadingHorarios(true)
     setLoadingSetores(true)
@@ -268,8 +275,6 @@ export default function SolicitarReserva() {
     e.preventDefault()
     if (formRef.current && !formRef.current.reportValidity()) return;
     let permiteAtualizar = true
-    let equipamentoAtualizacao: Equipamento[]
-    let mobiliarioAtualizacao: Mobiliario[]
 
     const aprovador = escolheAprovador()
     if(!aprovador){
@@ -281,12 +286,6 @@ export default function SolicitarReserva() {
     }
 
     const aprovadorId = aprovador.id
-    if(equipamentos.length !== 0){
-      equipamentoAtualizacao.push(equipamentos.map(e => tipoEquipamentoReverseMap[e]))
-    }
-    if(mobiliarios.length !== 0){
-      mobiliarioAtualizacao = mobiliarios.map(m => tipoMobiliarioReverseMap[m])
-    }
     setDiaSemanaEvento(dataInicial.getDay())
 
     if(horario !== "Outro") {
@@ -306,7 +305,7 @@ export default function SolicitarReserva() {
     if(!tipoEvento
       || !tipoReserva
       || (acessibilidade === undefined)
-      || !diaSemanaEvento
+      || (diaSemanaEvento === null || diaSemanaEvento === undefined)
       || !ministranteId
       || !solicitanteId
       || !quantidadeParticipantes){
@@ -316,6 +315,7 @@ export default function SolicitarReserva() {
         permiteAtualizar = false
         return
     }
+
 
     if(!(horaInicial instanceof Date) || (isNaN(horaInicial.getTime())) || !(horaFinal instanceof Date) || (isNaN(horaFinal.getTime()))){
       setErroSolicitarReserva(true)
@@ -332,11 +332,19 @@ export default function SolicitarReserva() {
       permiteAtualizar = false
       return
     }
-    console.log(mobiliarios)
+
+    const tipoEventoSolicitacao = tipoEventoReverseMap[tipoEvento] as tipoEventoEnum
+    const tipoReservaSolicitacao = tipoReservaReverseMap[tipoReserva] as tipoReservaEnum
+    const equipamentosSolicitacao = equipamentos.map(e => tipoEquipamentoReverseMap[e] as Equipamento)
+    const mobiliariosSolicitacao = mobiliarios.map(e => tipoMobiliarioReverseMap[e] as Mobiliario)
+    const statusReserva = statusReservaEnum.PENDENTE
+    console.log(statusReserva)
+    console.log(statusReservaReverseMap[statusReserva])
+
     if(permiteAtualizar){
       const solicitaReservaData: SolicitaReserva = {
-        tipoEvento: tipoEvento,
-        tipoReserva: tipoReserva,
+        tipoEvento: tipoEventoSolicitacao,
+        tipoReserva: tipoReservaSolicitacao,
         acessibilidade: acessibilidade,
         diaSemana: diaSemanaEvento,
         dataInicio: dataInicial,
@@ -345,19 +353,33 @@ export default function SolicitarReserva() {
         horaInicial: horaInicial,
         horaFinal: horaFinal,
         turmaId: turmaId,
-        qtdParticipantes: quantidadeParticipantes,
+        qtdPessoas: quantidadeParticipantes,
         ministranteId: ministranteId,
         solicitanteId: solicitanteId,
         aprovadorId: aprovadorId,
-        equipamentos: equipamentoAtualizacao,
-        mobiliarios: mobiliarioAtualizacao,
-        setorPreferido: setorId,
-        statusReserva: statusReservaEnum.PENDENTE
+        equipamentos: equipamentosSolicitacao,
+        mobiliarios: mobiliariosSolicitacao,
+        setorPreferidoId: setorId,
+        statusReserva: statusReservaReverseMap[statusReservaEnum.PENDENTE] as statusReservaEnum
+      }
+      console.log(solicitaReservaData)
+
+      try {
+        await createSolicitacao(solicitaReservaData)
+        setIsReservaSolicitada(true)
+        setTimeout(() => setIsReservaSolicitada(false), 3000)
+      } catch (err) {
+        const mensagem = err instanceof Error ? err.message : String(err);
+        console.error("Erro ao atualizar a sala:", mensagem);
+        setErroSolicitarReserva(true)
+        setMensagemErroSolicitarReserva("Erro ao solicitar a reserva")
+        setTimeout(() => setErroSolicitarReserva(false), 3000)
       }
 
-      console.log(solicitaReservaData)
     }
-}
+  }
+
+  if(!isClientReady) return null
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
@@ -386,7 +408,7 @@ export default function SolicitarReserva() {
           </div>
         ) : (
         <div>
-          <h1 className="text-4xl font-poppins text-blue-950 font-bold mt-2">Solicitação de reserva</h1>
+          <h1 className="text-4xl font-poppins text-center text-blue-950 font-bold mt-2">Solicitação de reserva</h1>
           <form ref={formRef} onSubmit={solicitarReserva} action="" className="grid grid-cols-2 grid-rows-2 gap-x-4 border rounded-lg p-4 my-8">
             <div className="flex flex-col row-start-1 row-end-2 col-start-1 col-end-2 gap-4">
               <h1 className="font-poppins text-2xl text-blue-950">Dados do solicitante</h1>
@@ -396,6 +418,7 @@ export default function SolicitarReserva() {
                 </label>
                 <AsyncSelect<{ value: UsuarioOption, label: string },false>
                   required
+                  instanceId="select-solicitante"
                   cacheOptions
                   defaultOptions
                   loadOptions={loadOptionsSolicitante}
@@ -451,6 +474,7 @@ export default function SolicitarReserva() {
                 </label>
                 <AsyncSelect<{ value: UsuarioOption, label: string },false>
                   required
+                  instanceId="select-ministrante"
                   cacheOptions
                   defaultOptions
                   loadOptions={loadOptionsMinistrante}
@@ -763,7 +787,7 @@ export default function SolicitarReserva() {
                 </div>
               </div>
             </div>
-            <div className="flex col-span-2 gap-2 items-center justify-center mt-4">
+            <div className="flex flex-col col-span-2 gap-2 items-center justify-center mt-4">
               <button
                 onClick={solicitarReserva}
                 type="submit"
@@ -772,12 +796,12 @@ export default function SolicitarReserva() {
                 Solicitar reserva
               </button>
               {erroSolicitarReserva && (
-                <div className="absolute top-2 right-2 bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                <div className="bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
                   <p>{mensagemErroSolicitarReserva}</p>
                 </div>
               )}
               {isReservaSolicitada && (
-                <div className="absolute top-2 right-2 bg-green-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                <div className="bg-green-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
                   <p>✅ Reserva solicitada com sucesso!</p>
                 </div>
               )}

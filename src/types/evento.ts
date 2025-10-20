@@ -1,4 +1,5 @@
-import { Equipamento, Mobiliario } from "./sala"
+import { Equipamento } from "./equipamento"
+import { Mobiliario } from "./mobiliario"
 import { TurmaAdmin } from "./turma"
 
 export enum tipoEventoEnum{
@@ -75,12 +76,12 @@ export interface SolicitaReserva{
     horaInicial: Date
     horaFinal: Date
     turmaId?: string
-    qtdParticipantes: number
+    qtdPessoas: number
     ministranteId: string
     solicitanteId: string
     aprovadorId: string
     statusReserva: statusReservaEnum
     equipamentos: Equipamento[]
     mobiliarios: Mobiliario[]
-    setorPreferido?: string
+    setorPreferidoId?: string
 }

@@ -1,10 +1,14 @@
 'use client'
 
 import { getBlocosSetor } from "@/lib/api/blocos/api"
+import { updateEquipamentosBySalaId } from "@/lib/api/equipamentos/api"
+import { updateMobiliariosBySalaId } from "@/lib/api/mobiliarios/api"
 import { getSalaById, updateSalaById } from "@/lib/api/salas/api"
 import { getSetores } from "@/lib/api/setores/api"
 import { BlocoAdmin } from "@/types/bloco"
-import { Equipamento, Mobiliario, SalaAdmin, UpdateSala } from "@/types/sala"
+import { Equipamento, UpdateEquipamentoSala } from "@/types/equipamento"
+import { Mobiliario, UpdateMobiliarioSala } from "@/types/mobiliario"
+import { SalaAdmin, UpdateSala } from "@/types/sala"
 import { SetorAdmin } from "@/types/setor"
 import { statusSalaMap } from "@/utils/statusSalaMap"
 import { tipoEquipamentoMap, tipoEquipamentoReverseMap } from "@/utils/tipoEquipamentoMap"
@@ -119,8 +123,6 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
     async function salvarAlteracoes(){
       setMensagemErroAtualizarSala("")
         let permiteAtualizar = true
-        let equipamentoAtualizacao: string[]
-        let mobiliarioAtualizacao: string[]
         let blocoAtualizacao: string
         setErroAtualizarSala(false)
         setIsSalaAtualizada(false)
@@ -130,11 +132,15 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
         const equipamentos = sala.Equipamentos.map(e => Equipamento[e.tipoEquipamento as unknown as keyof typeof Equipamento])
         const mobiliarios = sala.Mobiliarios.map(m => Mobiliario[m.tipoMobiliario as unknown as keyof typeof Mobiliario])
 
+        const equipamentosIguais = arraysIguais(novoEquipamento, equipamentos)
+        const mobiliariosIguais = arraysIguais(novoMobiliario, mobiliarios)
+
+
         if(novoSetor === sala.bloco.setor.nome && novoBloco === sala.bloco.numero && novoNumeroSala === sala.numero
             && novaCapacidade === sala.capacidade && temAcessibilidade === sala.temAcessibilidade
             && novoStatusSala === sala.statusSala
-            && arraysIguais(novoEquipamento, equipamentos)
-            && arraysIguais(novoMobiliario, mobiliarios)
+            && equipamentosIguais
+            && mobiliariosIguais
 
           ){
             setErroAtualizarSala(true)
@@ -142,9 +148,9 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
             setTimeout(() => setErroAtualizarSala(false), 3000)
             permiteAtualizar = false
             return
-        }
+          }
 
-        if(novoSetor === undefined || novoBloco === undefined || novoNumeroSala === undefined
+          if(novoSetor === undefined || novoBloco === undefined || novoNumeroSala === undefined
             || novaCapacidade === undefined || temAcessibilidade === undefined || novoStatusSala === undefined
           ){
             setErroAtualizarSala(true)
@@ -168,14 +174,6 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
           setTimeout(() => setErroAtualizarSala(false), 3000)
           permiteAtualizar = false
           return
-        }
-
-        if(novoEquipamento.length !== 0){
-          equipamentoAtualizacao = novoEquipamento.map(e => tipoEquipamentoReverseMap[e])
-        }
-
-        if(novoMobiliario.length !== 0){
-          mobiliarioAtualizacao = novoMobiliario.map(m => tipoMobiliarioReverseMap[m])
         }
 
         if(novoSetor){
@@ -214,6 +212,8 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
             return
           }
         }
+        const equipamentosAtualizacao = novoEquipamento.map(e => tipoEquipamentoReverseMap[e] as Equipamento)
+        const mobiliariosAtualizacao = novoMobiliario.map(e => tipoMobiliarioReverseMap[e] as Mobiliario)
 
 
         if(permiteAtualizar){
@@ -223,20 +223,30 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
             capacidade: novaCapacidade,
             blocoId: blocoAtualizacao!,
             statusSala: novoStatusSala!,
-            Equipamentos: equipamentoAtualizacao!,
-            Mobiliarios: mobiliarioAtualizacao!,
+          }
+          const dataUpdateEquipamentoSala: UpdateEquipamentoSala = {
+            tipoEquipamento: equipamentosAtualizacao
+          }
+          const dataUpdateMobiliarioSala: UpdateMobiliarioSala = {
+            tipoMobiliario: mobiliariosAtualizacao
           }
           try {
                 const salaAtualizada = await updateSalaById(salaId, dataUpdateSala)
+                if(!equipamentosIguais){
+                  await updateEquipamentosBySalaId(salaId, dataUpdateEquipamentoSala)
+                }
+                if(!mobiliariosIguais){
+                  await updateMobiliariosBySalaId(salaId, dataUpdateMobiliarioSala)
+                }
                 const setSalaAtualizada = await getSalaById(salaAtualizada.id)
                 setSala(setSalaAtualizada)
                 setIsSalaAtualizada(true)
                 setTimeout(() => setIsSalaAtualizada(false), 3000)
             } catch (err) {
                 const mensagem = err instanceof Error ? err.message : String(err);
-                console.error("Erro ao atualizar o setor:", mensagem);
+                console.error("Erro ao atualizar a sala:", mensagem);
                 setErroAtualizarSala(true)
-                setMensagemErroAtualizarSala("Erro ao atualizar o bloco")
+                setMensagemErroAtualizarSala("Erro ao atualizar a sala")
                 setTimeout(() => setErroAtualizarSala(false), 3000)
             }
         }

@@ -19,6 +19,7 @@ export interface CreateUsuario {
     nome: string
     sobrenome: string
     dataNascimento: Date
+    telefone: string
     cargos: Cargo[]
     email: string
     senha: string

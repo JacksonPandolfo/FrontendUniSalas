@@ -1,4 +1,9 @@
 export const tipoReservaMap: Record<string, string> = {
-    "ESPORADICA": "Esporádica",
+    "ESPORADICA": "Esporadica",
     "RECORRENTE": "Recorrente"
+}
+
+export const tipoReservaReverseMap: Record<string, string> = {
+   "Esporadica": "ESPORADICA",
+   "Recorrente": "RECORRENTE"
 }

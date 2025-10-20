@@ -2,7 +2,7 @@
 import { CreateUsuario } from "@/types/usuario";
 
 export async function createUsuario(usuarioData: CreateUsuario) {
-  const res = await fetch(`/api/usuario`, {
+  const res = await fetch(`/api/auth/cadastro`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(usuarioData)
@@ -31,7 +31,3 @@ export async function login(email: string, senha: string) {
   const data = await res.json();
   return data
 }
-
-// export async function logout() {
-//   localStorage.removeItem('access_token');
-// }

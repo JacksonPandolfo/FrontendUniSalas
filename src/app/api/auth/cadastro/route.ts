@@ -1,5 +1,5 @@
 import { CreateUsuario } from "@/types/usuario"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 async function createUsuario(usuarioData: CreateUsuario) {
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL
@@ -18,7 +18,7 @@ async function createUsuario(usuarioData: CreateUsuario) {
   return data
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     try {
         const usuarioData: CreateUsuario = await req.json()
         const usuarios = await createUsuario(usuarioData)

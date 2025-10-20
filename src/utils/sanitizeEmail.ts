@@ -14,6 +14,7 @@ export function sanitizeEmail(emailInput: string){
   } else {
     email += '@unisinos.br'
   }
+  
   const regex = /^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*@unisinos\.br$/
   if(!regex.test(email)) {
     throw new Error("Formato de e-mail inválido")
