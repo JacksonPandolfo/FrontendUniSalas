@@ -31,3 +31,12 @@ export async function login(email: string, senha: string) {
   const data = await res.json();
   return data
 }
+
+export async function logout(){
+ const res = await fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include'
+  })
+  const data = await res.json()
+  return data
+}
