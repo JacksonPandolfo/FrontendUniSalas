@@ -1,0 +1,90 @@
+import { useState, useRef, useEffect } from "react";
+import { BsThreeDotsVertical } from "react-icons/bs";
+
+export default function DropdownAcoesReserva({ reserva, user, onAcao }) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fecha o menu ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setOpen((prev) => !prev)}
+        className="p-2 rounded hover:bg-gray-200 transition-colors"
+      >
+        <BsThreeDotsVertical size={18} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50">
+          <ul className="text-sm text-gray-700">
+            {reserva.statusReserva === "PENDENTE" && user?.sub === reserva.aprovadorId && (
+              <>
+                <li>
+                  <button
+                    onClick={() => {
+                      onAcao("APROVAR", reserva.id);
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-green-100 text-green-700"
+                  >
+                    Aprovar
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      onAcao("RECUSAR", reserva.id);
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-yellow-100 text-yellow-700"
+                  >
+                    Recusar
+                  </button>
+                </li>
+              </>
+            )}
+
+            {reserva.statusReserva !== "CANCELADA" && user?.sub === reserva.solicitanteId && (
+              <li>
+                <button
+                  onClick={() => {
+                    onAcao("CANCELAR", reserva.id);
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-700"
+                >
+                  Cancelar
+                </button>
+              </li>
+            )}
+
+            {reserva.statusReserva === "CANCELADA" && user?.sub === reserva.solicitanteId && (
+              <li>
+                <button
+                  onClick={() => {
+                    onAcao("DELETAR", reserva.id);
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-700"
+                >
+                  Deletar
+                </button>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}

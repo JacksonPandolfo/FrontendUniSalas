@@ -52,7 +52,7 @@ export default function SolicitarReserva() {
   const [dataInicial, setDataInicial] = useState<Date>(() => new Date())
   const [dataFinal, setDataFinal] = useState<Date>(() => new Date())
   const [horarios, setHorarios] = useState<Horario[]>([])
-  const [horario, setHorario] = useState<string>("")
+  const [horario, setHorario] = useState<string | undefined>("")
   const [horaInicial, setHoraInicial] = useState<Date>(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -131,12 +131,12 @@ export default function SolicitarReserva() {
       setAprovadores(Usuarios)
     } catch (err) {
       const mensagem = err instanceof Error ? err.message : String(err);
-        console.error("Erro ao buscar os horários:", mensagem);
-        setErroBuscarUsuarios(true)
-        setMensagemErroBuscarUsuarios("Não foi possível buscar os horários")
-      } finally {
-        setLoadingUsuarios(false)
-      }
+      console.error("Erro ao buscar os horários:", mensagem);
+      setErroBuscarUsuarios(true)
+      setMensagemErroBuscarUsuarios("Não foi possível buscar os horários")
+    } finally {
+      setLoadingUsuarios(false)
+    }
   }
 
   async function buscarHorarios() {
@@ -288,18 +288,23 @@ export default function SolicitarReserva() {
     const aprovadorId = aprovador.id
     setDiaSemanaEvento(dataInicial.getDay())
 
-    if(horario !== "Outro") {
+    if(horario !== undefined) {
+      console.log("não é indefinido")
       const horarioEscolhido = horarios.find(h => h.id === horario)
       if(horarioEscolhido){
         const inicio = new Date(horarioEscolhido.horaInicio)
         const fim = new Date(horarioEscolhido.horaFim)
-        const horaInicialFormatada = inicio.getUTCHours()
-        const minutosInicialFormatada = inicio.getUTCMinutes()
-        const horaFinalFormatada = fim.getUTCHours()
-        const minutosFinalFormatada = fim.getUTCMinutes()
+        const horaInicialFormatada = inicio.getHours()
+        const minutosInicialFormatada = inicio.getMinutes()
+        const horaFinalFormatada = fim.getHours()
+        const minutosFinalFormatada = fim.getMinutes()
         horaInicial.setHours(horaInicialFormatada, minutosInicialFormatada)
         horaFinal.setHours(horaFinalFormatada, minutosFinalFormatada)
       }
+    }
+
+    function toUTC(date: Date) {
+      return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
     }
 
     if(!tipoEvento
@@ -337,9 +342,6 @@ export default function SolicitarReserva() {
     const tipoReservaSolicitacao = tipoReservaReverseMap[tipoReserva] as tipoReservaEnum
     const equipamentosSolicitacao = equipamentos.map(e => tipoEquipamentoReverseMap[e] as Equipamento)
     const mobiliariosSolicitacao = mobiliarios.map(e => tipoMobiliarioReverseMap[e] as Mobiliario)
-    const statusReserva = statusReservaEnum.PENDENTE
-    console.log(statusReserva)
-    console.log(statusReservaReverseMap[statusReserva])
 
     if(permiteAtualizar){
       const solicitaReservaData: SolicitaReserva = {
@@ -349,9 +351,9 @@ export default function SolicitarReserva() {
         diaSemana: diaSemanaEvento,
         dataInicio: dataInicial,
         dataFim: dataFinal,
-        horarioId: horario,
-        horaInicial: horaInicial,
-        horaFinal: horaFinal,
+        horarioId: horario || null,
+        horaInicial: horario === undefined ? toUTC(horaInicial) : horaInicial,
+        horaFinal: horario === undefined ? toUTC(horaFinal) : horaFinal,
         turmaId: turmaId,
         qtdPessoas: quantidadeParticipantes,
         ministranteId: ministranteId,
@@ -615,12 +617,12 @@ export default function SolicitarReserva() {
                   className="w-full border rounded h-10 bg-white p-2"
                   onChange={e => {
                     if(e.target.value === "Outro"){
-                      setHorario("Outro")
+                      setHorario(undefined)
                     } else{
                       const horarioId = e.target.value;
                       const selectedHorario = horarios.find(h => h.id === horarioId)?.id;
                       if(selectedHorario !== undefined) setHorario(selectedHorario);
-                      else setHorario("Outro")
+                      else setHorario(undefined)
                     }
                   }}
                 >
@@ -633,7 +635,7 @@ export default function SolicitarReserva() {
                   <option value="Outro">Outro</option>
                 </select>
               </div>
-              {horario === "Outro" && (
+              {horario === undefined && (
                 <div className="grid grid-cols-2 gap-2">
                   <div className="flex flex-col col-start-1 col-end-2 gap-2">
                     <label htmlFor="" className="font-semibold mb-1">

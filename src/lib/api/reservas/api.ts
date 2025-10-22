@@ -2,13 +2,19 @@ import { CreateEvento, SolicitaReserva } from "@/types/evento";
 
 export async function getEventos() {
   const res = await fetch(`/api/reserva`);
-  if (!res.ok) throw new Error('Erro ao carregar salas');
+  if (!res.ok) throw new Error('Erro ao carregar as reservas');
   return res.json();
 }
 
 export async function getEventosSala(salaId: string){
     const res = await fetch(`/api/reservas/${salaId}`);
-    if (!res.ok) throw new Error('Erro ao carregar salas');
+    if (!res.ok) throw new Error('Erro ao carregar as reservas da sala');
+    return res.json();
+}
+
+export async function getEventosByUsuario(usuarioId: string){
+    const res = await fetch(`/api/reservas/usuario/${usuarioId}`);
+    if (!res.ok) throw new Error('Erro ao carregar as reservas do usuário');
     return res.json();
 }
 
@@ -23,10 +29,11 @@ export async function getEventosSalaComData(salaId: string, dataInicio: Date, da
   }
 
   const res = await fetch(`/api/reservas/${salaId}/${formatDate(dataInicio)}/${formatDate(dataFim)}`);
-  if (!res.ok) throw new Error('Erro ao carregar salas');
+  if (!res.ok) throw new Error('Erro ao carregar as reservas da sala');
   return res.json();
 }
 
+//vai virar update
 export async function createReserva(reservaData: CreateEvento){
   const res = await fetch(`/api/reservas`, {
     method: "POST",

@@ -26,7 +26,7 @@ export default function Login() {
 
       setTimeout(() => {
         setShowPopup(false)
-        router.push('/reservas')
+        router.push('/home')
       }, 1000)
     } catch (err) {
         console.log("Erro no login:", err)

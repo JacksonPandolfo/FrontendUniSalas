@@ -29,6 +29,7 @@ export interface EventoAdmin{
     id: string
     tipoReserva: tipoReserva
     tipoEvento: tipoEvento
+    acessibilidade: boolean
     diaSemana: number
     dataInicio: Date
     dataFim: Date
@@ -37,12 +38,18 @@ export interface EventoAdmin{
     horaFinal: Date
     salaId: string
     turmaId?: string
+    qtdPessoas: number
     ministranteId: string
     solicitanteId: string
     aprovadorId: string
     statusReserva: statusReserva
+    equipamentos: Equipamento[]
+    mobiliarios: Mobiliario[]
+    setorPreferidoId?: string
 
-    ministrante: { nome: string }
+    ministrante: { nome: string, sobrenome: string }
+    solicitante: { nome: string, sobrenome: string }
+    aprovador: {nome: string, sobrenome: string }
     turma?: TurmaAdmin
     horario: { nome: string; horaInicio: string; horaFim: string }
     sala: { numero: number; capacidade: number; statusSala: string; temAcessibilidade: boolean }
@@ -72,7 +79,7 @@ export interface SolicitaReserva{
     diaSemana: number
     dataInicio: Date
     dataFim: Date
-    horarioId?: string
+    horarioId: string | null
     horaInicial: Date
     horaFinal: Date
     turmaId?: string
