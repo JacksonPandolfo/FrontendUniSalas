@@ -30,6 +30,7 @@ export interface UsuarioPayload {
     nome: string,
     sobrenome: string,
     email: string,
+    telefone: string
     roles: string[]
 }
 

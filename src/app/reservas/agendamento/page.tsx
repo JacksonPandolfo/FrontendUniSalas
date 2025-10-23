@@ -1,9 +1,10 @@
 'use client'
+import { useUser } from "@/hooks/useUser"
 import { getHorarios } from "@/lib/api/horarios/api"
 import { createSolicitacao } from "@/lib/api/reservas/api"
 import { getSetores } from "@/lib/api/setores/api"
 import { getTurmasByMinistrante } from "@/lib/api/turma/api"
-import { getUsuarioByNome, getUsuarioMinistranteByNome, getUsuarios } from "@/lib/api/usuario/api"
+import { getUsuarioMinistranteByNome, getUsuarios } from "@/lib/api/usuario/api"
 import { Equipamento } from "@/types/equipamento"
 import {  SolicitaReserva, statusReservaEnum, tipoEventoEnum, tipoReservaEnum } from "@/types/evento"
 import { Horario } from "@/types/horario"
@@ -28,6 +29,8 @@ import AsyncSelect from "react-select/async"
   }
 
 export default function SolicitarReserva() {
+  const user = useUser()
+  const [nomeCompletoUsuarioLogado, setNomeCompletoUsuarioLogado] = useState<string>("")
   const [isClientReady, setIsClientReady] = useState(false)
   // SOLICITANTE
   const [solicitanteId, setSolicitanteId] = useState<string>("")
@@ -88,6 +91,7 @@ export default function SolicitarReserva() {
   const [isReservaSolicitada, setIsReservaSolicitada] = useState(false)
 
   const formRef = useRef<HTMLFormElement>(null);
+  const cargosAprovadores = [Cargo.ATENDIMENTO, Cargo.ADMINISTRADOR]
 
 
   useEffect(() => {
@@ -110,6 +114,17 @@ export default function SolicitarReserva() {
   useEffect(() => {
     setDiaSemanaEvento(dataInicial.getDay())
   },[dataInicial])
+
+  useEffect(() => {
+    if(!user) return
+    setSolicitanteId(user.sub)
+    setEmailSolicitante(user.email)
+    setTelefoneSolicitante(user.telefone)
+    setNomeCompletoUsuarioLogado(user.nome + " " + user.sobrenome)
+  })
+
+  if(!user) return
+
 
   async function buscarTurmasByMinistrante(ministranteId: string) {
     try {
@@ -248,13 +263,13 @@ export default function SolicitarReserva() {
     cargos: Cargo[]
   };
 
-  const loadOptionsSolicitante = async (inputValue: string): Promise<SelectOption[]> => {
-    if(!inputValue) return []
+  // const loadOptionsSolicitante = async (inputValue: string): Promise<SelectOption[]> => {
+  //   if(!inputValue) return []
 
-    const usuarios: UsuarioOption[] = await getUsuarioByNome(inputValue)
+  //   const usuarios: UsuarioOption[] = await getUsuarioByNome(inputValue)
 
-    return usuarios.map((u) => ({ value: u, label: `${u.nome} ${u.sobrenome}` }));
-  };
+  //   return usuarios.map((u) => ({ value: u, label: `${u.nome} ${u.sobrenome}` }));
+  // };
 
   const loadOptionsMinistrante = async (inputValue: string): Promise<SelectOption[]> => {
     if(!inputValue) return []
@@ -265,7 +280,9 @@ export default function SolicitarReserva() {
   };
 
   function escolheAprovador(){
-    const usuariosAprovadores = aprovadores?.filter(u => u.cargos.includes(Cargo.ATENDIMENTO ))
+    const usuariosAprovadores = aprovadores
+      ?.filter(u => u.cargos.some(c => cargosAprovadores.includes(c)))
+      ?.filter(u => u.id !== solicitanteId)
     if(!usuariosAprovadores) return
     const aprovadorAleatorio = usuariosAprovadores[Math.floor(Math.random() * usuariosAprovadores.length)]
     return aprovadorAleatorio
@@ -289,7 +306,6 @@ export default function SolicitarReserva() {
     setDiaSemanaEvento(dataInicial.getDay())
 
     if(horario !== undefined) {
-      console.log("não é indefinido")
       const horarioEscolhido = horarios.find(h => h.id === horario)
       if(horarioEscolhido){
         const inicio = new Date(horarioEscolhido.horaInicio)
@@ -364,7 +380,6 @@ export default function SolicitarReserva() {
         setorPreferidoId: setorId,
         statusReserva: statusReservaReverseMap[statusReservaEnum.PENDENTE] as statusReservaEnum
       }
-      console.log(solicitaReservaData)
 
       try {
         await createSolicitacao(solicitaReservaData)
@@ -385,7 +400,7 @@ export default function SolicitarReserva() {
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
-      {loadingHorarios || loadingSetores || loadingUsuarios || !dataInicial || !dataFinal || !horaInicial || !horaFinal ? (
+      {loadingHorarios || loadingSetores || loadingUsuarios || !dataInicial || !dataFinal || !horaInicial || !horaFinal || !user ? (
           <div className="flex justify-center items-center">
                 <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
                   <span key={i} className="inline-block animate-bounce">{char}</span>
@@ -418,7 +433,8 @@ export default function SolicitarReserva() {
                 <label htmlFor="" className="font-semibold mb-1">
                   Nome do solicitante:
                 </label>
-                <AsyncSelect<{ value: UsuarioOption, label: string },false>
+                <input type="text" className="border rounded h-10 p-2 bg-gray-200 items-center" defaultValue={nomeCompletoUsuarioLogado}/>
+                {/* <AsyncSelect<{ value: UsuarioOption, label: string },false>
                   required
                   instanceId="select-solicitante"
                   cacheOptions
@@ -438,7 +454,7 @@ export default function SolicitarReserva() {
                       setTelefoneSolicitante("")
                     }
                   }}
-                />
+                /> */}
               </div>
               <div className="flex flex-col gap-2">
                 <label htmlFor="" className="font-semibold mb-1">
@@ -447,10 +463,10 @@ export default function SolicitarReserva() {
                 <input
                   required
                   disabled
-                  className="w-full border rounded h-10 bg-white p-2" type="email"
-                  placeholder="Email será preenchido ao selecionar o nome"
-                  value={emailSolicitante}
-                  onChange={(e) => setEmailSolicitante(e.target.value)}
+                  className="w-full border rounded h-10 bg-gray-200 p-2" type="email"
+                  placeholder="Email será preenchido automaticamente"
+                  defaultValue={emailSolicitante}
+                  // onChange={(e) => setEmailSolicitante(e.target.value)}
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -460,11 +476,11 @@ export default function SolicitarReserva() {
                 <input
                   required
                   disabled
-                  className="w-full border rounded h-10 bg-white p-2"
+                  className="w-full border rounded h-10 bg-gray-200 p-2"
                   type="tel"
-                  placeholder="Telefone será preenchido ao selecionar o nome"
-                  value={telefoneSolicitante}
-                  onChange={(e) => setTelefoneSolicitante(e.target.value)}
+                  placeholder="Telefone será preenchido automaticamente"
+                  defaultValue={telefoneSolicitante}
+                  // onChange={(e) => setTelefoneSolicitante(e.target.value)}
                 />
               </div>
             </div>

@@ -27,7 +27,8 @@ export async function updateBlocoById(blocoId:string, dataBloco: UpdateBloco){
   const res = await fetch(`/api/blocos/${blocoId}`, {
     method: "PATCH",
     headers: {"Content-type": "application/json"},
-    body: JSON.stringify(dataBloco)
+    body: JSON.stringify(dataBloco),
+    credentials: 'include'
   })
   if (!res.ok) {
     const error = await res.json();

@@ -1,7 +1,19 @@
+import { EventoAdmin } from "@/types/evento";
 import { SalaAdmin } from "@/types/sala";
 import { useEffect, useState } from "react";
 
-export default function ModalAlocacaoSala({ reserva, isOpen, onClose, onConfirm }) {
+export default function ModalAlocacaoSala({
+  reserva,
+  isOpen,
+  onClose,
+  onConfirm,
+}: {
+  reserva: EventoAdmin | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (salaId: string | null) => void;
+}) {
+
   const [salas, setSalas] = useState<SalaAdmin[]>([]);
   const [salaSelecionada, setSalaSelecionada] = useState<string | null>(null);
 
@@ -12,13 +24,15 @@ export default function ModalAlocacaoSala({ reserva, isOpen, onClose, onConfirm 
   }, [isOpen, reserva]);
 
   async function buscarSalasCompatíveis() {
-    try {
-      const res = await fetch(`/api/salas/compatíveis/${reserva.id}`);
-      const data = await res.json();
-      setSalas(data);
-    } catch (err) {
-      console.error("Erro ao buscar salas compatíveis", err);
-    }
+    console.log("Buscando as salas compatíveis")
+    console.log(reserva?.id)
+    // try {
+    //   const res = await fetch(`/api/salas/compatíveis/${reserva.id}`);
+    //   const data = await res.json();
+    //   setSalas(data);
+    // } catch (err) {
+    //   console.error("Erro ao buscar salas compatíveis", err);
+    // }
   }
 
   if (!isOpen) return null;

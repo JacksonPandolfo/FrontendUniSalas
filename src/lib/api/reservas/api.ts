@@ -1,4 +1,4 @@
-import { CreateEvento, SolicitaReserva } from "@/types/evento";
+import { SolicitaReserva, UpdateReservaDto } from "@/types/evento";
 
 export async function getEventos() {
   const res = await fetch(`/api/reserva`);
@@ -34,7 +34,23 @@ export async function getEventosSalaComData(salaId: string, dataInicio: Date, da
 }
 
 //vai virar update
-export async function createReserva(reservaData: CreateEvento){
+export async function updateReservaById(reservaData: UpdateReservaDto){
+  const res = await fetch(`/api/reservas`, {
+    method: "PATCH",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(reservaData),
+    credentials: "include"
+  })
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Erro ao atualizar a reserva');
+  }
+
+  return res.json();
+}
+
+export async function createSolicitacao(reservaData: SolicitaReserva){
   const res = await fetch(`/api/reservas`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -47,11 +63,11 @@ export async function createReserva(reservaData: CreateEvento){
   return data
 }
 
-export async function createSolicitacao(reservaData: SolicitaReserva){
+export async function deleteSolicitacaoById(reservaId: string){
   const res = await fetch(`/api/reservas`, {
-    method: "POST",
+    method: "DELETE",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(reservaData),
+    body: JSON.stringify(reservaId),
     credentials: "include"
   })
 

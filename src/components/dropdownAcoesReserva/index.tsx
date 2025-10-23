@@ -1,7 +1,9 @@
+import { EventoAdmin } from "@/types/evento";
+import { UsuarioPayload } from "@/types/usuario";
 import { useState, useRef, useEffect } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
-export default function DropdownAcoesReserva({ reserva, user, onAcao }) {
+export default function DropdownAcoesReserva({ reserva, user, onAcao }: {reserva: EventoAdmin, user: UsuarioPayload, onAcao: (acao: "APROVAR" | "RECUSAR" | "CANCELAR" | "DELETAR", reservaId: string) => void}) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

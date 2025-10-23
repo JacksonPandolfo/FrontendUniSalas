@@ -1,9 +1,9 @@
 'use client'
 
 import { useUser } from "@/hooks/useUser"
-import { getEventosByUsuario } from "@/lib/api/reservas/api"
-import { EventoAdmin } from "@/types/evento"
-import { useState, useEffect, useRef } from "react"
+import { deleteSolicitacaoById, getEventosByUsuario, updateReservaById } from "@/lib/api/reservas/api"
+import { EventoAdmin, UpdateReservaDto } from "@/types/evento"
+import { useState, useEffect } from "react"
 import { BiCheckCircle, BiXCircle } from "react-icons/bi"
 import { BsClock } from "react-icons/bs"
 
@@ -14,9 +14,8 @@ import ConfirmarAcao from "@/components/modalConfirmacao"
 import { CardResumo } from "@/components/cartaoResumoReserva"
 import { SetorAdmin } from "@/types/setor"
 import { getSetores } from "@/lib/api/setores/api"
-import { tipoMobiliarioMap } from "@/utils/tipoMobiliarioMap"
-import { tipoEquipamentoMap } from "@/utils/tipoEquipamentoMap"
 import DropdownAcoesReserva from "@/components/dropdownAcoesReserva"
+import ModalAlocacaoSala from "@/components/modalSelecaoSala"
 
 export default function Home(){
     const [reservas, setReservas] = useState<EventoAdmin[]>([])
@@ -29,18 +28,30 @@ export default function Home(){
     const [isLoadingSetores, setIsLoadingSetores] = useState<boolean>(false)
     const [mensagemErroBuscarSetores, setMensagemErroBuscarSetores] = useState<string>("")
 
-    const [tipoAcao, setTipoAcao] = useState<"APROVAR" | "RECUSAR" | "DELETAR" | null>(null);
-    const [eventoSelecionado, setEventoSelecionado] = useState<string | null>(null);
-    const [eventoAprovacaoSelecionado, setEventoAprovacaoSelecionado] = useState<EventoAdmin | null>(null);
+    const [tipoAcao, setTipoAcao] = useState<"APROVAR" | "RECUSAR" | "DELETAR" | "CANCELAR" | null>(null);
+    const [eventoSelecionado, setEventoSelecionado] = useState<EventoAdmin | null>(null);
+    const [isModalAprovacaoOpen, setIsModalAprovacaoOpen] = useState<boolean>(false)
+    const [isReservaAtualizada, setIsReservaAtualizada] = useState<boolean>(false)
+    const [isReservaDeletada, setIsReservaDeletada] = useState<boolean>(false)
+    const [erroAtualizarReserva, setErroAtualizarReserva] = useState<boolean>(false)
+    const [mensagemErroAtualizarReserva, setMensagemErroAtualizarReserva] = useState<string>("")
     const user = useUser()
 
     useEffect(() => {
         if(!user) return
         setIsLoadingReservas(true)
-        setErroBuscarSetores(true)
+        setIsLoadingSetores(true)
         buscarReservas(user.sub)
         buscarSetores()
     }, [user])
+
+    useEffect(() => {
+        if(!user) return
+        if(isReservaAtualizada){
+            setIsLoadingReservas(true)
+            buscarReservas(user.sub)
+        }
+    }, [user, isReservaAtualizada])
 
     function formataHorarioLocal(horario: Date) {
         const [h, m] = String(horario).slice(11, 16).split(":").map(Number);
@@ -76,7 +87,6 @@ export default function Home(){
         try {
             const reservas = await getEventosByUsuario(usuarioId)
             setReservas(reservas)
-            console.log(reservas)
         } catch (err) {
             const mensagem = err instanceof Error ? err.message : String(err);
             console.error("Erro ao buscar os horários:", mensagem);
@@ -121,27 +131,30 @@ export default function Home(){
         }
     }
 
-    function abrirModal(acao: "APROVAR" | "RECUSAR" | "DELETAR", evento: EventoAdmin) {
+    function abrirModal(acao: "APROVAR" | "RECUSAR" | "DELETAR" | "CANCELAR", evento: EventoAdmin) {
         setTipoAcao(acao);
         if(acao === "APROVAR"){
-            setEventoAprovacaoSelecionado(evento);
+            setEventoSelecionado(evento);;
+            setIsModalAprovacaoOpen(true)
+            return
         }
-        setEventoSelecionado(evento.id);
+        setEventoSelecionado(evento);
         setIsModalOpen(true);
     }
 
+    //executa a função após confirmação dada pelos modais
     async function handleConfirmar() {
-        if (!eventoSelecionado || !tipoAcao || !eventoAprovacaoSelecionado) return;
-
+        if (!eventoSelecionado || !tipoAcao) return;
         switch (tipoAcao) {
         case "APROVAR":
-            await handleAprovar(eventoAprovacaoSelecionado);
+            await handleAprovar(eventoSelecionado);
             break;
+        case "CANCELAR":
         case "RECUSAR":
             await handleRecusar(eventoSelecionado);
             break;
         case "DELETAR":
-            await handleDeletar(eventoSelecionado);
+            await handleDeletar(eventoSelecionado.id);
             break;
         }
 
@@ -149,18 +162,48 @@ export default function Home(){
     }
 
     async function handleDeletar(eventoId: string){
-        console.log("Deletada", eventoId)
+        setIsLoadingReservas(true)
+        try {
+            await deleteSolicitacaoById(eventoId)
+            setReservas((prev) => prev.filter((r) => r.id !== eventoId))
+            setIsReservaDeletada(true)
+            setTimeout(() => setIsReservaDeletada(false), 5000)
+        } catch (err) {
+            const mensagem = err instanceof Error ? err.message : String(err);
+            console.error("Erro ao deletar a solicitação:", mensagem);
+            setErroAtualizarReserva(true)
+            setMensagemErroAtualizarReserva("Erro ao deletar a reserva")
+            setTimeout(() => setErroAtualizarReserva(false), 3000)
+        } finally {
+            setIsLoadingReservas(false)
+        }
     }
-    async function handleRecusar(eventoId: string){
-        console.log("Cancelada", eventoId)
+
+    async function handleRecusar(evento: EventoAdmin){
+        setIsLoadingReservas(true)
+        try {
+            const reservaAtualizada = { id: evento.id, statusReserva: "CANCELADA"} as UpdateReservaDto
+            await updateReservaById(reservaAtualizada)
+            setIsReservaAtualizada(true)
+        } catch (err) {
+            const mensagem = err instanceof Error ? err.message : String(err);
+            console.error("Erro ao atualizar a reserva:", mensagem);
+            setErroAtualizarReserva(true)
+            setMensagemErroAtualizarReserva("Erro ao atualizar a reserva")
+            setTimeout(() => setErroAtualizarReserva(false), 3000)
+        } finally {
+            setTimeout(() => setIsReservaAtualizada(false), 3000)
+            setIsLoadingReservas(false)
+        }
     }
+
     async function handleAprovar(evento: EventoAdmin){
         console.log("Aprovada", evento.id)
     }
 
     return (
         <div className="p-8 space-y-8">
-        {isLoadingReservas || isLoadingSetores || !user ? (
+        {isLoadingReservas || isLoadingSetores || !user || !reservas ? (
             <div className="flex justify-center items-center">
                 <p className="mt-6 text-gray-600">{"Carregando...".split("").map((char, i) => (
                   <span key={i} className="inline-block animate-bounce">{char}</span>
@@ -169,7 +212,7 @@ export default function Home(){
             </div>
         ) : (
         <>
-        <h1 className="text-2xl font-bold">Bem-vindo, <span className="text-blue-950">{user.nome}</span></h1>
+        <h1 className="text-2xl font-bold">Bem-vindo, <span className="text-blue-950">{user ? user.nome : ""}</span></h1>
         <div className="grid grid-cols-3 gap-4">
             <CardResumo titulo="Aprovadas" cor="text-green-600" icone={<BiCheckCircle />} total={reservas.filter(r => r.statusReserva === "APROVADA").length} />
             <CardResumo titulo="Pendentes" cor="text-yellow-600" icone={<BsClock />} total={reservas.filter(r => r.statusReserva === "PENDENTE").length} />
@@ -181,15 +224,13 @@ export default function Home(){
             <table className="w-full border-collapse">
                 <thead>
                     <tr className="border-b">
-                    <th className="text-left p-2">Sala</th>
                     <th className="text-left p-2">Setor de preferência</th>
-                    <th className="text-left p-2">Lugares</th>
-                    {/* <th className="text-left p-2">Móveis</th>
-                    <th className="text-left p-2">Equipamentos</th>
-                    <th className="text-left p-2">Acessibilidade</th> */}
+                    <th className="text-left p-2">Sala</th>
+                    <th className="text-left p-2">Capacidade</th>
                     <th className="text-left p-2">Data inicio</th>
                     <th className="text-left p-2">Data fim</th>
                     <th className="text-left p-2">Horário</th>
+                    <th className="text-left p-2">Ministrante</th>
                     <th className="text-left p-2">Aprovador</th>
                     <th className="text-left p-2">Status</th>
                     <th className="text-left p-2">Ações</th>
@@ -201,42 +242,74 @@ export default function Home(){
                         const dataFinal = new Date(r.dataFim).toISOString()
                         const setor = setores.find(s => s.id === r.setorPreferidoId)
                         return (
-                    <tr key={r.id} className="border-b hover:bg-gray-50 transition">
-                        <td className="p-2">{r.sala?.numero ? r.sala.numero : "-"}</td>
-                        <td className="p-2">{setor?.nome + " - " + setor?.descricao }</td>
-                        <td className="p-2 text-center">{r.qtdPessoas}</td>
-                        {/* <td className="p-2 max-w-64">{r.mobiliarios.map(m => tipoMobiliarioMap[m]).join(", ")}</td>
-                        <td className="p-2 max-w-64">{r.equipamentos.map(e => tipoEquipamentoMap[e]).join(", ")}</td>
-                        <td className="p-2">{r.acessibilidade ? "Com acessibilidade" : "Sem acessibilidade"}</td> */}
-                        <td className="p-2">{criarDataLocal(dataInicial)}</td>
-                        <td className="p-2">{criarDataLocal(dataFinal)}</td>
-                        <td className="p-2">
-                            <div className="flex justify-center">
-                                <div className="max-w-14 w-12">
-                                    <p className="font-medium text-gray-800">{formataHorarioLocal(r.horaInicial)}</p>
+                            <tr key={r.id} className="border-b hover:bg-gray-50 transition">
+                            <td className="p-2">{setor ? setor?.nome + " - " + setor?.descricao : "-"}</td>
+                            <td className="p-2">{r.sala ? r.sala.numero : "-"}</td>
+                            <td className="p-2 text-center">{r.qtdPessoas}</td>
+                            <td className="p-2">{criarDataLocal(dataInicial)}</td>
+                            <td className="p-2">{criarDataLocal(dataFinal)}</td>
+                            <td className="p-2">
+                                <div className="flex justify-center">
+                                    <div className="max-w-14 w-12">
+                                        <p className="font-medium text-gray-800">{formataHorarioLocal(r.horaInicial)}</p>
+                                    </div>
+                                    <div className="max-w-8 w-8">
+                                        <span className="mx-1 text-center text-gray-500">às</span>
+                                    </div>
+                                    <div className="max-w-14 w-14">
+                                        <p className="font-medium text-gray-800">
+                                            {formataHorarioLocal(r.horaFinal)}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="max-w-8 w-8">
-                                    <span className="mx-1 text-center text-gray-500">às</span>
-                                </div>
-                                <div className="max-w-14 w-14">
-                                    <p className="font-medium text-gray-800">
-                                        {formataHorarioLocal(r.horaFinal)}
-                                    </p>
-                                </div>
-                            </div>
-                        </td>
-                        <td className="p-2">{r.aprovador.nome + " " + r.aprovador.sobrenome}</td>
-                        <td className="p-2 text-center">{corStatus(r.statusReserva)}</td>
-                        <td className="p-2">
-                            <DropdownAcoesReserva reserva={r} user={user} onAcao={(acao) => abrirModal(acao, r)}/>
-                        </td>
-                    </tr>
+                            </td>
+                            <td className="p-2">{r.ministrante.nome + " " + r.ministrante.sobrenome}</td>
+                            <td className="p-2">{r.aprovador.nome + " " + r.aprovador.sobrenome}</td>
+                            <td className="p-2 text-center">{corStatus(r.statusReserva)}</td>
+                            <td className="p-2">
+                                <DropdownAcoesReserva reserva={r} user={user} onAcao={(acao) => abrirModal(acao, r)}/>
+                            </td>
+                        </tr>
                     )})}
                 </tbody>
             </table>
         </div>
+        <div className="flex gap-2 items-center justify-center">
+            {erroAtualizarReserva && (
+              <div className="bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                <p>{mensagemErroAtualizarReserva}</p>
+              </div>
+            )}
+            {erroBuscarReservas && (
+              <div className="bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                <p>{mensagemErroBuscarReservas}</p>
+              </div>
+            )}
+            {erroBuscarSetores && (
+              <div className="bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                <p>{mensagemErroBuscarSetores}</p>
+              </div>
+            )}
+            {isReservaAtualizada && (
+              <div className="bg-green-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                <p>✅ Dados salvos com sucesso!</p>
+              </div>
+            )}
+            {isReservaDeletada && (
+              <div className="bg-green-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
+                <p>✅ Reserva excluída com sucesso!</p>
+              </div>
+            )}
+        </div>
         </>
         )}
+
+        <ModalAlocacaoSala
+            reserva={eventoSelecionado}
+            isOpen={isModalAprovacaoOpen}
+            onConfirm={handleConfirmar}
+            onClose={() => setIsModalAprovacaoOpen(false)}
+        />
 
         <ConfirmarAcao
             isOpen={isModalOpen}
@@ -245,13 +318,17 @@ export default function Home(){
                 ? "Aprovar Solicitação"
                 : tipoAcao === "RECUSAR"
                 ? "Recusar Solicitação"
-                : "Excluir Solicitação"
+                : tipoAcao === "CANCELAR"
+                ? "Cancelar Solicitação"
+                :"Excluir Solicitação"
             }
             message={
             tipoAcao === "APROVAR"
                 ? "Deseja realmente aprovar esta solicitação?"
                 : tipoAcao === "RECUSAR"
                 ? "Deseja realmente recusar esta solicitação?"
+                : tipoAcao === "CANCELAR"
+                ? "Deseja realmente cancelar esta solicitação?"
                 : "Deseja realmente excluir esta solicitação?"
             }
             confirmLabel={
@@ -259,6 +336,8 @@ export default function Home(){
                 ? "Aprovar"
                 : tipoAcao === "RECUSAR"
                 ? "Recusar"
+                : tipoAcao === "CANCELAR"
+                ? "Cancelar"
                 : "Excluir"
             }
             confirmColor={

@@ -92,3 +92,5 @@ export interface SolicitaReserva{
     mobiliarios: Mobiliario[]
     setorPreferidoId?: string
 }
+
+export type UpdateReservaDto = Partial<EventoAdmin>;
