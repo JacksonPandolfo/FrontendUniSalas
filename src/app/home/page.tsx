@@ -16,6 +16,8 @@ import { SetorAdmin } from "@/types/setor"
 import { getSetores } from "@/lib/api/setores/api"
 import DropdownAcoesReserva from "@/components/dropdownAcoesReserva"
 import ModalAlocacaoSala from "@/components/modalSelecaoSala"
+import formataHorarioLocal from "@/utils/formataHora"
+import criarDataLocalSemHorario from "@/utils/criaDataSemHorario"
 
 export default function Home(){
     const [reservas, setReservas] = useState<EventoAdmin[]>([])
@@ -52,23 +54,6 @@ export default function Home(){
             buscarReservas(user.sub)
         }
     }, [user, isReservaAtualizada])
-
-    function formataHorarioLocal(horario: Date) {
-        const [h, m] = String(horario).slice(11, 16).split(":").map(Number);
-        const horarioFormatado = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
-
-        return horarioFormatado;
-    }
-
-    function criarDataLocal(isoString: string) {
-        const d = new Date(isoString);
-        const year = d.getUTCFullYear();
-        const month = d.getUTCMonth(); // 0-indexed
-        const day = d.getUTCDate();
-
-        const localDate = new Date(year, month, day)
-        return localDate.toLocaleDateString();
-    }
 
     async function buscarSetores(){
         try {
@@ -216,7 +201,7 @@ export default function Home(){
         <div className="grid grid-cols-3 gap-4">
             <CardResumo titulo="Aprovadas" cor="text-green-600" icone={<BiCheckCircle />} total={reservas.filter(r => r.statusReserva === "APROVADA").length} />
             <CardResumo titulo="Pendentes" cor="text-yellow-600" icone={<BsClock />} total={reservas.filter(r => r.statusReserva === "PENDENTE").length} />
-            <CardResumo titulo="Canceladas" cor="text-red-600" icone={<BiXCircle />} total={reservas.filter(r => r.statusReserva === "CANCELADA").length} />
+            <CardResumo titulo="Canceladas" cor="text-red-600" icone={<BiXCircle />} total={reservas.filter(r => r.statusReserva === "CANCELADA").filter(r => r.solicitanteId === user.sub).length} />
         </div>
 
         <div className="bg-white rounded-2xl shadow p-6">
@@ -241,40 +226,57 @@ export default function Home(){
                         const dataInicial = new Date(r.dataInicio).toISOString()
                         const dataFinal = new Date(r.dataFim).toISOString()
                         const setor = setores.find(s => s.id === r.setorPreferidoId)
+                        if(r.solicitanteId !== user.sub && r.statusReserva === "CANCELADA") return
                         return (
                             <tr key={r.id} className="border-b hover:bg-gray-50 transition">
-                            <td className="p-2">{setor ? setor?.nome + " - " + setor?.descricao : "-"}</td>
-                            <td className="p-2">{r.sala ? r.sala.numero : "-"}</td>
-                            <td className="p-2 text-center">{r.qtdPessoas}</td>
-                            <td className="p-2">{criarDataLocal(dataInicial)}</td>
-                            <td className="p-2">{criarDataLocal(dataFinal)}</td>
-                            <td className="p-2">
-                                <div className="flex justify-center">
-                                    <div className="max-w-14 w-12">
-                                        <p className="font-medium text-gray-800">{formataHorarioLocal(r.horaInicial)}</p>
+                                <td className="p-2">
+                                    {setor ? (
+                                    <div className="flex">
+                                        <div className="flex items-center max-w-4 w-4">
+                                            <p className="font-medium text-gray-800 text-left">{setor ? setor?.nome : ""}</p>
+                                        </div>
+                                            <div className="flex items-center max-w-6 w-6">
+                                                <span className="mx-1 text-left text-gray-500">-</span>
+                                            </div>
+                                        <div className="flex items-center max-w-60">
+                                            <p className="font-medium text-left text-gray-800">
+                                                {setor ? setor?.descricao : "-"}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="max-w-8 w-8">
-                                        <span className="mx-1 text-center text-gray-500">às</span>
+                                    ) : "Sem preferência"}
+                                </td>
+                                <td className="p-2">{r.sala ? r.sala.numero : "-"}</td>
+                                <td className="p-2 text-center">{r.qtdPessoas}</td>
+                                <td className="p-2">{criarDataLocalSemHorario(dataInicial)}</td>
+                                <td className="p-2">{criarDataLocalSemHorario(dataFinal)}</td>
+                                <td className="p-2">
+                                    <div className="flex justify-center">
+                                        <div className="max-w-14 w-12">
+                                            <p className="font-medium text-gray-800">{formataHorarioLocal(r.horaInicial)}</p>
+                                        </div>
+                                        <div className="max-w-8 w-8">
+                                            <span className="mx-1 text-center text-gray-500">às</span>
+                                        </div>
+                                        <div className="max-w-14 w-14">
+                                            <p className="font-medium text-gray-800">
+                                                {formataHorarioLocal(r.horaFinal)}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="max-w-14 w-14">
-                                        <p className="font-medium text-gray-800">
-                                            {formataHorarioLocal(r.horaFinal)}
-                                        </p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="p-2">{r.ministrante.nome + " " + r.ministrante.sobrenome}</td>
-                            <td className="p-2">{r.aprovador.nome + " " + r.aprovador.sobrenome}</td>
-                            <td className="p-2 text-center">{corStatus(r.statusReserva)}</td>
-                            <td className="p-2">
-                                <DropdownAcoesReserva reserva={r} user={user} onAcao={(acao) => abrirModal(acao, r)}/>
-                            </td>
-                        </tr>
+                                </td>
+                                <td className="p-2">{r.ministrante.nome + " " + r.ministrante.sobrenome}</td>
+                                <td className="p-2">{r.aprovador.nome + " " + r.aprovador.sobrenome}</td>
+                                <td className="p-2 text-center">{corStatus(r.statusReserva)}</td>
+                                <td className="p-2 relative">
+                                    <DropdownAcoesReserva reserva={r} user={user} onAcao={(acao) => abrirModal(acao, r)}/>
+                                </td>
+                            </tr>
                     )})}
                 </tbody>
             </table>
         </div>
-        <div className="flex gap-2 items-center justify-center">
+        <div className="flex flex-col gap-2 items-center justify-center">
             {erroAtualizarReserva && (
               <div className="bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
                 <p>{mensagemErroAtualizarReserva}</p>

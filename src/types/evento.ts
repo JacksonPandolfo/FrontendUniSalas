@@ -49,6 +49,7 @@ export interface EventoAdmin{
 
     ministrante: { nome: string, sobrenome: string }
     solicitante: { nome: string, sobrenome: string }
+    setor?: {nome: string, descricao: string}
     aprovador: {nome: string, sobrenome: string }
     turma?: TurmaAdmin
     horario: { nome: string; horaInicio: string; horaFim: string }

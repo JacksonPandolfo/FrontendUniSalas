@@ -19,7 +19,7 @@ export default function DropdownAcoesReserva({ reserva, user, onAcao }: {reserva
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="flex justify-center" ref={dropdownRef}>
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="p-2 rounded hover:bg-gray-200 transition-colors"
@@ -28,7 +28,7 @@ export default function DropdownAcoesReserva({ reserva, user, onAcao }: {reserva
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50">
+        <div className="absolute left-16 -top-0.5 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50">
           <ul className="text-sm text-gray-700">
             {reserva.statusReserva === "PENDENTE" && user?.sub === reserva.aprovadorId && (
               <>

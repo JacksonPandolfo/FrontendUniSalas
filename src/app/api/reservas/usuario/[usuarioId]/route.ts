@@ -18,8 +18,8 @@ export async function GET(req: NextRequest, context: { params: Promise<{usuarioI
     const { usuarioId } = await context.params
     if(!usuarioId) throw Error("ID do usuário não informado")
 
-    const blocos = await fetchReservasByUsuarioId(req, usuarioId)
-    return NextResponse.json(blocos)
+    const reservas = await fetchReservasByUsuarioId(req, usuarioId)
+    return NextResponse.json(reservas)
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }

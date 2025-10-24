@@ -36,6 +36,15 @@ export async function getSalasSetor(setorId: string) {
   return res.json();
 }
 
+export async function getSalasCompativeisComReserva(reservaId: string) {
+  const res = await fetch(`/api/salas/reservas/solicitacao/${reservaId}`, {
+    method: "GET",
+    credentials: "include"
+  });
+  if (!res.ok) throw new Error('Erro ao carregar salas compatíveis');
+  return res.json();
+}
+
 export async function updateSalaById(SalaId:string, dataSala: UpdateSala): Promise<SalaAdmin>{
   const res = await fetch(`/api/salas/sala/${SalaId}`, {
     method: "PATCH",

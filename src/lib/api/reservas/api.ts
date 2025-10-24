@@ -33,7 +33,6 @@ export async function getEventosSalaComData(salaId: string, dataInicio: Date, da
   return res.json();
 }
 
-//vai virar update
 export async function updateReservaById(reservaData: UpdateReservaDto){
   const res = await fetch(`/api/reservas`, {
     method: "PATCH",

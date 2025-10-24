@@ -1,5 +1,8 @@
+import { getSalasCompativeisComReserva } from "@/lib/api/salas/api";
 import { EventoAdmin } from "@/types/evento";
 import { SalaAdmin } from "@/types/sala";
+import criarDataLocalSemHorario from "@/utils/criaDataSemHorario";
+import formataHorarioLocal from "@/utils/formataHora";
 import { useEffect, useState } from "react";
 
 export default function ModalAlocacaoSala({
@@ -23,73 +26,118 @@ export default function ModalAlocacaoSala({
     }
   }, [isOpen, reserva]);
 
+  if(!reserva) return
+
   async function buscarSalasCompatíveis() {
-    console.log("Buscando as salas compatíveis")
-    console.log(reserva?.id)
-    // try {
-    //   const res = await fetch(`/api/salas/compatíveis/${reserva.id}`);
-    //   const data = await res.json();
-    //   setSalas(data);
-    // } catch (err) {
-    //   console.error("Erro ao buscar salas compatíveis", err);
-    // }
+    if(!reserva) return
+    try {
+      const salas = await getSalasCompativeisComReserva(reserva.id)
+      setSalas(salas);
+    } catch (err) {
+      console.error("Erro ao buscar salas compatíveis", err);
+    }
   }
+  const dataInicial = new Date(reserva.dataInicio).toISOString()
+  const dataFinal = new Date(reserva.dataFim).toISOString()
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-900/40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-[500px] max-h-[80vh] overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4 text-blue-950">
-          Alocar Sala para a Reserva
+  <div className="fixed inset-0 bg-gray-900/40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-[900px] max-h-[80vh] flex flex-col">
+      {/* 🔹 Cabeçalho fixo */}
+      <div className="p-6 border-b">
+        <h2 className="text-xl font-semibold text-blue-950">
+          Alocar sala para a reserva
         </h2>
+      </div>
 
-        {salas.length === 0 ? (
-          <p className="text-gray-600 text-center">
-            Nenhuma sala encontrada com as características solicitadas.
-          </p>
-        ) : (
-          <ul className="divide-y divide-gray-200">
-            {salas.map((sala) => (
-              <li
-                key={sala.id}
-                onClick={() => setSalaSelecionada(sala.id)}
-                className={`p-3 cursor-pointer rounded hover:bg-blue-50 ${
-                  salaSelecionada === sala.id ? "bg-blue-100 border-l-4 border-blue-600" : ""
-                }`}
-              >
-                <h3 className="font-semibold text-blue-950">{sala.numero}</h3>
-                <p className="text-sm text-gray-600">
-                  Capacidade: {sala.capacidade} | Acessibilidade: {sala.temAcessibilidade ? "Sim" : "Não"}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Equipamentos: {sala.Equipamentos.map(e => e.tipoEquipamento).join(", ") || "Nenhum"}
-                </p>
-              </li>
-            ))}
+      {/* 🔹 Conteúdo dividido em duas colunas */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* 🔸 Coluna Esquerda — informações da reserva */}
+        <div className="w-1/2 p-6 border-r overflow-y-auto">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            Características da Reserva
+          </h3>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li><span className="font-semibold">Data:</span> {criarDataLocalSemHorario(dataInicial)} até {criarDataLocalSemHorario(dataFinal)}</li>
+            <li><span className="font-semibold">Horário:</span> {formataHorarioLocal(reserva.horaInicial)} - {formataHorarioLocal(reserva.horaFinal)}</li>
+            <li><span className="font-semibold">Quantidade de Pessoas:</span> {reserva.qtdPessoas}</li>
+            <li><span className="font-semibold">Acessibilidade:</span> {reserva.acessibilidade ? "Sim" : "Não"}</li>
+            <li><span className="font-semibold">Setor preferido:</span> {reserva.setor ? reserva.setor.nome : "Não informado"}</li>
+            <li>
+              <span className="font-semibold">Equipamentos:</span>{" "}
+              {reserva.equipamentos?.length
+                ? reserva.equipamentos.join(", ")
+                : "Nenhum"}
+            </li>
+            <li>
+              <span className="font-semibold">Mobiliários:</span>{" "}
+              {reserva.mobiliarios?.length
+                ? reserva.mobiliarios.join(", ")
+                : "Nenhum"}
+            </li>
           </ul>
-        )}
+        </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-          >
-            Cancelar
-          </button>
-          <button
-            disabled={!salaSelecionada}
-            onClick={() => onConfirm(salaSelecionada)}
-            className={`px-4 py-2 text-white rounded ${
-              salaSelecionada
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-green-300 cursor-not-allowed"
-            }`}
-          >
-            Confirmar Alocação
-          </button>
+        {/* 🔸 Coluna Direita — lista de salas (scroll só aqui) */}
+        <div className="w-1/2 p-6 overflow-y-auto">
+          {salas.length === 0 ? (
+            <p className="text-gray-600 text-center">
+              Nenhuma sala encontrada com as características solicitadas.
+            </p>
+          ) : (
+            <ul className="divide-y divide-gray-200">
+              {salas.map((sala) => (
+                <li
+                  key={sala.id}
+                  onClick={() => setSalaSelecionada(sala.id)}
+                  className={`p-3 cursor-pointer rounded hover:bg-blue-50 transition ${
+                    salaSelecionada === sala.id
+                      ? "bg-blue-100 border-l-4 border-blue-600"
+                      : ""
+                  }`}
+                >
+                  <h3 className="font-semibold text-blue-950">
+                    Sala {sala.numero}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Capacidade: {sala.capacidade} | Acessibilidade:{" "}
+                    {sala.temAcessibilidade ? "Sim" : "Não"}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Equipamentos:{" "}
+                    {sala.Equipamentos?.map((e) => e.tipoEquipamento).join(", ") ||
+                      "Nenhum"}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
+
+      {/* 🔹 Rodapé fixo */}
+      <div className="p-4 border-t flex justify-end gap-3">
+        <button
+          onClick={onClose}
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Cancelar
+        </button>
+        <button
+          disabled={!salaSelecionada}
+          onClick={() => onConfirm(salaSelecionada)}
+          className={`px-4 py-2 text-white rounded ${
+            salaSelecionada
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-green-300 cursor-not-allowed"
+          }`}
+        >
+          Confirmar Alocação
+        </button>
+      </div>
     </div>
-  );
+  </div>
+);
 }
