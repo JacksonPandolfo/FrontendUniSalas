@@ -2,6 +2,7 @@ import { EventoAdmin } from "@/types/evento"
 import { Horario } from "@/types/horario"
 import { TurmaAdmin } from "@/types/turma"
 import { UsuarioAdmin } from "@/types/usuario"
+import formataHorarioLocal from "@/utils/formataHora"
 import { tipoEventoMap } from "@/utils/tipoEventoMap"
 import { tipoReservaMap } from "@/utils/tipoReservaMap"
 import { IoPeople } from "react-icons/io5"
@@ -55,7 +56,7 @@ export function CartaoEvento({tipoReserva, tipoEvento, dataInicio, dataFim, hora
             <div className="flex gap-1">
                 <TbClock className="text-orange-400" size={24}/>
                 <p className="font-poppins">
-                    Horário: {horaInicioEvento.slice(11,16)} - {horaFimEvento.slice(11,16)}
+                    Horário: {formataHorarioLocal(horaInicioEvento)} - {formataHorarioLocal(horaFimEvento)}
                 </p>
             </div>
             <h4 className="font-poppins mt-2 text-center font-bold text-blue-950">Atividade</h4>

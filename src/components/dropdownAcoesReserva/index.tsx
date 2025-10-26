@@ -28,7 +28,7 @@ export default function DropdownAcoesReserva({ reserva, user, onAcao }: {reserva
       </button>
 
       {open && (
-        <div className="absolute left-16 -top-0.5 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50">
+        <div className="absolute right-0 top-0.5 mt-2 w-22 bg-white border border-gray-200 rounded shadow-lg z-50">
           <ul className="text-sm text-gray-700">
             {reserva.statusReserva === "PENDENTE" && user?.sub === reserva.aprovadorId && (
               <>
@@ -38,7 +38,7 @@ export default function DropdownAcoesReserva({ reserva, user, onAcao }: {reserva
                       onAcao("APROVAR", reserva.id);
                       setOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-green-100 text-green-700"
+                    className="w-full text-center p-2 hover:bg-green-100 text-green-700"
                   >
                     Aprovar
                   </button>
@@ -49,7 +49,7 @@ export default function DropdownAcoesReserva({ reserva, user, onAcao }: {reserva
                       onAcao("RECUSAR", reserva.id);
                       setOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-yellow-100 text-yellow-700"
+                    className="w-full text-center p-2 hover:bg-yellow-100 text-yellow-700"
                   >
                     Recusar
                   </button>
@@ -64,7 +64,7 @@ export default function DropdownAcoesReserva({ reserva, user, onAcao }: {reserva
                     onAcao("CANCELAR", reserva.id);
                     setOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-700"
+                  className="w-full text-center p-2 hover:bg-red-100 text-red-700"
                 >
                   Cancelar
                 </button>
@@ -78,7 +78,7 @@ export default function DropdownAcoesReserva({ reserva, user, onAcao }: {reserva
                     onAcao("DELETAR", reserva.id);
                     setOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-red-100 text-red-700"
+                  className="w-full text-center p-2 hover:bg-red-100 text-red-700"
                 >
                   Deletar
                 </button>

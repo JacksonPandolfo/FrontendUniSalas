@@ -12,6 +12,7 @@ import { Mobiliario } from "@/types/mobiliario"
 import { SetorAdmin } from "@/types/setor"
 import { TurmaAdmin } from "@/types/turma"
 import { Cargo, UsuarioAdmin } from "@/types/usuario"
+import formataHorarioLocal from "@/utils/formataHora"
 import { statusReservaReverseMap } from "@/utils/statusReservaMap"
 import { tipoEquipamentoReverseMap } from "@/utils/tipoEquipamentoMap"
 import { tipoEventoReverseMap } from "@/utils/tipoEventoMap"
@@ -21,12 +22,12 @@ import { useEffect, useRef, useState } from "react"
 import Select, { StylesConfig } from "react-select"
 import AsyncSelect from "react-select/async"
 
-  export function formataHorarioLocal(horario: Date) {
-    const [h, m] = String(horario).slice(11, 16).split(":").map(Number);
-    const horarioFormatado = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
+  // export function formataHorarioLocal(horario: Date) {
+  //   const [h, m] = String(horario).slice(11, 16).split(":").map(Number);
+  //   const horarioFormatado = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
 
-    return horarioFormatado;
-  }
+  //   return horarioFormatado;
+  // }
 
 export default function SolicitarReserva() {
   const user = useUser()
@@ -66,7 +67,7 @@ export default function SolicitarReserva() {
       d.setHours(23, 59, 0, 0);
       return d;
     })
-  const [diaSemanaEvento, setDiaSemanaEvento] = useState<number>()
+  // const [diaSemanaEvento, setDiaSemanaEvento] = useState<number>()
   const [acessibilidade, setAcessibilidade] = useState(false)
   const [setores, setSetores] = useState<SetorAdmin[]>([])
   const [setorId, setSetorId] = useState<string>()
@@ -111,9 +112,9 @@ export default function SolicitarReserva() {
     }
   },[ministrante])
 
-  useEffect(() => {
-    setDiaSemanaEvento(dataInicial.getDay())
-  },[dataInicial])
+  // useEffect(() => {
+  //   setDiaSemanaEvento(dataInicial.getTime() + (3 * 60 * 60 * 1000)).getDay()
+  // },[dataInicial])
 
   useEffect(() => {
     if(!user) return
@@ -121,7 +122,7 @@ export default function SolicitarReserva() {
     setEmailSolicitante(user.email)
     setTelefoneSolicitante(user.telefone)
     setNomeCompletoUsuarioLogado(user.nome + " " + user.sobrenome)
-  })
+  }, [user])
 
   if(!user) return
 
@@ -303,7 +304,9 @@ export default function SolicitarReserva() {
     }
 
     const aprovadorId = aprovador.id
-    setDiaSemanaEvento(dataInicial.getDay())
+    const diaSemana = new Date(dataInicial.getTime()).getDay()
+    // setDiaSemanaEvento(diaSemana)
+    console.log(diaSemana)
 
     if(horario !== undefined) {
       const horarioEscolhido = horarios.find(h => h.id === horario)
@@ -326,7 +329,7 @@ export default function SolicitarReserva() {
     if(!tipoEvento
       || !tipoReserva
       || (acessibilidade === undefined)
-      || (diaSemanaEvento === null || diaSemanaEvento === undefined)
+      || (diaSemana === null || diaSemana === undefined)
       || !ministranteId
       || !solicitanteId
       || !quantidadeParticipantes){
@@ -358,13 +361,14 @@ export default function SolicitarReserva() {
     const tipoReservaSolicitacao = tipoReservaReverseMap[tipoReserva] as tipoReservaEnum
     const equipamentosSolicitacao = equipamentos.map(e => tipoEquipamentoReverseMap[e] as Equipamento)
     const mobiliariosSolicitacao = mobiliarios.map(e => tipoMobiliarioReverseMap[e] as Mobiliario)
+    console.log(diaSemana)
 
     if(permiteAtualizar){
       const solicitaReservaData: SolicitaReserva = {
         tipoEvento: tipoEventoSolicitacao,
         tipoReserva: tipoReservaSolicitacao,
         acessibilidade: acessibilidade,
-        diaSemana: diaSemanaEvento,
+        diaSemana: diaSemana,
         dataInicio: dataInicial,
         dataFim: dataFinal,
         horarioId: horario || null,
@@ -434,27 +438,6 @@ export default function SolicitarReserva() {
                   Nome do solicitante:
                 </label>
                 <input type="text" className="border rounded h-10 p-2 bg-gray-200 items-center" defaultValue={nomeCompletoUsuarioLogado}/>
-                {/* <AsyncSelect<{ value: UsuarioOption, label: string },false>
-                  required
-                  instanceId="select-solicitante"
-                  cacheOptions
-                  defaultOptions
-                  loadOptions={loadOptionsSolicitante}
-                  isClearable
-                  placeholder="Digite para buscar o usuário"
-                  onChange={(selected) =>{
-                    if (selected) {
-                      const usuario = selected.value;  // Objeto completo
-                      setSolicitanteId(usuario.id)
-                      setEmailSolicitante(usuario.email);
-                      setTelefoneSolicitante(usuario.telefone);
-                    } else {
-                      setSolicitanteId("")
-                      setEmailSolicitante("")
-                      setTelefoneSolicitante("")
-                    }
-                  }}
-                /> */}
               </div>
               <div className="flex flex-col gap-2">
                 <label htmlFor="" className="font-semibold mb-1">
@@ -466,7 +449,6 @@ export default function SolicitarReserva() {
                   className="w-full border rounded h-10 bg-gray-200 p-2" type="email"
                   placeholder="Email será preenchido automaticamente"
                   defaultValue={emailSolicitante}
-                  // onChange={(e) => setEmailSolicitante(e.target.value)}
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -480,7 +462,6 @@ export default function SolicitarReserva() {
                   type="tel"
                   placeholder="Telefone será preenchido automaticamente"
                   defaultValue={telefoneSolicitante}
-                  // onChange={(e) => setTelefoneSolicitante(e.target.value)}
                 />
               </div>
             </div>

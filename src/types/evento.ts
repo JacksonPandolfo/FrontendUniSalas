@@ -53,7 +53,8 @@ export interface EventoAdmin{
     aprovador: {nome: string, sobrenome: string }
     turma?: TurmaAdmin
     horario: { nome: string; horaInicio: string; horaFim: string }
-    sala: { numero: number; capacidade: number; statusSala: string; temAcessibilidade: boolean }
+    sala: { numero: number; capacidade: number; statusSala: string; temAcessibilidade: boolean; bloco: { numero: number; setor: { nome: string; }} }
+
 }
 
 export interface CreateEvento{

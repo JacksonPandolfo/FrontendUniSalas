@@ -2,6 +2,7 @@ import { SalaAdmin } from "@/types/sala"
 import { tipoEquipamentoMap } from "@/utils/tipoEquipamentoMap"
 import { tipoMobiliarioMap } from "@/utils/tipoMobiliarioMap"
 import { BsWebcamFill } from "react-icons/bs"
+import { FaTimesCircle } from "react-icons/fa"
 import { FaComputer, FaPeopleLine } from "react-icons/fa6"
 import { FcFilingCabinet } from "react-icons/fc"
 import { GiEasel } from "react-icons/gi"
@@ -44,19 +45,31 @@ export function CartaoDetalhe({equipamentos, mobiliarios}: PropsDetalhesSala) {
     return (
         <div className="flex flex-col border-2 rounded-lg p-2 w-70 h-full border-blue-950">
             <h4 className="font-poppins text-center font-bold text-blue-950">Equipamentos</h4>
-            {equipamentos?.map((equipamento) => (
+            {equipamentos.length > 0 ? equipamentos?.map((equipamento) => (
                 <div className="flex gap-2" key={equipamento.id}>
                     {renderizaComponente(equipamento.tipoEquipamento)}
                     <p className="font-poppins">{tipoEquipamentoMap[equipamento.tipoEquipamento]}</p>
                 </div>
-            ))}
-            <h4 className="font-poppins mt-2 text-center font-bold text-blue-950">Mobiliários</h4>
-            {mobiliarios?.map((mobiliario) => (
+            )) : (
+                <div className="flex items-center gap-2 mt-2">
+                    <FaTimesCircle className="text-red-500" size={22} />
+                    <p className="font-poppins text-left">Sem equipamentos</p>
+                </div>
+                )
+            }
+
+            <h4 className="font-poppins mt-4 text-center font-bold text-blue-950">Mobiliários</h4>
+            {equipamentos.length > 0 ? mobiliarios?.map((mobiliario) => (
                 <div className="flex gap-2" key={mobiliario.id}>
                     {renderizaComponente(mobiliario.tipoMobiliario)}
                     <p className="font-poppins">{tipoMobiliarioMap[mobiliario.tipoMobiliario]}</p>
                 </div>
-            ))}
+            )) : (
+                <div className="flex items-center gap-2 mt-2">
+                    <FaTimesCircle className="text-red-500" size={22} />
+                    <p className="font-poppins text-left">Sem mobiliarios</p>
+                </div>
+            )}
         </div>
     )
 }

@@ -19,6 +19,29 @@ import { SetorAdmin } from '@/types/setor'
 import { BlocoAdmin } from '@/types/bloco'
 import { TbArrowAutofitDown, TbArrowAutofitUp } from 'react-icons/tb'
 import { tipoEventoMap } from '@/utils/tipoEventoMap'
+import formataHorarioLocal from '@/utils/formataHora'
+import { useUser } from '@/hooks/useUser'
+
+function renderizaCor(eventInfo: EventContentArg){
+    const { nomeHorario } = eventInfo.event.extendedProps as {
+      nomeHorario: string
+    }
+
+    switch (nomeHorario) {
+      case "Manhã":
+        return "#93C5FD"
+        case "Manhã 2":
+          return "#FDE68A"
+          case "Tarde":
+            return "#4ADE80"
+            case "Vespertino":
+              return "#FB923C"
+              case "Noite":
+                return "1E3A8A"
+                default:
+                  return "#E0E0E0"
+                }
+  }
 
 function renderizaConteudoEvento(eventInfo: EventContentArg) {
   const { atividade, ministrante, turma, horaInicio, horaFim, nomeHorario } = eventInfo.event.extendedProps as {
@@ -32,26 +55,8 @@ function renderizaConteudoEvento(eventInfo: EventContentArg) {
   const api = eventInfo.view.calendar
   const view = api.view.type
 
-  function renderizaCor(nomeHorario: string){
-
-    switch (nomeHorario) {
-      case "Manhã":
-        return "bg-blue-300"
-        case "Manhã 2":
-          return "bg-yellow-300"
-          case "Tarde":
-            return "bg-green-400"
-            case "Vespertino":
-              return "bg-orange-400"
-              case "Noite":
-                return "bg-blue-950"
-                default:
-                  break;
-                }
-  }
-
   return (
-    <div className={`flex flex-col border-2 border-blue-950 ${renderizaCor(nomeHorario)} ${nomeHorario === "Noite" ? "text-white" : ""} h-full rounded-lg p-2 w-full`}>
+    <div className={`flex flex-col justify-center h-full p-2 w-full`}>
       {view === "dayGridMonth" && <p className={`font-poppins rounded-lg`}>{horaInicio.slice(11, 16)} - {horaFim.slice(11, 16)}</p>}
       <p className={`font-poppins ${nomeHorario === "Noite" ? "text-white" : ""}`}>Atividade: {tipoEventoMap[atividade]}</p>
       <p className={`font-poppins ${nomeHorario === "Noite" ? "text-white" : ""}`}>{turma}</p>
@@ -67,7 +72,7 @@ function criarDataLocal(isoString: string, hora: string) {
   const month = d.getUTCMonth(); // 0-indexed
   const day = d.getUTCDate();
 
-  const [h, m] = hora.slice(11, 16).split(":").map(Number);
+  const [h, m] = hora.split(":").map(Number);
 
   return new Date(year, month, day, h, m);
 }
@@ -78,7 +83,7 @@ function criarDataLocalRecorrente(isoString: string, hora: string) {
   const month = d.getMonth(); // 0-indexed
   const day = d.getDate();
 
-  const [h, m] = hora.slice(11, 16).split(":").map(Number);
+  const [h, m] = hora.split(":").map(Number);
 
   return new Date(year, month, day, h, m);
 }
@@ -96,7 +101,6 @@ function gerarEventosPorHorario(dataInicial: Date, dataFinal: Date, horaInicial:
     dataHoraEventos.push({ start, end })
 
   } else if(tipoReserva === "RECORRENTE" && diaSemana !== undefined) {
-
     for (let d = dataInicio; d <= dataFim; d.setDate(d.getDate() + 1)) {
       if(d.getDay() !== diaSemana) continue
       const start = criarDataLocalRecorrente(d.toISOString(), horaInicial)
@@ -109,6 +113,7 @@ function gerarEventosPorHorario(dataInicial: Date, dataFinal: Date, horaInicial:
 }
 
 export function Calendar(){
+  const user = useUser()
   const calendarRef = useRef<FullCalendar>(null);
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -134,8 +139,8 @@ export function Calendar(){
     return gerarEventosPorHorario(
       e.dataInicio,
       e.dataFim,
-      e.horario.horaInicio,
-      e.horario.horaFim,
+      formataHorarioLocal(e.horaInicial),
+      formataHorarioLocal(e.horaFinal),
       e.tipoReserva,
       e.diaSemana
     ).map((ev) => ({
@@ -146,9 +151,9 @@ export function Calendar(){
         turma: e.turma?.disciplina.nome,
         atividade: e.tipoEvento,
         ministrante: e.ministrante.nome,
-        horaInicio: e.horario.horaInicio,
-        horaFim: e.horario.horaFim,
-        nomeHorario: e.horario.nome
+        horaInicio: e.horaInicial,
+        horaFim: e.horaFinal,
+        nomeHorario: e.horario?.nome
       }
     }))
   })
@@ -224,10 +229,17 @@ export function Calendar(){
 
   async function carregarEventosSala(salaId: string) {
    try {
-       const eventos = await getEventosSala(salaId)
-       setEventos(eventos)
+      const eventos: EventoAdmin[] = await getEventosSala(salaId)
+      if(!eventos) return
+      if(user?.roles.includes("ADMINISTRADOR") || user?.roles.includes("ATENDIMENTO")){
+        setEventos(eventos)
+      } else {
+
+        const eventosSolicitante = eventos.filter((e) => e.solicitanteId === user?.sub)
+        setEventos(eventosSolicitante)
+      }
      } catch (err) {
-       console.log(err)
+      console.log(err)
      } finally {
      }
    }
@@ -385,6 +397,22 @@ export function Calendar(){
         weekends={true}
         events={eventosFullCalendar}
         eventContent={renderizaConteudoEvento}
+        eventDidMount={function(info){
+            const cor = renderizaCor(info)
+            info.el.style.backgroundColor = cor
+            info.el.style.borderColor = cor
+            info.el.classList.add(
+              ...cor.split(" "),
+              "mx-auto",
+              "w-[104%]",
+              "-ml-0.5",
+              "rounded-lg",
+              "text-sm",
+              "font-medium",
+              "transition-all"
+            )
+          }
+        }
         fixedWeekCount={false}
         firstDay={1}
         datesSet={handleMudancaData}

@@ -10,8 +10,9 @@ async function getEventosSala(req: NextRequest,salaId: string) {
   const res = await fetch(`${BACKEND_URL}/reserva/bySala/${salaId}`, {
     method: "GET",
     headers: {
-        cookie: `jwt=${token!}`
-    }
+        cookie: `jwt=${token!.value}`
+    },
+    credentials: "include"
   })
   if(!res.ok) throw new Error("Erro ao carregar os eventos da sala")
   return res.json()

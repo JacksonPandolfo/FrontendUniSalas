@@ -288,8 +288,8 @@ export default function Espacos() {
                           horario={evento.horario.nome}
                           turma={evento.turma}
                           ministrante={evento.ministrante.nome}
-                          horaInicioEvento={evento.horario.horaInicio}
-                          horaFimEvento={evento.horario.horaFim}
+                          horaInicioEvento={evento.horaInicial}
+                          horaFimEvento={evento.horaFinal}
                           />
                         )
                       })
