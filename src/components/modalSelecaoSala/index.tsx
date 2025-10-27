@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { getSalasCompativeisComReserva } from "@/lib/api/salas/api";
 import { EventoAdmin } from "@/types/evento";
 import { SalaAdmin } from "@/types/sala";
@@ -49,7 +50,7 @@ export default function ModalAlocacaoSala({
   if (!isOpen) return null;
 
   return (
-  <div className="fixed inset-0 bg-gray-900/40 flex items-center justify-center z-50">
+  <div className="fixed inset-0 bg-gray-900/40 flex items-center justify-center z-50 backdrop-blur-sm">
     <div className="bg-white rounded-lg shadow-lg w-[900px] max-h-[80vh] flex flex-col">
       <div className="p-6 border-b">
         <h2 className="text-xl font-semibold text-blue-950">
@@ -69,7 +70,7 @@ export default function ModalAlocacaoSala({
             <li><span className="font-semibold">Horário:</span> {formataHorarioLocal(reserva.horaInicial)} - {formataHorarioLocal(reserva.horaFinal)}</li>
             <li><span className="font-semibold">Quantidade de Pessoas:</span> {reserva.qtdPessoas}</li>
             <li><span className="font-semibold">Acessibilidade:</span> {reserva.acessibilidade ? "Sim" : "Não"}</li>
-            <li><span className="font-semibold">Setor preferido:</span> {reserva.setor ? reserva.setor.nome : "Não informado"}</li>
+            <li><span className="font-semibold">Setor preferido:</span> {reserva.setor ? reserva.setor.nome + " - " + reserva.setor.descricao : "Não informado"}</li>
             <li>
               <span className="font-semibold">Equipamentos:</span>{" "}
               {reserva.equipamentos?.length

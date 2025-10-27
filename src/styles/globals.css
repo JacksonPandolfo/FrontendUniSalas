@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;700&display=swap');
+@import "tailwindcss";
+
+body {
+  font-family: Poppins, Helvetica, sans-serif;
+}
+
+@theme {
+  --font-roboto: 'Roboto', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+}
+
+@layer base {
+  .fc {
+    --fc-today-bg-color: theme(colors.blue.100);
+  }
+
+}
+
+@layer components {
+  .fc .fc-day-today {
+    @apply bg-blue-300
+  }
+
+  .fc-day-today a {
+    color: #172554; /* red-600 */
+  }
+
+  .fc-day-mon,
+  .fc-day-tue,
+  .fc-day-wed,
+  .fc-day-thu,
+  .fc-day-fri,
+  .fc-day-sat,
+  .fc-day-sun {
+    @apply bg-white
+  }
+
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: #e5e7eb;
+}
+.fc-daygrid-day-number {
+  color: #4b5563;
+  font-weight: 500;
+}
+.fc-daygrid-day.fc-day-today {
+  background-color: #eff6ff;
+}
+.fc-daygrid-day:hover {
+  background-color: #f9fafb;
+}
+.fc .fc-button {
+  background-color: #3b82f6;
+  border: none;
+  color: white;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  transition: all 0.2s;
+}
+.fc .fc-button:hover {
+  background-color: #2563eb;
+}
+.fc .fc-button-active {
+  background-color: #172554 !important;
+  border-color: #172554 !important;
+  color: white !important;
+}
+.fc-event {
+  border-radius: 0.5rem;
+  margin-left: 2px;
+}
+.fc .fc-toolbar-title {
+  text-transform: capitalize;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #172554;
+}
+.fc .fc-button,
+.fc .fc-button:focus,
+.fc .fc-button:active,
+.fc .fc-button-active {
+  box-shadow: none !important;
+  outline: none !important;
+}
+.fc .fc-timegrid-now-indicator-line {
+  border-color: #dc2626;
+  border-width: 1px;
+}

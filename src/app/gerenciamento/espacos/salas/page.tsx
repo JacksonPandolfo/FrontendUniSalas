@@ -217,6 +217,7 @@ export default function Salas(){
                         <div className="flex flex-wrap justify-center gap-4 mt-4">
                             {salas
                               .filter((sala) => sala.blocoId === blocoSelecionado)
+                              .sort((a, b) => {return a.numero - b.numero} )
                               .map((sala) => {
                                 const bloco = blocos.find((bloco) => bloco.id === sala.blocoId);
                                 const setor = setores.find((setor) => setor.id === bloco?.setorId)

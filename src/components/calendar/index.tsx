@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import FullCalendar from '@fullcalendar/react'
 import rrulePlugin from '@fullcalendar/rrule'
@@ -44,7 +45,7 @@ function renderizaCor(eventInfo: EventContentArg){
   }
 
 function renderizaConteudoEvento(eventInfo: EventContentArg) {
-  const { atividade, ministrante, turma, horaInicio, horaFim, nomeHorario } = eventInfo.event.extendedProps as {
+  const { atividade, ministrante, turma, horaInicio, horaFim } = eventInfo.event.extendedProps as {
     turma: string
     atividade: string;
     ministrante: string;
@@ -56,11 +57,11 @@ function renderizaConteudoEvento(eventInfo: EventContentArg) {
   const view = api.view.type
 
   return (
-    <div className={`flex flex-col justify-center h-full p-2 w-full`}>
+    <div className={`flex flex-col justify-center h-full p-2 w-full text-center`}>
       {view === "dayGridMonth" && <p className={`font-poppins rounded-lg`}>{horaInicio.slice(11, 16)} - {horaFim.slice(11, 16)}</p>}
-      <p className={`font-poppins ${nomeHorario === "Noite" ? "text-white" : ""}`}>Atividade: {tipoEventoMap[atividade]}</p>
-      <p className={`font-poppins ${nomeHorario === "Noite" ? "text-white" : ""}`}>{turma}</p>
-      <p className={`font-poppins ${nomeHorario === "Noite" ? "text-white" : ""}`}>Ministrante: {ministrante}</p>
+      <p className="font-poppins">Atividade: {tipoEventoMap[atividade]}</p>
+      <p className="font-poppins">{turma}</p>
+      <p className="font-poppins">Ministrante: {ministrante}</p>
     </div>
 
   )
@@ -121,6 +122,9 @@ export function Calendar(){
   const [blocos, setBlocos] = useState<BlocoAdmin[]>([])
   const [salas, setSalas] = useState<SalaAdmin[]>([])
   const [eventos, setEventos] = useState<EventoAdmin[]>([])
+  const [isLoadingSetores, setIsLoadingSetores] = useState<boolean>(false)
+  const [isLoadingBlocos, setIsLoadingBlocos] = useState<boolean>(false)
+  const [isLoadingSalas, setIsLoadingSalas] = useState<boolean>(false)
 
   const [setorSelecionado, setSetorSelecionado] = useState<string | null>(null)
   const [blocoSelecionado, setBlocoSelecionado] = useState<string | null>(null)
@@ -160,10 +164,10 @@ export function Calendar(){
 
   useEffect(() => {
     handleMudancaData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
+    setIsLoadingSetores(true)
     carregarSetores()
   }, [])
 
@@ -186,6 +190,7 @@ export function Calendar(){
     try {
       const setores = await getSetores()
       setSetores(setores)
+      setIsLoadingSetores(false)
     } catch (err) {
       console.log(err)
     }
@@ -193,6 +198,7 @@ export function Calendar(){
 
   useEffect(() => {
     if(setorSelecionado !== null){
+      setIsLoadingBlocos(true)
       carregarBlocos(setorSelecionado)
     }
   }, [setorSelecionado])
@@ -201,6 +207,7 @@ export function Calendar(){
     try {
       const blocos = await getBlocosSetor(setorId)
       setBlocos(blocos)
+      setIsLoadingBlocos(false)
     } catch (err) {
       console.log(err)
     }
@@ -208,6 +215,7 @@ export function Calendar(){
 
   useEffect(() => {
     if(blocoSelecionado !== null){
+      setIsLoadingSalas(true)
       carregarSalas(blocoSelecionado)
     }
   }, [blocoSelecionado])
@@ -216,6 +224,7 @@ export function Calendar(){
     try {
       const salas = await getSalasBloco(blocoId)
       setSalas(salas)
+      setIsLoadingSalas(false)
     } catch (err) {
       console.log(err)
     }
@@ -234,7 +243,6 @@ export function Calendar(){
       if(user?.roles.includes("ADMINISTRADOR") || user?.roles.includes("ATENDIMENTO")){
         setEventos(eventos)
       } else {
-
         const eventosSolicitante = eventos.filter((e) => e.solicitanteId === user?.sub)
         setEventos(eventosSolicitante)
       }
@@ -245,6 +253,8 @@ export function Calendar(){
    }
 
   const handleSetorChange = (setorId: string) => {
+    setBlocoSelecionado(null)
+    setSalaSelecionada(null)
     if(setorId !== "Setor"){
       setSetorSelecionado(setorId)
     } else{
@@ -252,6 +262,7 @@ export function Calendar(){
     }
   };
   const handleBlocoChange = (blocoId: string) => {
+    setSalaSelecionada(null)
     if(blocoId !== "Bloco"){
       setBlocoSelecionado(blocoId)
     } else {
@@ -284,9 +295,10 @@ export function Calendar(){
       <div className='flex items-center gap-2'>
         <div className="relative">
           <button className="flex items-center justify-between border rounded font-poppins font-bold text-blue-950 p-1 pl-2 w-20 text-left hover:cursor-pointer"
+                  disabled={isLoadingSetores}
                   onClick={() => setSelectSetor(!openSelectSetor)}
           >
-            {setorSelecionado ? setores.find(s => s.id === setorSelecionado)?.nome : "Setor" }
+            {setorSelecionado ? setores.find(s => s.id === setorSelecionado)?.nome : isLoadingSetores ? "..." : "Setor" }
             {openSelectSetor ? <TbArrowAutofitUp /> : <TbArrowAutofitDown />}
           </button>
           <div className={`absolute z-50 bg-white border rounded mt-1 max-h-60 overflow-y-auto w-20 ${openSelectSetor ? "" : "hidden"} `}>
@@ -312,9 +324,10 @@ export function Calendar(){
         </div>
         <div className="relative">
           <button className="flex items-center justify-between border rounded font-poppins font-bold text-blue-950 p-1 pl-2 w-20 text-left hover:cursor-pointer"
+                  disabled={isLoadingBlocos || !setorSelecionado}
                   onClick={() => setSelectBloco(!openSelectBloco)}
           >
-            {blocoSelecionado ? String(blocos.find(b => b.id === blocoSelecionado)?.numero).padStart(2, "0") : "Bloco" }
+            {blocoSelecionado ? String(blocos.find(b => b.id === blocoSelecionado)?.numero).padStart(2, "0") : isLoadingBlocos ? "..." : setorSelecionado ? "Bloco" : "" }
             {openSelectBloco ? <TbArrowAutofitUp /> : <TbArrowAutofitDown />}
           </button>
           <div className={`absolute z-50 bg-white border rounded mt-1 max-h-60 overflow-y-auto w-20 ${openSelectBloco ? "" : "hidden"}`}>
@@ -344,9 +357,10 @@ export function Calendar(){
         </div>
         <div className="relative">
           <button className="flex items-center justify-between border rounded font-poppins font-bold text-blue-950 p-1 pl-2 w-20 text-left hover:cursor-pointer"
+                  disabled={isLoadingSalas || !blocoSelecionado}
                   onClick={() => setSelectSala(!openSelectSala)}
           >
-            {salaSelecionada ? salas.find(s => s.id === salaSelecionada)?.numero : "Sala" }
+            {salaSelecionada ? salas.find(s => s.id === salaSelecionada)?.numero : isLoadingSalas ? "..." : blocoSelecionado ? "Sala" : "" }
             {openSelectSala ? <TbArrowAutofitUp /> : <TbArrowAutofitDown />}
           </button>
           <div className={`absolute z-50 bg-white border rounded mt-1 max-h-60 overflow-y-auto w-20 ${openSelectSala ? "" : "hidden"}`}>
@@ -378,6 +392,7 @@ export function Calendar(){
       <FullCalendar
        ref={calendarRef}
         locales={[brLocale]}
+        nowIndicator={true}
         eventTextColor='black'
         locale="pt-br"
         timeZone="local"
@@ -401,16 +416,17 @@ export function Calendar(){
             const cor = renderizaCor(info)
             info.el.style.backgroundColor = cor
             info.el.style.borderColor = cor
-            info.el.classList.add(
-              ...cor.split(" "),
-              "mx-auto",
-              "w-[104%]",
-              "-ml-0.5",
-              "rounded-lg",
-              "text-sm",
-              "font-medium",
-              "transition-all"
-            )
+            // info.el.classList.add(
+            //   ...cor.split(" "),
+            //   "flex",
+            //   "justify-center",
+            //   "items-center",
+            //   "w-[100%]",
+            //   "ml-[1px]",
+            //   "rounded-lg",
+            //   "text-sm",
+            //   "font-medium",
+            // )
           }
         }
         fixedWeekCount={false}

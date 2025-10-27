@@ -18,6 +18,7 @@ import DropdownAcoesReserva from "@/components/dropdownAcoesReserva"
 import ModalAlocacaoSala from "@/components/modalSelecaoSala"
 import formataHorarioLocal from "@/utils/formataHora"
 import criarDataLocalSemHorario from "@/utils/criaDataSemHorario"
+import { FcTodoList } from "react-icons/fc"
 
 export default function Home(){
     const [reservas, setReservas] = useState<EventoAdmin[]>([])
@@ -214,28 +215,30 @@ export default function Home(){
         <>
         <h1 className="text-2xl font-bold">Bem-vindo, <span className="text-blue-950">{user ? user.nome : ""}</span></h1>
         <div className="grid grid-cols-4 gap-4">
-            <CardResumo titulo="Aprovadas" cor="text-green-600" icone={<BiCheckCircle />} total={reservas.filter(r => r.solicitanteId === user.sub && r.statusReserva === "APROVADA").length} />
-            <CardResumo titulo="Minhas Solicitações Pendentes" cor="text-yellow-600" icone={<BsClock />} total={reservas.filter(r => r.solicitanteId === user.sub && r.statusReserva === "PENDENTE").length} />
-            <CardResumo titulo="Canceladas" cor="text-red-600" icone={<BiXCircle />} total={reservas.filter(r => r.solicitanteId === user.sub && r.statusReserva === "CANCELADA").length} />
-            <CardResumo titulo="Ações Pendentes" cor="text-yellow-600" icone={<FaClock />} total={reservas.filter(r => r.aprovadorId === user.sub && r.statusReserva === "PENDENTE").length} />
+            <CardResumo titulo="Aprovadas" cor="text-green-600" icone={<BiCheckCircle size={24}/>} total={reservas.filter(r => r.solicitanteId === user.sub && r.statusReserva === "APROVADA").length} />
+            <CardResumo titulo="Solicitações Pendentes" cor="text-yellow-600" icone={<BsClock size={20}/>} total={reservas.filter(r => r.solicitanteId === user.sub && r.statusReserva === "PENDENTE").length} />
+            <CardResumo titulo="Canceladas" cor="text-red-600" icone={<BiXCircle size={24}/>} total={reservas.filter(r => r.solicitanteId === user.sub && r.statusReserva === "CANCELADA").length} />
+            <CardResumo titulo="Ações Pendentes" cor="text-yellow-600" icone={<FaClock size={20.6}/>} total={reservas.filter(r => r.aprovadorId === user.sub && r.statusReserva === "PENDENTE").length} />
         </div>
 
         <div className="bg-white rounded-2xl shadow p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center gap-2">
-                🗂️ Para Aprovação
+                <FcTodoList size={30}/> Para Aprovação
             </h2>
 
             <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-inner max-h-[600px] overflow-y-auto">
                 <table className="min-w-full text-sm text-gray-700">
                 <thead className="bg-gradient-to-b from-blue-100 to-blue-50 sticky top-0 z-10">
+                    <tr>
+
                     {[
                         "Setor de preferência",
-                        "Capacidade",
+                        "Capacidade Necessária",
                         "Data início",
                         "Data fim",
                         "Horário",
-                        "Solicitante",
                         "Ministrante",
+                        "Solicitante",
                         "Status",
                         "Ações",
                     ].map((titulo) => (
@@ -246,6 +249,7 @@ export default function Home(){
                         {titulo}
                         </th>
                     ))}
+                    </tr>
                 </thead>
 
                 <tbody className="divide-y divide-gray-200">
@@ -256,8 +260,8 @@ export default function Home(){
                     .sort((a, b) => {
                         const horaInicioA = formataHorarioLocal(a.horaInicial);
                         const horaInicioB = formataHorarioLocal(b.horaInicial);
-                        const [hA, mA] = horaInicioA.slice(11, 16).split(":").map(Number);
-                        const [hB, mB] = horaInicioB.slice(11, 16).split(":").map(Number);
+                        const [hA, mA] = horaInicioA.split(":").map(Number);
+                        const [hB, mB] = horaInicioB.split(":").map(Number);
                         const dataHoraA = new Date(a.dataInicio);
                         dataHoraA.setHours(hA, mA);
                         const dataHoraB = new Date(b.dataInicio);
@@ -300,10 +304,10 @@ export default function Home(){
                             </td>
 
                             <td className="p-3 text-gray-800 whitespace-nowrap">
-                            {r.solicitante.nome} {r.solicitante.sobrenome}
+                            {r.ministrante.nome} {r.ministrante.sobrenome}
                             </td>
                             <td className="p-3 text-gray-800 whitespace-nowrap">
-                            {r.ministrante.nome} {r.ministrante.sobrenome}
+                            {r.solicitante.nome} {r.solicitante.sobrenome}
                             </td>
 
                             <td className="p-3 text-center">
@@ -360,8 +364,8 @@ export default function Home(){
                     .sort((a, b) => {
                         const horaInicioA = formataHorarioLocal(a.horaInicial);
                         const horaInicioB = formataHorarioLocal(b.horaInicial);
-                        const [hA, mA] = horaInicioA.slice(11, 16).split(":").map(Number);
-                        const [hB, mB] = horaInicioB.slice(11, 16).split(":").map(Number);
+                        const [hA, mA] = horaInicioA.split(":").map(Number);
+                        const [hB, mB] = horaInicioB.split(":").map(Number);
                         const dataHoraA = new Date(a.dataInicio);
                         dataHoraA.setHours(hA, mA);
                         const dataHoraB = new Date(b.dataInicio);
@@ -441,91 +445,6 @@ export default function Home(){
                 </table>
             </div>
         </div>
-        {/* <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Minhas Reservas</h2>
-            <table className="w-full border-collapse">
-                <thead>
-                    <tr className="border-b">
-                    <th className="text-left p-2">Setor de preferência</th>
-                    <th className="text-left p-2">Sala</th>
-                    <th className="text-left p-2">Capacidade</th>
-                    <th className="text-left p-2">Data inicio</th>
-                    <th className="text-left p-2">Data fim</th>
-                    <th className="text-left p-2">Horário</th>
-                    <th className="text-left p-2">Ministrante</th>
-                    <th className="text-left p-2">Aprovador</th>
-                    <th className="text-left p-2">Status</th>
-                    <th className="text-left p-2">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {reservas
-                    .filter((r) => r.solicitanteId === user.sub)
-                    .sort((a, b) => {
-                        const horaInicioA = formataHorarioLocal(a.horaInicial)
-                        const horaInicioB = formataHorarioLocal(b.horaInicial)
-                        const [hA, mA] = horaInicioA.slice(11, 16).split(":").map(Number)
-                        const [hB, mB] = horaInicioB.slice(11, 16).split(":").map(Number)
-                        const dataHoraA = new Date(a.dataInicio)
-                        dataHoraA.setHours(hA, mA)
-                        const dataHoraB = new Date(b.dataInicio)
-                        dataHoraB.setHours(hB, mB)
-                        return dataHoraA.getTime() - dataHoraB.getTime()
-                    })
-                    .map((r) => {
-                        const dataInicial = new Date(r.dataInicio).toISOString()
-                        const dataFinal = new Date(r.dataFim).toISOString()
-                        const setor = setores.find(s => s.id === r.setorPreferidoId)
-                        if(r.solicitanteId !== user.sub && r.statusReserva === "CANCELADA") return
-                        return (
-                            <tr key={r.id} className="border-b hover:bg-gray-50 transition">
-                                <td className="p-2">
-                                    {setor ? (
-                                    <div className="flex">
-                                        <div className="flex items-center max-w-4 w-4">
-                                            <p className="font-medium text-gray-800 text-left">{setor ? setor?.nome : ""}</p>
-                                        </div>
-                                            <div className="flex items-center max-w-6 w-6">
-                                                <span className="mx-1 text-left text-gray-500">-</span>
-                                            </div>
-                                        <div className="flex items-center max-w-60">
-                                            <p className="font-medium text-left text-gray-800">
-                                                {setor ? setor?.descricao : "-"}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    ) : "Sem preferência"}
-                                </td>
-                                <td className="p-2">{r.sala ? r.sala.numero : "-"}</td>
-                                <td className="p-2 text-center">{r.qtdPessoas}</td>
-                                <td className="p-2">{criarDataLocalSemHorario(dataInicial)}</td>
-                                <td className="p-2">{criarDataLocalSemHorario(dataFinal)}</td>
-                                <td className="p-2">
-                                    <div className="flex justify-center">
-                                        <div className="max-w-14 w-12">
-                                            <p className="font-medium text-gray-800">{formataHorarioLocal(r.horaInicial)}</p>
-                                        </div>
-                                        <div className="max-w-8 w-8">
-                                            <span className="mx-1 text-center text-gray-500">às</span>
-                                        </div>
-                                        <div className="max-w-14 w-14">
-                                            <p className="font-medium text-gray-800">
-                                                {formataHorarioLocal(r.horaFinal)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="p-2">{r.ministrante.nome + " " + r.ministrante.sobrenome}</td>
-                                <td className="p-2">{r.aprovador.nome + " " + r.aprovador.sobrenome}</td>
-                                <td className="p-2 text-center">{corStatus(r.statusReserva)}</td>
-                                <td className="p-2 relative">
-                                    <DropdownAcoesReserva reserva={r} user={user} onAcao={(acao) => abrirModal(acao, r)}/>
-                                </td>
-                            </tr>
-                    )})}
-                </tbody>
-            </table>
-        </div> */}
         <div className="flex flex-col gap-2 items-center justify-center">
             {erroAtualizarReserva && (
               <div className="bg-red-400 font-bold text-white text-center p-3 rounded-lg shadow-lg z-50">
@@ -566,36 +485,28 @@ export default function Home(){
         <ConfirmarAcao
             isOpen={isModalOpen}
             title={
-            tipoAcao === "APROVAR"
-                ? "Aprovar Solicitação"
-                : tipoAcao === "RECUSAR"
+            tipoAcao === "RECUSAR"
                 ? "Recusar Solicitação"
                 : tipoAcao === "CANCELAR"
                 ? "Cancelar Solicitação"
                 :"Excluir Solicitação"
             }
             message={
-            tipoAcao === "APROVAR"
-                ? "Deseja realmente aprovar esta solicitação?"
-                : tipoAcao === "RECUSAR"
+            tipoAcao === "RECUSAR"
                 ? "Deseja realmente recusar esta solicitação?"
                 : tipoAcao === "CANCELAR"
                 ? "Deseja realmente cancelar esta solicitação?"
                 : "Deseja realmente excluir esta solicitação?"
             }
             confirmLabel={
-            tipoAcao === "APROVAR"
-                ? "Aprovar"
-                : tipoAcao === "RECUSAR"
+            tipoAcao === "RECUSAR"
                 ? "Recusar"
                 : tipoAcao === "CANCELAR"
-                ? "Cancelar"
+                ? "Cancelar Solicitação"
                 : "Excluir"
             }
             confirmColor={
-            tipoAcao === "APROVAR"
-                ? "bg-green-600 hover:bg-green-700"
-                : tipoAcao === "RECUSAR"
+            tipoAcao === "RECUSAR"
                 ? "bg-amber-600 hover:bg-amber-700"
                 : "bg-red-600 hover:bg-red-700"
             }

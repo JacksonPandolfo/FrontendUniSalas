@@ -1,15 +1,10 @@
 // 'use client'
 
 import { LayoutWrapper } from "@/components/layout"
-import "./globals.css"
+import "@/styles/globals.css"
 import { Metadata } from "next"
-// import { NavLayout } from "@/components/navbarLayout"
-// import { Footer } from "@/components/footer"
-// import { Header } from "@/components/header"
-// import { Menu } from "@/components/menu"
-// import { Main } from "@/components/main"
-// import { usePathname } from "next/navigation"
-// import { LayoutWrapper } from "@/components/layout"
+import NProgressClient from "@/components/barraProgresso"
+
 
 export const metadata: Metadata = {
   title: "Reserva de salas UniSalas",
@@ -39,6 +34,7 @@ export default function RootLayout({
     <html lang="en">
       {/* antialiased flex flex-col min-h-screen" */}
       <body className="antialiased min-h-screen">
+        <NProgressClient/>
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>

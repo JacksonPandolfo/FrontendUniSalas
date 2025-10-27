@@ -22,13 +22,6 @@ import { useEffect, useRef, useState } from "react"
 import Select, { StylesConfig } from "react-select"
 import AsyncSelect from "react-select/async"
 
-  // export function formataHorarioLocal(horario: Date) {
-  //   const [h, m] = String(horario).slice(11, 16).split(":").map(Number);
-  //   const horarioFormatado = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0")
-
-  //   return horarioFormatado;
-  // }
-
 export default function SolicitarReserva() {
   const user = useUser()
   const [nomeCompletoUsuarioLogado, setNomeCompletoUsuarioLogado] = useState<string>("")
@@ -53,8 +46,14 @@ export default function SolicitarReserva() {
   const [turmas, setTurmas] = useState<TurmaAdmin[]>([])
   const [turmaId, setTurmaId] = useState<string | undefined>("")
   const [quantidadeParticipantes, setQuantidadeParticipantes] = useState<number>(1)
-  const [dataInicial, setDataInicial] = useState<Date>(() => new Date())
-  const [dataFinal, setDataFinal] = useState<Date>(() => new Date())
+  const [dataInicial, setDataInicial] = useState<Date>(() => {
+    const agora = new Date()
+    return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate())
+  })
+  const [dataFinal, setDataFinal] = useState<Date>(() => {
+    const agora = new Date()
+    return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate())
+  })
   const [horarios, setHorarios] = useState<Horario[]>([])
   const [horario, setHorario] = useState<string | undefined>("")
   const [horaInicial, setHoraInicial] = useState<Date>(() => {
@@ -280,6 +279,14 @@ export default function SolicitarReserva() {
     return usuarios.map((u) => ({value: u, label: `${u.nome} ${u.sobrenome}`}));
   };
 
+  function formatarData(date: Date) {
+    // Gera YYYY-MM-DD no horário local, sem usar toISOString()
+    const ano = date.getFullYear()
+    const mes = String(date.getMonth() + 1).padStart(2, '0')
+    const dia = String(date.getDate()).padStart(2, '0')
+    return `${ano}-${mes}-${dia}`
+  }
+
   function escolheAprovador(){
     const usuariosAprovadores = aprovadores
       ?.filter(u => u.cargos.some(c => cargosAprovadores.includes(c)))
@@ -357,11 +364,25 @@ export default function SolicitarReserva() {
       return
     }
 
+    if(dataInicial.getTime() > dataFinal.getTime()){
+      permiteAtualizar = false
+      setErroSolicitarReserva(true)
+      setMensagemErroSolicitarReserva("A data inicial não pode ser após da data final")
+      setTimeout(() => setErroSolicitarReserva(false), 3000)
+    } else if(dataInicial.getTime() === dataFinal.getTime() && horaInicial.getTime() > horaFinal.getTime()) {
+      permiteAtualizar = false
+      setErroSolicitarReserva(true)
+      setMensagemErroSolicitarReserva("O horário inicial não pode ser após o horário final")
+      setTimeout(() => setErroSolicitarReserva(false), 3000)
+    }
+
     const tipoEventoSolicitacao = tipoEventoReverseMap[tipoEvento] as tipoEventoEnum
     const tipoReservaSolicitacao = tipoReservaReverseMap[tipoReserva] as tipoReservaEnum
     const equipamentosSolicitacao = equipamentos.map(e => tipoEquipamentoReverseMap[e] as Equipamento)
     const mobiliariosSolicitacao = mobiliarios.map(e => tipoMobiliarioReverseMap[e] as Mobiliario)
-    console.log(diaSemana)
+
+    console.log("dta inicial: ",toUTC(horaInicial))
+    console.log("data ini: ",horaInicial)
 
     if(permiteAtualizar){
       const solicitaReservaData: SolicitaReserva = {
@@ -525,10 +546,10 @@ export default function SolicitarReserva() {
               </div>
             </div>
             <div className="flex flex-col row-span-2 col-start-2 gap-4">
-              <h1 className="font-poppins text-2xl text-blue-950">Dados do evento</h1>
+              <h1 className="font-poppins text-2xl text-blue-950">Dados da atividade</h1>
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col col-start-1 col-end-2 gap-2">
-                  <label htmlFor="" className="font-semibold mb-1">Tipo de evento:</label>
+                  <label htmlFor="" className="font-semibold mb-1">Tipo da atividade:</label>
                   <select
                     value={tipoEvento}
                     className="border rounded h-10 p-2 bg-white"
@@ -541,7 +562,7 @@ export default function SolicitarReserva() {
                       }
                     }
                     required>
-                    <option value="">Selecione o evento</option>
+                    <option value="">Selecione a atividade</option>
                     {Object.values(tipoEventoEnum).map((tipo) => (
                       <option key={tipo} value={tipo}>
                         {tipo}
@@ -589,8 +610,11 @@ export default function SolicitarReserva() {
                     required
                     className="w-full border rounded h-10 bg-white p-2"
                     type="date"
-                    value={dataInicial ? dataInicial.toISOString().split('T')[0] : ""}
-                    onChange={e => setDataInicial(new Date(e.target.value))}
+                    value={formatarData(dataInicial)}
+                    onChange={e => {
+                      const [ano, mes, dia] = e.target.value.split('-').map(Number)
+                      setDataInicial(new Date(ano, mes - 1, dia)) // cria em fuso local
+                    }}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
@@ -601,8 +625,11 @@ export default function SolicitarReserva() {
                     required
                     className="w-full border rounded h-10 bg-white p-2"
                     type="date"
-                    value={dataFinal ? dataFinal.toISOString().split('T')[0] : ""}
-                    onChange={e => setDataFinal(new Date(e.target.value))}
+                    value={formatarData(dataFinal)}
+                    onChange={e => {
+                      const [ano, mes, dia] = e.target.value.split('-').map(Number)
+                      setDataFinal(new Date(ano, mes - 1, dia)) // cria em fuso local
+                    }}
                   />
                 </div>
               </div>
@@ -662,7 +689,7 @@ export default function SolicitarReserva() {
                       onChange={(e) => {
                         const [horas, minutos] = e.target.value.split(":").map(Number)
                         const novaHoraFinal = new Date()
-                        novaHoraFinal!.setHours(horas, minutos)
+                        novaHoraFinal.setHours(horas, minutos)
                         setHoraFinal(novaHoraFinal)
                       }}
                     />
