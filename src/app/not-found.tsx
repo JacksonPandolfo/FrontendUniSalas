@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NProgress from 'nprogress'
 
 export default function NotFound(){
   return(
@@ -7,7 +8,7 @@ export default function NotFound(){
         Página 404 não encontrada!
       </h1>
       <p>Essa página que tentou acessar não existe!</p>
-      <Link href='/'>
+      <Link href='/' onClick={() => NProgress.start()}>
         Voltar para Home
       </Link>
     </div>

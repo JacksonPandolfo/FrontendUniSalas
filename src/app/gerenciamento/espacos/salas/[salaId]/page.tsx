@@ -18,6 +18,7 @@ import React, { useEffect } from "react"
 import { useState } from "react"
 import { TbCircleArrowLeftFilled } from "react-icons/tb"
 import Select, { SingleValue, StylesConfig } from 'react-select'
+import NProgress from 'nprogress'
 
 export default function GerenciamentoSala({ params }: { params: Promise<{ salaId: string }> }){
     const resolvedParams = React.use(params)
@@ -514,7 +515,7 @@ export default function GerenciamentoSala({ params }: { params: Promise<{ salaId
                               sala?.numero}
                           </span>
                         </h1>
-                        <Link href={"/gerenciamento/espacos/salas"}>
+                        <Link onClick={() => NProgress.start()} href={"/gerenciamento/espacos/salas"}>
                           <button className="border-2 absolute left-2 top-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-1 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105">
                             <TbCircleArrowLeftFilled size={30} /> Voltar para salas
                           </button>

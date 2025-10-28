@@ -5,6 +5,7 @@ import Link from "next/link"
 import * as React from "react"
 import { useEffect, useState } from "react"
 import { TbCircleArrowLeftFilled } from "react-icons/tb"
+import NProgress from 'nprogress'
 
 export default function GereciamentoSetor({ params }: { params: Promise<{ setorId: string }> }){
     const [dataSetor, setDataSetor] = useState<SetorAdmin>()
@@ -96,7 +97,7 @@ export default function GereciamentoSetor({ params }: { params: Promise<{ setorI
                 </div> :
             <>
                 <h1 className="absolute top-2 text-4xl font-poppins text-blue-950 font-bold">Gerenciamento do setor { dataSetor?.nome }</h1>
-                <Link href={'/gerenciamento/espacos/setores'}>
+                <Link onClick={() => NProgress.start()} href={'/gerenciamento/espacos/setores'}>
                     <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-lg p-1 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500">
                         <TbCircleArrowLeftFilled size={30}/> Voltar para setores
                     </button>

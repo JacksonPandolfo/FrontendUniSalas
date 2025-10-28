@@ -7,6 +7,7 @@ import { BsBuildingGear, BsGear } from "react-icons/bs";
 import Image from "next/image";
 import { TbCalendarPlus } from "react-icons/tb";
 import { useUser } from "@/hooks/useUser";
+import NProgress from 'nprogress'
 
 type MenuProps = {
   className?: string
@@ -71,10 +72,10 @@ export function Menu({className} : MenuProps) {
         </div>
         <div className={`flex flex-col space-y-4 mt-8`}>
           <div className="flex items-center gap-2 hover:cursor-pointer h-8">
-            <Link href="/home" className={`w-6 h-6`}>
+            <Link onClick={() => NProgress.start()} href="/home" className={`w-6 h-6`}>
               <VscHome className={`w-6 h-6 align-baseline relative`}/>
             </Link>
-            <Link href="/home"
+            <Link onClick={() => NProgress.start()} href="/home"
               className={`relative font-semibold text-lg font-poppins text-white
               after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
               after:bg-blue-400 after:transition-all after:duration-300
@@ -83,29 +84,29 @@ export function Menu({className} : MenuProps) {
             </Link>
           </div>
           <div className="flex items-center gap-2 hover:cursor-pointer h-8">
-            <Link href="/reservas">
+            <Link onClick={() => NProgress.start()} href="/reservas">
               <RiCalendarEventLine className={`w-6 h-6 align-baseline relative`} />
             </Link>
-            <Link className={`relative font-semibold text-lg font-poppins text-white
+            <Link onClick={() => NProgress.start()} className={`relative font-semibold text-lg font-poppins text-white
            after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
            after:bg-blue-500 after:transition-all after:duration-300
            hover:after:w-full transform transition-transform duration-400 origin-left ${isOpen ? "ease-in scale-100 opacity-100 translate-x-0" : "ease-out opacity-0 scale-50 -translate-x-52"}`} href="/reservas">Ver reservas</Link>
           </div>
           <div className="flex items-center gap-2 hover:cursor-pointer h-8">
-            <Link href="/reservas/agendamento">
+            <Link onClick={() => NProgress.start()} href="/reservas/agendamento">
               <TbCalendarPlus className={`w-6 h-6 align-baseline relative`} />
             </Link>
-            <Link className={`relative font-semibold text-lg font-poppins text-white
+            <Link onClick={() => NProgress.start()} className={`relative font-semibold text-lg font-poppins text-white
            after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
            after:bg-blue-500 after:transition-all after:duration-300
            hover:after:w-full transform transition-transform duration-400 origin-left ${isOpen ? "ease-in scale-100 opacity-100 translate-x-0" : "ease-out opacity-0 scale-50 -translate-x-52"}`} href="/reservas/agendamento">Solicitar reserva</Link>
           </div>
           {(roles?.includes('ADMINISTRADOR') || roles?.includes('ATENDIMENTO')) &&
             <div className="flex items-center gap-2 hover:cursor-pointer h-8">
-              <Link href="/espacos">
+              <Link onClick={() => NProgress.start()} href="/espacos">
                 <BsBuildingGear className={`w-6 h-6 align-baseline relative`} />
               </Link>
-              <Link className={`relative font-semibold text-lg font-poppins text-white
+              <Link onClick={() => NProgress.start()} className={`relative font-semibold text-lg font-poppins text-white
              after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
              after:bg-blue-500 after:transition-all after:duration-300
              hover:after:w-full transform transition-transform duration-400 origin-left ${isOpen ? "ease-in scale-100 opacity-100 translate-x-0" : "ease-out opacity-0 scale-50 -translate-x-52"}`} href="/espacos">Espaços</Link>
@@ -113,10 +114,10 @@ export function Menu({className} : MenuProps) {
           }
           {roles?.includes('ADMINISTRADOR') &&
             <div className="flex items-center gap-2 hover:cursor-pointer h-8">
-              <Link href="/gerenciamento">
+              <Link onClick={() => NProgress.start()} href="/gerenciamento">
                 <BsGear className={`w-6 h-6 align-baseline relative`}/>
               </Link>
-              <Link href="/gerenciamento"
+              <Link onClick={() => NProgress.start()} href="/gerenciamento"
                 className={`relative font-semibold text-lg font-poppins text-white
                   after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0
                   after:bg-blue-400 after:transition-all after:duration-300

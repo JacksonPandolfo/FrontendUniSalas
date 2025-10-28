@@ -2,14 +2,15 @@
 'use client'
 import { createUsuario } from "@/lib/api/auth/api";
 import { Cargo } from "@/types/usuario";
+import { useNavigate } from "@/utils/navigation";
 import { sanitizeEmail } from "@/utils/sanitizeEmail";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Select, { GroupBase, OptionsOrGroups, StylesConfig } from 'react-select'
+import NProgress from 'nprogress'
 
 export default function Cadastro() {
-  const router = useRouter()
+  const { push } = useNavigate()
   const [showPopup, setShowPopup] = useState(false)
   const [popupMessage, setPopupMessage] = useState("")
   const [erroCadastro, setErroCadastro] = useState(false)
@@ -63,7 +64,7 @@ export default function Cadastro() {
       setShowPopup(true)
       setTimeout(() => {
         setShowPopup(false)
-        router.push('/login')
+        push('/login')
       }, 3000)
 
       } catch (err) {
@@ -266,7 +267,7 @@ export default function Cadastro() {
 
         <p className="mt-6 text-sm text-center text-gray-600">
           Já tem uma conta?{" "}
-          <Link href="/login" className="text-orange-400 hover:underline">
+          <Link href="/login" onClick={() => NProgress.start()} className="text-orange-400 hover:underline">
             Entrar
           </Link>
         </p>

@@ -16,18 +16,8 @@ export default function NProgressClient() {
   const pathname = usePathname()
 
   useEffect(() => {
-    console.log('[NProgress] pathname changed:', pathname)
     if (!pathname) return
-
-    // Inicia a barra imediatamente
-    NProgress.start()
-
-    // Finaliza a barra com um pequeno atraso
-    const timer = setTimeout(() => {
-      NProgress.done()
-    }, 600)
-
-    return () => clearTimeout(timer)
+    NProgress.done()
   }, [pathname])
 
   return null

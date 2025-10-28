@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BsGear } from "react-icons/bs";
 import { TbArrowAutofitDown, TbArrowAutofitUp, TbCircleArrowLeftFilled } from "react-icons/tb";
+import NProgress from 'nprogress'
 
 export default function Blocos(){
     const [loadingBlocos, setLoadingBlocos] = useState(false);
@@ -35,7 +36,7 @@ export default function Blocos(){
     function renderBotoes(blocoId?: string) {
         return (
             <div className="absolute bottom-3 mt-2 flex flex-col gap-2">
-            <Link href={`/gerenciamento/espacos/blocos/${blocoId}`} className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <Link href={`/gerenciamento/espacos/blocos/${blocoId}`} onClick={() => NProgress.start()} className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                 <BsGear/>Gerenciar
             </Link>
         </div>
@@ -84,7 +85,7 @@ export default function Blocos(){
                     <div className="relative flex flex-col items-center min-h-screen pb-4 px-8 w-full">
                         <div className="flex flex-col mt-2 justify-center">
                             <div className="flex items-center justify-center gap-2">
-                                <Link href={'/gerenciamento/espacos'}>
+                                <Link onClick={() => NProgress.start()} href={'/gerenciamento/espacos'}>
                                     <button className="border-2 absolute left-2 top-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-1 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105">
                                         <TbCircleArrowLeftFilled size={30}/> Voltar para espaços
                                     </button>

@@ -1,13 +1,14 @@
 'use client'
 import { login } from "@/lib/api/auth/api";
+import { useNavigate } from "@/utils/navigation";
 import { sanitizeEmail } from "@/utils/sanitizeEmail";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import NProgress from 'nprogress'
 
 
 export default function Login() {
-  const router = useRouter()
+  const { push } = useNavigate()
   const [showPopup, setShowPopup] = useState(false)
   const [popupMessage, setPopupMessage] = useState("")
   const [email, setEmail] = useState("")
@@ -26,8 +27,8 @@ export default function Login() {
 
       setTimeout(() => {
         setShowPopup(false)
-        router.push('/home')
       }, 1000)
+      push('/home')
     } catch (err) {
         console.log("Erro no login:", err)
         setPopupMessage("E-mail ou senha inválidos")
@@ -80,7 +81,7 @@ export default function Login() {
 
         <p className="mt-6 text-sm text-center text-gray-600">
           Não tem uma conta?{" "}
-          <Link href="/cadastro" className="text-orange-400 hover:underline">
+          <Link onClick={() => NProgress.start()} href="/cadastro" className="text-orange-400 hover:underline">
             Cadastre-se
           </Link>
         </p>

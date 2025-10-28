@@ -2,6 +2,7 @@ import { Metadata } from "next"
 // import Login from "./login/page"
 // import Reservas from "./reservas/page"
 import Link from "next/link"
+import NProgress from 'nprogress'
 
 //Cria os metadados para essa PÁGINA específica (HOME)
 export const metadata: Metadata = {
@@ -41,12 +42,14 @@ export default function Home() {
         </p>
         <div className="flex items-center gap-6">
           <Link
+            onClick={() => NProgress.start()}
             href="/login"
             className="px-6 py-3 rounded-2xl border-2 border-white bg-white text-blue-950 font-semibold shadow-lg hover:border-orange-400 hover:bg-orange-400 hover:text-white transition-all"
           >
             Entrar
           </Link>
           <Link
+            onClick={() => NProgress.start()}
             href="/cadastro"
             className="px-6 py-3 rounded-2xl border-2 border-white font-semibold hover:border-orange-400 hover:bg-orange-400 hover:text-white transition-all"
           >

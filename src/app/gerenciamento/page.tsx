@@ -1,10 +1,12 @@
+'use client'
 import Link from "next/link";
 import { BsBuildingGear, BsPersonGear  } from "react-icons/bs";
+import NProgress from 'nprogress'
 
 export default function Gerenciamento(){
     return (
         <div className="flex gap-6 justify-center items-center">
-            <Link href={'/gerenciamento/espacos'} className="w-lg h-11/12">
+            <Link href={'/gerenciamento/espacos'} onClick={() => NProgress.start()} className="w-lg h-11/12">
                 <div
                     className="relative flex flex-col items-center justify-center w-full h-full border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
                     >
@@ -13,7 +15,7 @@ export default function Gerenciamento(){
                     <span className="absolute bottom-2 italic w-80 text-blue-950 text-center group-hover:text-white">Clique no cartão para ser direcionado ao gerenciamento de espaços</span>
                 </div>
             </Link>
-            <Link href={'/gerenciamento/usuarios'} className="w-lg h-11/12">
+            <Link href={'/gerenciamento/usuarios'} onClick={() => NProgress.start()} className="w-lg h-11/12">
                 <div
                     className="relative flex items-center justify-center w-full h-full border-6 rounded-lg border-blue-950 group hover:bg-blue-950 hover:cursor-pointer hover:scale-105 transition-all transform duration-500"
                     >

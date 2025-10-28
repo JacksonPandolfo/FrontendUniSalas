@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BsGear } from "react-icons/bs";
 import { TbCircleArrowLeftFilled } from "react-icons/tb";
+import NProgress from 'nprogress'
 
 export default function Setores(){
     const [loadingSetores, setLoadingSetores] = useState(false);
@@ -31,7 +32,7 @@ export default function Setores(){
     function renderBotoes(setorId?: string) {
         return (
             <div className="mt-2 flex flex-col gap-2">
-            <Link href={`/gerenciamento/espacos/setores/${setorId}`} className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <Link onClick={() => NProgress.start()} href={`/gerenciamento/espacos/setores/${setorId}`} className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                 <BsGear/>Gerenciar
             </Link>
         </div>
@@ -50,7 +51,7 @@ export default function Setores(){
                   ) : (
                     <>
                         <h1 className="absolute top-2 text-4xl font-poppins text-blue-950 font-bold">Gerenciamento de espaços</h1>
-                        <Link href={'/gerenciamento/espacos'}>
+                        <Link onClick={() => NProgress.start()} href={'/gerenciamento/espacos'}>
                             <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-2 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105">
                                 <TbCircleArrowLeftFilled size={30}/> Voltar para espaços
                             </button>

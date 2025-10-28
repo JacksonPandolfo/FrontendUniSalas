@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { BsGear } from "react-icons/bs"
 import { TbCircleArrowLeftFilled, TbArrowAutofitUp, TbArrowAutofitDown } from "react-icons/tb"
+import NProgress from 'nprogress'
 
 export default function Salas(){
     const [loadingSalas, setLoadingSalas] = useState(false)
@@ -103,7 +104,7 @@ export default function Salas(){
     function renderBotoes(salaId?: string) {
         return (
             <div className="absolute bottom-3 mt-2 flex flex-col gap-2">
-            <Link href={`/gerenciamento/espacos/salas/${salaId}`} className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <Link onClick={() => NProgress.start()} href={`/gerenciamento/espacos/salas/${salaId}`} className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                 <BsGear/>Gerenciar
             </Link>
         </div>
@@ -135,7 +136,7 @@ export default function Salas(){
                     <div className="relative flex flex-col items-center min-h-screen pb-4 px-8 w-full">
                         <div className="flex flex-col mt-2 justify-center">
                             <div className="flex items-center justify-center gap-2">
-                                <Link href={'/gerenciamento/espacos'}>
+                                <Link onClick={() => NProgress.start()} href={'/gerenciamento/espacos'}>
                                     <button className="border-2 absolute left-2 top-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-2xl p-1 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105">
                                         <TbCircleArrowLeftFilled size={30}/> Voltar para espaços
                                     </button>

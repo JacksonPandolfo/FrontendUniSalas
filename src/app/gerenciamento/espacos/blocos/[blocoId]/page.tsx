@@ -6,6 +6,7 @@ import { SetorAdmin } from "@/types/setor"
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
 import { TbCircleArrowLeftFilled } from "react-icons/tb"
+import NProgress from 'nprogress'
 
 export default function GerenciamentoBloco({ params }: { params: Promise<{ blocoId: string }> }){
     const { blocoId } = React.use(params)
@@ -155,7 +156,7 @@ export default function GerenciamentoBloco({ params }: { params: Promise<{ bloco
                 <h1 className="flex gap-2 absolute top-2 text-4xl font-poppins text-blue-950 font-bold">Gerenciamento do bloco
                     <span className="text-orange-400">{ setores.find(s => s.id === bloco?.setorId)?.nome}{ String(bloco?.numero).padStart(2, "0") }</span>
                 </h1>
-                <Link href={'/gerenciamento/espacos/blocos'}>
+                <Link onClick={() => NProgress.start()} href={'/gerenciamento/espacos/blocos'}>
                     <button className="border-2 flex gap-2 items-center border-blue-950 text-blue-950 font-poppins rounded-lg p-1 hover:cursor-pointer hover:bg-blue-950 hover:text-white hover:scale-105 transition-all transform duration-500">
                         <TbCircleArrowLeftFilled size={30}/> Voltar para blocos
                     </button>

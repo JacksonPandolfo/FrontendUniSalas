@@ -3,17 +3,17 @@
 import { useState, useRef, useEffect } from "react";
 import { BiUserCircle } from "react-icons/bi";
 import { IoMdExit } from "react-icons/io";
-import { useRouter } from "next/navigation";
 import { logout } from "@/lib/api/auth/api";
 import { useUser } from "@/hooks/useUser";
 import { BsPerson } from "react-icons/bs";
+import { useNavigate } from "@/utils/navigation";
 
 type HeaderProps = {
   className?: string;
 }
 export function Header( {className}: HeaderProps) {
+  const { push } = useNavigate()
   const [open, setOpen] = useState(false)
-  const router = useRouter()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const user = useUser()
 
@@ -34,11 +34,11 @@ export function Header( {className}: HeaderProps) {
     } catch (err) {
       console.error("Erro ao sair do sistema", err)
     } finally {
-      router.push('/login')
+      push('/login')
     }
   }
   const handleProfileEdit = () => {
-      router.push('/gerenciamento/usuarios/me')
+      push('/gerenciamento/usuarios/me')
   }
 
   return (
